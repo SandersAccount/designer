@@ -1,0 +1,457 @@
+{
+  "models": [
+    {
+      "id": "yuni",
+      "name": "Yuni Inpainting",
+      "model": "yuni-eng/inpainting",
+      "version": "062d8ed6016c7bf957101afbe2d279b5698a6b822def8d592a36a5efdf372752",
+      "description": "Specialized inpainting model with high-quality results",
+      "inputs": {
+        "image": {
+          "type": "image",
+          "required": true
+        },
+        "mask": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        },
+        "guidance_scale": {
+          "type": "number",
+          "default": 7.5,
+          "min": 1,
+          "max": 20
+        },
+        "num_inference_steps": {
+          "type": "integer",
+          "default": 50,
+          "min": 1,
+          "max": 200
+        }
+      }
+    },
+    {
+      "id": "flux",
+      "name": "Flux Inpainting",
+      "version": "ca8350ff748d56b3ebbd5a12bd3436c2214262a4ff8619de9890ecc41751a008",
+      "model": "zsxkib/flux-dev-inpainting",
+      "description": "Original Flux inpainting model",
+      "inputs": {
+        "image": {
+          "type": "image",
+          "required": true
+        },
+        "mask": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        },
+        "strength": {
+          "type": "number",
+          "default": 1,
+          "min": 0,
+          "max": 1
+        },
+        "num_outputs": {
+          "type": "integer",
+          "default": 1
+        },
+        "guidance_scale": {
+          "type": "number",
+          "default": 7.5
+        },
+        "num_inference_steps": {
+          "type": "integer",
+          "default": 30
+        }
+      }
+    },
+    {
+      "id": "sdxl",
+      "name": "SDXL Inpainting",
+      "version": "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
+      "model": "stability-ai/sdxl-inpainting",
+      "description": "SDXL inpainting model for high-quality results",
+      "inputs": {
+        "image": {
+          "type": "image",
+          "required": true
+        },
+        "mask": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        },
+        "negative_prompt": {
+          "type": "string",
+          "default": ""
+        },
+        "num_outputs": {
+          "type": "integer",
+          "default": 1
+        },
+        "scheduler": {
+          "type": "string",
+          "default": "K_EULER",
+          "options": [
+            "DDIM",
+            "K_EULER",
+            "DPMSolverMultistep"
+          ]
+        },
+        "num_inference_steps": {
+          "type": "integer",
+          "default": 50
+        },
+        "guidance_scale": {
+          "type": "number",
+          "default": 7.5
+        }
+      }
+    },
+    {
+      "id": "runway",
+      "name": "Stable Diffusion",
+      "version": "c11bac58203367db93a3c552bd49a25a5418458ddffb7e90dae45ee3c6c06f9d",
+      "model": "runwayml/stable-diffusion-inpainting",
+      "description": "Stable Diffusion inpainting model",
+      "inputs": {
+        "image": {
+          "type": "image",
+          "required": true
+        },
+        "mask": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        },
+        "negative_prompt": {
+          "type": "string",
+          "default": ""
+        },
+        "guidance_scale": {
+          "type": "number",
+          "default": 7.5
+        },
+        "num_inference_steps": {
+          "type": "integer",
+          "default": 50
+        },
+        "num_outputs": {
+          "type": "integer",
+          "default": 1
+        }
+      }
+    },
+    {
+      "id": "pix2pix",
+      "name": "InstructPix2Pix",
+      "version": "30c1d0b916a6f8efce20493f5d61ee27491ab2a60437c13c588468b9810ec23f",
+      "model": "timbrooks/instruct-pix2pix",
+      "description": "InstructPix2Pix for natural language editing",
+      "inputs": {
+        "image": {
+          "type": "image",
+          "required": true
+        },
+        "mask": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        },
+        "image_guidance_scale": {
+          "type": "number",
+          "default": 1.5,
+          "min": 0,
+          "max": 5
+        },
+        "guidance_scale": {
+          "type": "number",
+          "default": 7.5
+        },
+        "num_inference_steps": {
+          "type": "integer",
+          "default": 100
+        }
+      }
+    },
+    {
+      "id": "flux-controlnet",
+      "name": "Flux Inpainting",
+      "model": "zsxkib/flux-dev-inpainting-controlnet",
+      "version": "f9cb02cfd6b131af7ff9166b4bac5fdd2ed68bc282d2c049b95a23cea485e40d",
+      "description": "Flux inpainting model with ControlNet support",
+      "inputs": {
+        "image": {
+          "type": "image",
+          "required": true
+        },
+        "mask": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        },
+        "num_outputs": {
+          "type": "integer",
+          "default": 1,
+          "min": 1,
+          "max": 10
+        },
+        "output_format": {
+          "type": "string",
+          "default": "png",
+          "options": ["png", "jpg"]
+        }
+      }
+    },
+    {
+      "id": "sdxl-lucataco",
+      "name": "SDXL Inpainting",
+      "model": "lucataco/sdxl-inpainting",
+      "version": "a5b13068cc81a89a4fbeefeccc774869fcb34df4dbc92c1555e0f2771d49dde7",
+      "description": "Stable Diffusion XL inpainting model",
+      "inputs": {
+        "image": {
+          "type": "image",
+          "required": true
+        },
+        "mask": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        },
+        "seed": {
+          "type": "integer",
+          "default": 42
+        }
+      }
+    },
+    {
+      "id": "stable-diffusion",
+      "name": "Stable Diffusion Inpainting",
+      "model": "andreasjansson/stable-diffusion-inpainting",
+      "version": "e490d072a34a94a11e9711ed5a6ba621c3fab884eda1665d9d3a282d65a21180",
+      "description": "Standard Stable Diffusion inpainting model",
+      "inputs": {
+        "image": {
+          "type": "image",
+          "required": true
+        },
+        "mask": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    {
+      "id": "realistic-vision-v3",
+      "name": "Realistic Vision v3 Inpainting",
+      "model": "mixinmax1990/realisitic-vision-v3-inpainting",
+      "version": "555a66628ea19a3b820d28878a0b0bfad222a814a7f12c79a83dbdbf57873213",
+      "description": "Realistic Vision v3 model optimized for photorealistic inpainting",
+      "inputs": {
+        "image": {
+          "type": "image",
+          "required": true
+        },
+        "mask": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        },
+        "strength": {
+          "type": "number",
+          "default": 0.75,
+          "min": 0,
+          "max": 1
+        }
+      }
+    },
+    {
+      "id": "realistic-vision-v5",
+      "name": "Realistic Vision v5 Inpainting",
+      "model": "lucataco/realistic-vision-v5-inpainting",
+      "version": "c0f549d4b1a3bbc4642042558b1a6d888eca083c1e3fcd21151b1a37918b154a",
+      "description": "Latest version of Realistic Vision optimized for photorealistic results",
+      "inputs": {
+        "image": {
+          "type": "image",
+          "required": true
+        },
+        "mask": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        },
+        "seed": {
+          "type": "integer",
+          "default": 42
+        }
+      }
+    },
+    {
+      "id": "flux-controlnet-2",
+      "name": "Flux ControlNet Inpainting",
+      "model": "batouresearch/flux-controlnet-inpaint",
+      "version": "46ae77d1d148dca1bd61c1215e99ee692c4cf01289a2bba681b14a58c04bda8f",
+      "description": "Flux inpainting with additional ControlNet guidance",
+      "inputs": {
+        "image": {
+          "type": "image",
+          "required": true
+        },
+        "mask": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        },
+        "control_image": {
+          "type": "image",
+          "required": true
+        }
+      }
+    },
+    {
+      "id": "yuni",
+      "name": "Yuni Inpainting",
+      "model": "yuni-eng/inpainting",
+      "version": "062d8ed6016c7bf957101afbe2d279b5698a6b822def8d592a36a5efdf372752",
+      "description": "Specialized inpainting model with high-quality results",
+      "inputs": {
+        "image": {
+          "type": "image",
+          "required": true
+        },
+        "mask": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        },
+        "guidance_scale": {
+          "type": "number",
+          "default": 7.5,
+          "min": 1,
+          "max": 20
+        },
+        "num_inference_steps": {
+          "type": "integer",
+          "default": 50,
+          "min": 1,
+          "max": 200
+        }
+      }
+    },
+    {
+      "id": "sdxl-controlnet-lora",
+      "name": "SDXL ControlNet LoRA Inpainting",
+      "model": "batouresearch/sdxl-controlnet-lora-inpaint",
+      "version": "35c927ab69062f7cc3fdd0ad4367832b08fdd98c60e5907651a6e03f4bb5d927",
+      "description": "SDXL inpainting with ControlNet and LoRA support",
+      "inputs": {
+        "image": {
+          "type": "image",
+          "required": true
+        },
+        "mask": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    {
+      "id": "flamel",
+      "name": "Flamel Inpainting",
+      "model": "smoretalk/flamel-inpainting",
+      "version": "e3aa6e1f8818e00e682804f4d0b2eb8062642b69b73fa8569c414781f15ac0e5",
+      "description": "Fast and efficient inpainting model",
+      "inputs": {
+        "init_image": {
+          "type": "image",
+          "required": true
+        },
+        "mask_image": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        },
+        "guidance_scale": {
+          "type": "number",
+          "default": 7.5,
+          "min": 1,
+          "max": 20
+        },
+        "num_inference_steps": {
+          "type": "integer",
+          "default": 50,
+          "min": 1,
+          "max": 200
+        }
+      }
+    },
+    {
+      "id": "flux-fill-pro",
+      "name": "Flux Fill Pro",
+      "model": "black-forest-labs/flux-fill-pro",
+      "version": "49d552db0ef70ef1106f15667594639d2d11c0958226b3c23250e9562c787eda",
+      "description": "Fast and efficient inpainting model",
+      "inputs": {
+        "image": {
+          "type": "image",
+          "required": true
+        },
+        "mask": {
+          "type": "image",
+          "required": true
+        },
+        "prompt": {
+          "type": "string",
+          "required": true
+        }
+      }
+    }
+  ]
+}
