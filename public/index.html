@@ -1,0 +1,2984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt to Sticker Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/js/components/CollectionModal.js"></script>
+    <script type="module" src="/js/components/Toast.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: #f9fafb;
+            color: #374151;
+        }
+
+        .inspiration-btn {
+            display: inline-block; 
+            background: linear-gradient(135deg, #4a00e0, #8e2de2); 
+            color: #fff; 
+            padding: 12px 20px; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            transition: all 0.3s; 
+            font-weight: 500; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .inspiration-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, #5b12f3, #9d3cf3);
+        }
+
+        .topbar-wrapper {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 10px 0;
+        }
+
+        #topbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 50px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #topbar .left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        #topbar .right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Main Layout Container */
+        .layout-container {
+            max-width: 1200px;
+            margin-top: 40px;
+            margin-right: auto;
+            margin-bottom: 0px;
+            margin-left: auto;
+            background: #ffffff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Side Panel */
+        .side-panel {
+            background: #ffffff;
+            border-right: 1px solid #e5e7eb;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        
+        /* Side Panel Sections */
+        .panel-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f9fafb;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .panel-section h3 {
+            margin: 0 0 1rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: inherit;
+            background: #ffffff;
+            color: #374151;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .generate-button {
+            width: 100%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+
+        .generate-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .generate-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* Main Content Area */
+        .content-container {
+            width: 100%;
+        }
+
+        /* Static Prompt Section */
+        .prompt-section {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .prompt-section h2 {
+            color: #374151;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+            text-align: left;
+        }
+
+        .prompt-section .subtitle {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .prompt-section .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Object Input Specific Styling */
+        #objectInput {
+            background: #ffffff !important;
+            border: 1px solid #d1d5db !important;
+            color: #374151 !important;
+            font-size: 1rem !important;
+            padding: 0.875rem !important;
+        }
+
+        #objectInput:focus {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+        }
+
+        #objectInput::placeholder {
+            color: #9ca3af !important;
+        }
+
+        /* Object Input Container Styling */
+        .object-input-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .object-input-field {
+            flex: 2;
+            min-width: 200px;
+            background: #ffffff !important;
+            border: 1px solid #d1d5db !important;
+            color: #374151 !important;
+            font-size: 1rem !important;
+            padding: 0.875rem !important;
+            border-radius: 4px;
+        }
+
+        .object-input-field:focus {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+            outline: none;
+        }
+
+        .tone-dropdown {
+            flex: 0 0 140px;
+            padding: 0.875rem 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background: white;
+            font-size: 1rem;
+            cursor: pointer;
+            color: #374151;
+        }
+
+        .tone-dropdown:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .enhance-object-btn {
+            background: #ffffff;
+            color: #393939;
+            border: 1px solid #d1d5db;
+            padding: 0.875rem 12px;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 50px;
+            height: 50px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .enhance-object-btn:hover {
+            background: #f8f9fa;
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+
+        .enhance-object-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .enhance-object-btn.regenerate-mode {
+            background: #6c757d;
+            color: white;
+            border-color: #6c757d;
+        }
+
+        .enhance-object-btn.regenerate-mode:hover {
+            background: #5a6268;
+            border-color: #545b62;
+        }
+
+        .placeholder-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .placeholder-image {
+            border-radius: 12px;
+            border: 2px dashed #d1d5db;
+            background: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            object-fit: contain;
+            width: 100%;
+        }
+
+        /* Generated Image Container */
+        .generation-container {
+            position: relative;
+            width: 98%;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .generation-image {
+            width: 100%;
+            object-fit: contain;
+            display: block;
+            background: #f9fafb;
+        }
+
+        /* Action Buttons Row */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: #ffffff;
+            border-top: 1px solid #e5e7eb;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .action-button {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            text-decoration: none;
+        }
+
+        .action-button:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        .action-button i {
+            font-size: 0.75rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+        }
+
+        .error {
+            text-align: center;
+            padding: 20px;
+            color: #ef4444;
+        }
+
+        /* Template Selector */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .template-item {
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #ffffff;
+            text-align: center;
+        }
+
+        .template-item:hover {
+            border-color: #6366f1;
+            transform: translateY(-1px);
+        }
+
+        .template-item.selected {
+            border-color: #6366f1;
+            background: #f0f9ff;
+        }
+
+        .template-preview {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .template-name {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #4b4b4b;
+            margin: 0;
+        }
+
+        /* Color Palette Selector Light Styling */
+        color-palette-selector {
+            --palette-bg: #ffffff;
+            --palette-bg-hover: #f9fafb;
+            --palette-border: #d1d5db;
+            --palette-text: #374151;
+            --palette-text-secondary: #6b7280;
+            --palette-dropdown-bg: #ffffff;
+            --palette-option-hover: #f3f4f6;
+            --palette-option-selected: #eff6ff;
+            --palette-shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Text Settings */
+        .text-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #d1d5db;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .toggle-switch.active {
+            background: #929292;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+
+        .add-text-button {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            color: #6b7280;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .add-text-button:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+            color: #374151;
+        }
+
+        .add-text-button i {
+            font-size: 0.8rem;
+        }
+
+        .generations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .recent-generations {
+            margin-top: 3rem;
+        }
+
+        .recent-generations h2 {
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .generation-card {
+            margin: 20px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #1a1a1a;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .generation-card .card {
+            position: relative;
+        }
+
+        .generation-card .image-container {
+            width: 100%;
+            aspect-ratio: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .generation-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .generation-card .image-options-dropdown {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .generation-card .dropdown-toggle {
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .generation-card .dropdown-toggle:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .generation-card .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 8px 0;
+            margin-top: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .generation-card .dropdown-toggle:focus + .dropdown-menu,
+        .generation-card .dropdown-menu:hover {
+            display: block;
+        }
+
+        .generation-card .dropdown-menu a {
+            display: block;
+            padding: 8px 16px;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .generation-card .dropdown-menu a:hover {
+            background: #3a3a3a;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-menu-button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0px;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 16px;
+            width: 200px;
+            margin-top: 0.5rem;
+        }
+
+        .user-dropdown-content {
+            padding: 16px;
+        }
+
+        .credits-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: rgb(70, 70, 70);
+        }
+
+        .credits-icon {
+            font-size: 1.5em;
+        }
+
+        .btn-upgrade {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-upgrade:hover {
+            background: #45a049;
+        }
+
+        .collections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 24px;
+            margin: 24px 0;
+        }
+
+        .collection-card {
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .collection-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .collection-preview {
+            aspect-ratio: 1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            background: #1a1a1a;
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+
+        .preview-image {
+            aspect-ratio: 1;
+            position: relative;
+            background: #222;
+            overflow: hidden;
+        }
+
+        .preview-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-image.empty {
+            background: #2a2a2a;
+        }
+
+        .preview-image.error {
+            background: #442;
+        }
+
+        .collection-info {
+            padding: 12px;
+            background: #1a1a1a;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .collection-name {
+            margin: 0;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .collection-count {
+            margin: 4px 0 0;
+            font-size: 0.875rem;
+            color: #888;
+        }
+
+        .recent-generations {
+            margin-top: 48px;
+            padding: 1rem;
+            background: #1a1a1a;
+            border-radius: 8px;
+        }
+
+        .recent-generations h2 {
+            color: white;
+            margin-bottom: 24px;
+            font-size: 1.25rem;
+        }
+
+        .generations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 24px;
+        }
+
+        .generation-card {
+            background: #2a2a2a;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .generation-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .generation-image {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+        }
+
+        .generation-info {
+            padding: 1rem;
+        }
+
+        .generation-prompt {
+            color: #fff;
+            font-size: 0.9rem;
+            margin: 0.5rem 0;
+        }
+
+        .generation-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .generation-action {
+            flex: 1;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .generation-action:hover {
+            background: #45a049;
+        }
+
+        .collection-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .back-button {
+            background: transparent;
+            border: 1px solid #555;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .collection-card {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .collection-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .create-new .collection-preview {
+            border: 2px dashed #3a3a3a;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 8px;
+            color: #999;
+            transition: all 0.2s;
+        }
+
+        .create-new .collection-preview i {
+            font-size: 24px;
+        }
+
+        .create-new:hover .collection-preview {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+
+        .create-new .collection-info {
+            background: transparent;
+        }
+
+        .model-selector {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #1a1a1a;
+            color: #fff;
+            margin-bottom: 1.5rem;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .model-selector:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .model-selector option {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 0.5rem;
+        }
+
+        /* Model selector styles */
+        .custom-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #1a1a1a;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 16px;
+            padding-right: 32px;
+            margin-bottom: 1rem;
+        }
+
+        .custom-select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .custom-select option {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 8px;
+        }
+
+        .style-section {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .style-section h3 {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .input-group textarea {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 8px;
+            border-radius: 4px;
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        /* Style selector styles */
+        .style-selector {
+            margin: 1rem 0;
+        }
+
+        .style-carousel {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding: 1rem 0;
+            scrollbar-width: thin;
+            scrollbar-color: #4CAF50 #1a1a1a;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .style-carousel::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .style-carousel::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border-radius: 4px;
+        }
+
+        .style-carousel::-webkit-scrollbar-thumb {
+            background: #4CAF50;
+            border-radius: 4px;
+        }
+
+        .style-item {
+            flex: 0 0 auto;
+            width: 150px;
+            padding: 10px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .style-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .style-item.selected {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .style-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .style-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .style-carousel {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding: 10px;
+            scroll-behavior: smooth;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Navigation buttons for the carousel */
+        .style-carousel-container {
+            position: relative;
+            padding: 0 2rem;
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(26, 26, 26, 0.8);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 1;
+        }
+
+        .carousel-nav:hover {
+            background: rgba(76, 175, 80, 0.8);
+        }
+
+        .carousel-nav.prev {
+            left: 0;
+        }
+
+        .carousel-nav.next {
+            right: 0;
+        }
+
+        .carousel-nav i {
+            color: #fff;
+            font-size: 1.2rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .style-item {
+                width: 120px;
+            }
+
+            .style-item img {
+                height: 100px;
+            }
+        }
+
+
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #333;
+            border-radius: 50%;
+            border-top-color: #4CAF50;
+            margin: 0 auto 1rem;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .loading-subtext {
+            color: #999;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Progress bar styles */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: #4CAF50;
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: progress 2s ease-in-out infinite;
+        }
+
+        @keyframes progress {
+            0% {
+                width: 0%;
+            }
+            50% {
+                width: 70%;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+
+        .form-container {
+            background: #1a1a1a;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #fff;
+            font-weight: 500;
+        }
+
+
+
+        /* Generation Card Styles */
+        .generation-card {
+            position: relative;
+            width: 100%;
+            max-width: 512px;
+            margin: 0 auto;
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            padding-top: 100%; /* 1:1 Aspect Ratio */
+        }
+
+        .generation-image {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #2a2a2a;
+        }
+
+        .menu-overlay {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .image-container:hover .menu-overlay {
+            opacity: 1;
+        }
+
+        .menu-button {
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.2s ease;
+        }
+
+        .menu-button:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .menu-button i {
+            font-size: 16px;
+        }
+
+        /* Loading Container Styles */
+        .loading-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        .loading-container.visible {
+            display: flex;
+        }
+
+        .loading-text {
+            color: #6b7280;
+            font-size: 1rem;
+            margin-top: 1rem;
+            font-weight: 500;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error Message Styles */
+        .error {
+            padding: 20px;
+            text-align: center;
+            color: #ff6b6b;
+        }
+
+        /* Style Item Styles */
+        .style-item {
+            flex: 0 0 150px;
+            margin: 0 10px;
+            padding: 10px;
+            border-radius: 12px;
+            background: #1a1a1a;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .style-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .style-item.selected {
+            border-color: #4CAF50;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .style-preview {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .style-name {
+            font-size: 14px;
+            color: #fff;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        /* Style Carousel */
+        .style-carousel-container {
+            position: relative;
+            width: 100%;
+            margin: 20px 0;
+            padding: 0 40px;
+        }
+
+        .style-carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: 10px 0;
+        }
+
+        .style-carousel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+            z-index: 2;
+        }
+
+        .carousel-nav:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .carousel-nav.prev {
+            left: 0;
+        }
+
+        .carousel-nav.next {
+            right: 0;
+        }
+
+        .menu-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+            padding: 8px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+        }
+
+        .image-container:hover .menu-overlay {
+            opacity: 1;
+        }
+
+        .menu-button {
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.2s ease;
+        }
+
+        .menu-button:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .menu-button i {
+            font-size: 16px;
+        }
+
+        .generation-card {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #1a1a1a;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .generation-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .color-picker {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 60px;
+            height: 40px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .color-picker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .color-picker::-webkit-color-swatch {
+            border: 2px solid #333;
+            border-radius: 8px;
+        }
+
+        .color-hex {
+            font-family: monospace;
+            font-size: 1rem;
+            color: #fff;
+            background: #1a1a1a;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            border: 1px solid #333;
+        }
+
+        .background-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .background-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #ffffff;
+            font-size: 0.8rem;
+            color: #374151;
+        }
+
+        .background-option.selected {
+            border-color: #6366f1;
+            background: #f0f9ff;
+        }
+
+        .background-option:hover {
+            border-color: #6366f1;
+        }
+
+        .color-square {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+        }
+
+        .color-square.light {
+            background-color: #ffffff;
+        }
+
+        .color-square.dark {
+            background-color: #000000;
+        }
+
+        .tooltip-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 16px;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: bold;
+            cursor: help;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        /* Switch styles */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .switch-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .switch-label input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch-custom {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+            background-color: #333;
+            border-radius: 20px;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .switch-custom:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        input:checked + .switch-custom {
+            background-color: #4CAF50;
+        }
+
+        input:checked + .switch-custom:before {
+            transform: translateX(20px);
+        }
+
+        .template-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .template-preview i {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+
+        .template-preview img {
+            width: 100%;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            background-color: #333;
+        }
+
+        .template-name {
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 5px;
+            color: #4b4b4b;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 100%;
+            padding-bottom: 10px;
+        }
+
+        .empty-message {
+            color: #888;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        /* Add styles for the text list component */
+        text-list {
+            display: block;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="topbar"></div>
+
+    <div class="layout-container">
+        <div class="main-layout">
+            <!-- Side Panel -->
+            <div class="side-panel">
+            <!-- Template Section -->
+            <div class="panel-section">
+                <h3>Image Style</h3>
+                <div class="form-group">
+                    <label>Prompt Templates</label>
+                    <div class="template-grid" id="templateGrid">
+                        <!-- Templates will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generation Settings Section -->
+            <div class="panel-section">
+                <h3>Generation Settings</h3>
+
+                <div class="form-group">
+                    <label for="model">Choose Model</label>
+                    <select id="model">
+                        <option value="">Loading models...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Choose Palette</label>
+                    <color-palette-selector id="image-palette-selector"></color-palette-selector>
+                </div>
+
+                <div class="form-group">
+                    <label for="theme">Choose Theme</label>
+                    <select id="theme">
+                        <option value="">Loading themes...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Choose Background</label>
+                    <div class="background-selector">
+                        <div class="background-option light" data-bg="light" onclick="selectBackground('light')">
+                            <div class="color-square light"></div>
+                            <span>Light</span>
+                        </div>
+                        <div class="background-option dark" data-bg="dark" onclick="selectBackground('dark')">
+                            <div class="color-square dark"></div>
+                            <span>Dark</span>
+                        </div>
+                        <div class="background-option transparent" data-bg="transparent" onclick="selectBackground('transparent')">
+                            <div class="color-square" style="background-color: transparent;"></div>
+                            <span>Transparent</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="generateBtn" class="generate-button">
+                    Generate Image
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="content-container">
+                <!-- Static Prompt Section -->
+                <div class="prompt-section">
+                    <h2>What would you like to create?</h2>
+                    <div class="subtitle">Add object/subject for the image feature</div>
+
+                    <div class="form-group">
+                        <div class="object-input-container">
+                            <input type="text" id="objectInput" placeholder="e.g., a funny cow" class="object-input-field">
+                            <select id="toneSelect" class="tone-dropdown">
+                                <option value="Generic">Generic</option>
+                                <option value="Funny">Funny</option>
+                                <option value="Sarcastic">Sarcastic</option>
+                                <option value="Cute">Cute</option>
+                                <option value="For Kids">For Kids</option>
+                                <option value="Horror">Horror</option>
+                                <option value="Apocalyptic">Apocalyptic</option>
+                                <option value="Romantic - Love">Romantic - Love</option>
+                                <option value="Nostalgic">Nostalgic</option>
+                                <option value="Cool - Edgy">Cool - Edgy</option>
+                                <option value="Dark Humor">Dark Humor</option>
+                                <option value="Inspirational - Motivational">Inspirational - Motivational</option>
+                                <option value="Minimalist">Minimalist</option>
+                                <option value="Psychedelic">Psychedelic</option>
+                                <option value="Aesthetic - Artsy">Aesthetic - Artsy</option>
+                                <option value="Gothic">Gothic</option>
+                                <option value="Fantasy">Fantasy</option>
+                                <option value="Sci-Fi - Futuristic">Sci-Fi - Futuristic</option>
+                                <option value="Patriotic">Patriotic</option>
+                                <option value="Sporty - Active">Sporty - Active</option>
+                                <option value="Pop Culture - Meme">Pop Culture - Meme</option>
+                            </select>
+                            <button type="button" class="enhance-object-btn" onclick="enhanceObject()"
+                                    title="Enhance object description with AI">
+                                <i class="fas fa-magic"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Text Settings Section -->
+                    <div class="form-group">
+                        <div class="text-toggle">
+                            <span>Include Text</span>
+                            <div class="toggle-switch" id="includeTextToggle" onclick="toggleTextInput()"></div>
+                        </div>
+
+                        <div id="textInputGroup" style="display: none;">
+                            <text-list id="textList"></text-list>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Display Section -->
+                <div id="placeholderSection" class="placeholder-container">
+                    <img src="/images/73bde2.png" alt="Placeholder" class="placeholder-image">
+                </div>
+
+                <!-- Generated Image Section -->
+                <div id="generatedSection" style="display: none;">
+                    <div class="generation-container">
+                        <img id="generatedImage" class="generation-image" alt="Generated Image">
+                        <div class="action-buttons">
+                            <button class="action-button" onclick="downloadImage()">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                            <button class="action-button" onclick="addToCollection()">
+                                <i class="fas fa-folder-plus"></i> Add to Collection
+                            </button>
+                            <button class="action-button" onclick="saveToGenerations()">
+                                <i class="fas fa-save"></i> Save to Generations
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingContainer" class="loading-container" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Generating your image...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div id="collections" class="hidden">
+        <div class="container">
+            <h1>Your Collections</h1>
+            <div class="collections-grid">
+                <div class="collection-card create-new">
+                    <div class="collection-preview">
+                        <div class="preview-placeholder">
+                            <i class="fas fa-plus"></i>
+                            <span>Create New Collection</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collection View Section -->
+    <div id="collection-view" class="hidden">
+        <div class="container">
+            <div class="collection-header">
+                <button class="back-button" onclick="window.history.back()">
+                    <i class="fas fa-arrow-left"></i> Back to Collections
+                </button>
+                <h1 id="collection-name"></h1>
+            </div>
+            <div class="generations-grid" id="collection-images"></div>
+        </div>
+    </div>
+
+    <!-- Collection Modal -->
+    <div id="newCollectionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add to Collection</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="existingCollections">
+                    <h3>Select Collection</h3>
+                    <div class="collections-list"></div>
+                </div>
+                <div class="divider">or</div>
+                <div id="newCollection">
+                    <h3>Create New Collection</h3>
+                    <input type="text" id="newCollectionName" placeholder="Collection name">
+                    <button class="btn-primary create-collection">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <collection-modal></collection-modal>
+    <new-collection-modal></new-collection-modal>
+
+    <script type="module" src="/js/components/GenerationCard.js"></script>
+    <script type="module" src="/js/components/Topbar.js"></script>
+    <script type="module" src="/js/components/TextList.js"></script>
+    <script type="module" src="/js/components/ColorPaletteSelector.js"></script>
+
+    <script>
+        // Global variables for tracking state
+        let currentModel = 'flux-dreamscape';
+        let currentSection = 'generator';
+        let selectedBackground = 'light';
+        let selectedStyle = '';
+        let selectedTheme = null; // Store selected theme data
+        let selectedTemplateId = '';
+        let selectedTemplate = null; // Store the full template object
+        let selectedImagePalette = null; // Store selected image palette
+
+        // Function to show different sections
+        function showSection(sectionId) {
+            const sections = ['generator', 'collections', 'collection-view'];
+            sections.forEach(section => {
+                const element = document.getElementById(section);
+                if (element) {
+                    if (section === sectionId) {
+                        element.classList.remove('hidden');
+                    } else {
+                        element.classList.add('hidden');
+                    }
+                }
+            });
+            currentSection = sectionId;
+        }
+
+        // Function to select background
+        function selectBackground(bg) {
+            selectedBackground = bg;
+            
+            // Update UI
+            document.querySelectorAll('.background-option').forEach(option => {
+                if (option.dataset.bg === bg) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        // Function to select style
+        function selectStyle(element) {
+            // Remove selected class from all styles
+            document.querySelectorAll('.style-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked style
+            element.classList.add('selected');
+            
+            // Store the selected style ID
+            selectedStyle = element.dataset.styleId;
+        }
+
+        // Function to select template
+        async function selectTemplate(element) {
+            // Remove selected class from all templates
+            document.querySelectorAll('.template-item[data-template-id]').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked template
+            element.classList.add('selected');
+            
+            // Store the selected template ID
+            selectedTemplateId = element.dataset.templateId;
+            console.log('Selected template:', selectedTemplateId);
+            
+            try {
+                // Fetch template details from API
+                const response = await fetch(`/api/templates/${selectedTemplateId}`);
+                if (!response.ok) {
+                    throw new Error(`Failed to load template: ${response.status} ${response.statusText}`);
+                }
+                
+                selectedTemplate = await response.json();
+                console.log('Found template from API:', selectedTemplate);
+
+                // Make sure we store the template content as the prompt
+                selectedTemplate.prompt = selectedTemplate.template;
+
+                // Update the prompt input field if it exists
+                const promptInput = document.getElementById('promptInput');
+                if (promptInput && selectedTemplate.template) {
+                    promptInput.value = selectedTemplate.template;
+                }
+
+                // Set the original palette description from the template
+                const paletteSelector = document.getElementById('image-palette-selector');
+                if (paletteSelector && selectedTemplate.originalPalette) {
+                    paletteSelector.setOriginalPaletteDescription(selectedTemplate.originalPalette);
+                    console.log('Set original palette from template:', selectedTemplate.originalPalette);
+                }
+                
+                // If the template has randomOptions, update any relevant form fields
+                if (selectedTemplate.randomOptions) {
+                    // Handle random options here if needed for your application
+                    console.log('Template random options:', selectedTemplate.randomOptions);
+                }
+            } catch (error) {
+                console.error('Error fetching template:', error);
+                alert(`Error loading template: ${error.message}`);
+            }
+        }
+
+        // Function to scroll the carousel
+        function scrollCarousel(type, direction) {
+            const carousel = document.getElementById(`${type}Carousel`);
+            const scrollAmount = 200;
+            
+            if (direction === 'left') {
+                carousel.scrollLeft -= scrollAmount;
+            } else {
+                carousel.scrollLeft += scrollAmount;
+            }
+        }
+
+        // Function to toggle text input visibility
+        function toggleTextInputVisibility() {
+            const includeTextSwitch = document.getElementById('includeTextSwitch');
+            const textInputGroup = document.getElementById('textInputGroup');
+            
+            if (includeTextSwitch && textInputGroup) {
+                textInputGroup.style.display = includeTextSwitch.checked ? 'block' : 'none';
+            }
+        }
+
+        // Add event listener for the Include Text switch
+        document.addEventListener('DOMContentLoaded', () => {
+            const includeTextSwitch = document.getElementById('includeTextSwitch');
+            if (includeTextSwitch) {
+                includeTextSwitch.addEventListener('change', toggleTextInputVisibility);
+                // Initialize visibility
+                toggleTextInputVisibility();
+            }
+        });
+
+        // Make all functions globally available
+        window.showSection = showSection;
+        window.selectBackground = selectBackground;
+        window.selectStyle = selectStyle;
+        window.selectTemplate = selectTemplate;
+        window.scrollCarousel = scrollCarousel;
+        window.toggleTextInputVisibility = toggleTextInputVisibility;
+    </script>
+
+    <script type="module">
+        import { createTopbar } from '/js/components/Topbar.js';
+        import { GenerationCard } from '/js/components/GenerationCard.js';
+        import { CollectionModal } from '/js/components/CollectionModal.js';
+        
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Initialize topbar
+                const topbar = document.getElementById('topbar');
+                if (topbar) {
+                    await createTopbar(topbar);
+                }
+
+                // Load initial data
+                await Promise.all([
+                    loadModels(),
+                    loadThemes(),
+                    loadStyles(),
+                    loadTemplates()
+                ]);
+
+                // Show initial section
+                showSection('generator');
+
+                // Add event listener to generate button
+                const generateBtn = document.getElementById('generateBtn');
+                if (generateBtn) {
+                    generateBtn.addEventListener('click', generateImage);
+                }
+
+                // Initialize palette selector
+                const paletteSelector = document.getElementById('image-palette-selector');
+
+                if (paletteSelector) {
+                    paletteSelector.addEventListener('paletteChange', function(e) {
+                        selectedImagePalette = e.detail.palette;
+                        console.log('Image palette changed:', selectedImagePalette);
+                    });
+                }
+
+                // Add modal close event listeners
+                const modal = document.getElementById('newCollectionModal');
+                if (modal) {
+                    // Close modal when clicking the close button
+                    const closeButton = modal.querySelector('.close-modal');
+                    if (closeButton) {
+                        closeButton.addEventListener('click', () => {
+                            modal.classList.remove('active');
+                        });
+                    }
+
+                    // Close modal when clicking outside the modal content
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            modal.classList.remove('active');
+                        }
+                    });
+
+                    // Add event listener for the create collection button
+                    const createCollectionBtn = modal.querySelector('.create-collection');
+                    if (createCollectionBtn) {
+                        createCollectionBtn.addEventListener('click', () => {
+                            const nameInput = modal.querySelector('#newCollectionName');
+                            if (nameInput && nameInput.value.trim()) {
+                                createNewCollection(nameInput.value.trim());
+                                nameInput.value = ''; // Clear the input
+                            }
+                        });
+                    }
+
+                    // Add event listener for Enter key in the collection name input
+                    const nameInput = modal.querySelector('#newCollectionName');
+                    if (nameInput) {
+                        nameInput.addEventListener('keypress', (e) => {
+                            if (e.key === 'Enter' && nameInput.value.trim()) {
+                                createNewCollection(nameInput.value.trim());
+                                nameInput.value = ''; // Clear the input
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error during initialization:', error);
+            }
+        });
+
+        // Function to load models
+        async function loadModels() {
+            const modelSelector = document.getElementById('model');
+            if (!modelSelector) {
+                console.error('Model selector not found');
+                return;
+            }
+
+            try {
+                // Show loading state
+                modelSelector.innerHTML = '<option value="">Loading models...</option>';
+                modelSelector.disabled = true;
+
+                // Fetch models from API
+                const response = await fetch('/api/models');
+                if (!response.ok) {
+                    throw new Error('Failed to load models');
+                }
+                const models = await response.json();
+                console.log('Loaded models:', models);
+
+                // Clear loading state
+                modelSelector.innerHTML = '';
+                modelSelector.disabled = false;
+
+                // Add each model as an option
+                models.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model.name;
+                    option.text = model.displayName;
+                    modelSelector.appendChild(option);
+                });
+
+                // Set default model
+                const defaultModel = models.find(m => m.name === 'flux-yarn-art') || models[0];
+                if (defaultModel) {
+                    modelSelector.value = defaultModel.name;
+                    currentModel = defaultModel.name;
+                }
+
+                // Add event listener to update currentModel when selection changes
+                modelSelector.addEventListener('change', (e) => {
+                    currentModel = e.target.value;
+                    console.log('Model changed to:', currentModel);
+                });
+            } catch (error) {
+                console.error('Error loading models:', error);
+                modelSelector.innerHTML = '<option value="">Error loading models</option>';
+                modelSelector.disabled = true;
+            }
+        }
+
+        // Function to load themes
+        async function loadThemes() {
+            try {
+                const response = await fetch('/api/themes');
+                if (!response.ok) {
+                    throw new Error('Failed to load themes');
+                }
+                const themes = await response.json();
+                
+                const themeSelector = document.getElementById('theme');
+                if (!themeSelector) {
+                    console.error('Theme selector not found');
+                    return;
+                }
+
+                // Store themes data
+                window.themes = themes;
+
+                themeSelector.innerHTML = `
+                    <option value="">Select a theme...</option>
+                    ${themes.map(theme => `
+                        <option value="${theme._id}">${theme.name}</option>
+                    `).join('')}
+                `;
+
+                // Add change event listener
+                themeSelector.addEventListener('change', (e) => {
+                    const themeId = e.target.value;
+                    selectedTheme = themeId ? themes.find(t => t._id === themeId) : null;
+                });
+            } catch (error) {
+                console.error('Error loading themes:', error);
+                const themeSelector = document.getElementById('theme');
+                if (themeSelector) {
+                    themeSelector.innerHTML = '<option value="">Error loading themes</option>';
+                }
+            }
+        }
+
+        // Function to load styles
+        async function loadStyles() {
+            try {
+                const response = await fetch('/api/styles');
+                if (!response.ok) {
+                    throw new Error('Failed to load styles');
+                }
+                const styles = await response.json();
+                
+                const styleCarousel = document.getElementById('styleCarousel');
+                if (!styleCarousel) {
+                    console.error('Style carousel not found');
+                    return;
+                }
+
+                styleCarousel.innerHTML = styles.map(style => `
+                    <div class="style-item" data-style-id="${style._id}" onclick="selectStyle(this)">
+                        <img src="${style.imageUrl}" alt="${style.name}">
+                        <div class="style-name">${style.name}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading styles:', error);
+                const styleCarousel = document.getElementById('styleCarousel');
+                if (styleCarousel) {
+                    styleCarousel.innerHTML = '<div class="error-message">Error loading styles</div>';
+                }
+            }
+        }
+
+        // Function to load templates
+        async function loadTemplates() {
+            try {
+                // Get templates from API instead of localStorage
+                const response = await fetch('/api/templates');
+                if (!response.ok) {
+                    throw new Error('Failed to load templates from API');
+                }
+                const templates = await response.json();
+
+                const templateGrid = document.getElementById('templateGrid');
+                if (!templateGrid) {
+                    console.error('Template grid not found');
+                    return;
+                }
+
+                if (templates.length === 0) {
+                    templateGrid.innerHTML = '<div class="empty-message">No templates available. Create templates in the Templates section.</div>';
+                    return;
+                }
+
+                console.log('Loaded templates from API:', templates);
+
+                templateGrid.innerHTML = templates.map(template => {
+                    // Check if template has a thumbnail
+                    const hasThumbnail = template.thumbnailUrl && template.thumbnailUrl.trim() !== '';
+
+                    return `
+                        <div class="template-item" data-template-id="${template._id}" onclick="selectTemplate(this)">
+                            ${hasThumbnail
+                                ? `<img src="${template.thumbnailUrl}" alt="${template.name}" class="template-preview">`
+                                : `<div class="template-preview" style="display: flex; align-items: center; justify-content: center;"><i class="fas fa-file-alt" style="font-size: 24px; color: #9ca3af;"></i></div>`
+                            }
+                            <div class="template-name">${template.name}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading templates:', error);
+                const templateGrid = document.getElementById('templateGrid');
+                if (templateGrid) {
+                    templateGrid.innerHTML = '<div class="error-message">Error loading templates: ${error.message}</div>';
+                }
+            }
+        }
+
+        // Function to generate image
+        async function generateImage() {
+            const generateBtn = document.getElementById('generateBtn');
+            const originalBtnText = generateBtn.innerHTML;
+
+            // Get DOM elements once
+            const loadingContainer = document.getElementById('loadingContainer');
+            const placeholderSection = document.getElementById('placeholderSection');
+            const generatedSection = document.getElementById('generatedSection');
+            const generatedImage = document.getElementById('generatedImage');
+
+            try {
+                // Show loading state
+                generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+                generateBtn.disabled = true;
+
+                // Show loading container and hide other sections
+                loadingContainer.style.display = 'flex';
+                placeholderSection.style.display = 'none';
+                generatedSection.style.display = 'none';
+
+                // Get form values
+                const objectInput = document.getElementById('objectInput');
+                const modelSelector = document.getElementById('model');
+                const themeSelector = document.getElementById('theme');
+
+                // Get selected style
+                const styleElement = document.querySelector('.style-item.selected');
+
+                // Get Include Text toggle state
+                const includeTextToggle = document.getElementById('includeTextToggle');
+                const includeText = includeTextToggle ? includeTextToggle.classList.contains('active') : false;
+
+                // Get individual text values from text-list component
+                let text1 = '';
+                let text2 = '';
+                let text3 = '';
+
+                if (includeText) {
+                    const textList = document.getElementById('textList');
+                    text1 = textList ? textList.text1 : '';
+                    text2 = textList ? textList.text2 : '';
+                    text3 = textList ? textList.text3 : '';
+                    console.log('Text values:', { text1, text2, text3 });
+                }
+                
+                // Get template if using prompt templates
+                let templateRandomOptions = null;
+                let templateId = null;
+                let templatePrompt = null;
+                
+                if (selectedTemplate) {
+                    templateId = selectedTemplate._id;
+                    templatePrompt = selectedTemplate.template;
+                    templateRandomOptions = selectedTemplate.randomOptions;
+                    console.log('Using template:', {
+                        id: templateId,
+                        prompt: templatePrompt,
+                        randomOptions: templateRandomOptions
+                    });
+                }
+
+                // Prepare request data
+                const requestData = {
+                    prompt: objectInput.value.trim(),
+                    model: modelSelector.value,
+                    text1: text1,
+                    text2: text2,
+                    text3: text3,
+                    style: styleElement?.dataset.styleId,
+                    theme: themeSelector?.value,
+                    background: selectedBackground || 'light',
+                    randomOptions: templateRandomOptions,
+                    templateId: templateId,
+                    templatePrompt: templatePrompt,
+                    noText: !includeText,
+                    imagePalette: selectedImagePalette
+                };
+
+                console.log('🎨 FRONT-END DEBUG - Generating with:', requestData);
+                console.log('🎨 FRONT-END DEBUG - Template info:', {
+                    selectedTemplateId: selectedTemplateId,
+                    selectedTemplate: selectedTemplate,
+                    templateId: templateId,
+                    originalPalette: selectedTemplate?.originalPalette
+                });
+                console.log('🎨 FRONT-END DEBUG - Image palette info:', {
+                    selectedImagePalette: selectedImagePalette,
+                    paletteId: selectedImagePalette?.id,
+                    paletteDescription: selectedImagePalette?.description
+                });
+
+                // Fetch API
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to generate image');
+                }
+
+                const data = await response.json();
+
+                // Hide loading and show generated image
+                loadingContainer.style.display = 'none';
+                showGeneratedImage(data.imageUrl, data.prompt, data.generationId, modelSelector.value);
+
+            } catch (error) {
+                console.error('Generation error:', error);
+                alert(error.message || 'Failed to generate image');
+
+                // Show placeholder again on error
+                loadingContainer.style.display = 'none';
+                placeholderSection.style.display = 'block';
+            } finally {
+                // Reset loading state
+                generateBtn.innerHTML = originalBtnText;
+                generateBtn.disabled = false;
+            }
+        }
+
+        // Function to select template
+        async function selectTemplate(element) {
+            // Remove selected class from all templates
+            document.querySelectorAll('.template-item[data-template-id]').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked template
+            element.classList.add('selected');
+            
+            // Store the selected template ID
+            selectedTemplateId = element.dataset.templateId;
+            console.log('Selected template:', selectedTemplateId);
+            
+            try {
+                // Fetch template details from API
+                const response = await fetch(`/api/templates/${selectedTemplateId}`);
+                if (!response.ok) {
+                    throw new Error(`Failed to load template: ${response.status} ${response.statusText}`);
+                }
+                
+                selectedTemplate = await response.json();
+                console.log('Found template from API:', selectedTemplate);
+
+                // Make sure we store the template content as the prompt
+                selectedTemplate.prompt = selectedTemplate.template;
+
+                // Update the prompt input field if it exists
+                const promptInput = document.getElementById('promptInput');
+                if (promptInput && selectedTemplate.template) {
+                    promptInput.value = selectedTemplate.template;
+                }
+
+                // Set the original palette description from the template
+                const paletteSelector = document.getElementById('image-palette-selector');
+                if (paletteSelector && selectedTemplate.originalPalette) {
+                    paletteSelector.setOriginalPaletteDescription(selectedTemplate.originalPalette);
+                    console.log('Set original palette from template:', selectedTemplate.originalPalette);
+                }
+                
+                // If the template has randomOptions, update any relevant form fields
+                if (selectedTemplate.randomOptions) {
+                    // Handle random options here if needed for your application
+                    console.log('Template random options:', selectedTemplate.randomOptions);
+                }
+            } catch (error) {
+                console.error('Error fetching template:', error);
+                alert(`Error loading template: ${error.message}`);
+            }
+        }
+
+        // Function to scroll the carousel
+        function scrollCarousel(type, direction) {
+            const carousel = document.getElementById(`${type}Carousel`);
+            const scrollAmount = 200;
+            
+            if (direction === 'left') {
+                carousel.scrollLeft -= scrollAmount;
+            } else {
+                carousel.scrollLeft += scrollAmount;
+            }
+        }
+
+        // Function to toggle text input
+        function toggleTextInput() {
+            const toggle = document.getElementById('includeTextToggle');
+            const textInputGroup = document.getElementById('textInputGroup');
+
+            toggle.classList.toggle('active');
+            const isActive = toggle.classList.contains('active');
+            textInputGroup.style.display = isActive ? 'block' : 'none';
+        }
+
+
+
+        // Function to show generated image
+        function showGeneratedImage(imageUrl, prompt, generationId, model) {
+            console.log('🔥 showGeneratedImage called with:');
+            console.log('🔥 imageUrl:', imageUrl);
+            console.log('🔥 prompt:', prompt);
+            console.log('🔥 prompt length:', prompt ? prompt.length : 'null/undefined');
+            console.log('🔥 generationId:', generationId);
+            console.log('🔥 model parameter:', model);
+            console.log('🔥 currentModel:', currentModel);
+
+            const placeholderSection = document.getElementById('placeholderSection');
+            const generatedSection = document.getElementById('generatedSection');
+            const generatedImage = document.getElementById('generatedImage');
+
+            placeholderSection.style.display = 'none';
+            generatedSection.style.display = 'block';
+            generatedImage.src = imageUrl;
+
+            // Store global variables for action buttons
+            window.currentGenerationId = generationId;
+            window.currentPrompt = prompt;
+            window.currentModel = model || currentModel; // Use the passed model or fallback to currentModel
+
+            console.log('🔥 After setting globals:');
+            console.log('🔥 window.currentPrompt:', window.currentPrompt);
+            console.log('🔥 window.currentGenerationId:', window.currentGenerationId);
+            console.log('🔥 window.currentModel:', window.currentModel);
+        }
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+
+            // Style the toast
+            Object.assign(toast.style, {
+                position: 'fixed',
+                top: '20px',
+                right: '20px',
+                padding: '12px 20px',
+                borderRadius: '4px',
+                color: 'white',
+                fontWeight: 'bold',
+                zIndex: '10000',
+                maxWidth: '300px',
+                wordWrap: 'break-word'
+            });
+
+            // Set background color based on type
+            switch (type) {
+                case 'success':
+                    toast.style.backgroundColor = '#4CAF50';
+                    break;
+                case 'error':
+                    toast.style.backgroundColor = '#f44336';
+                    break;
+                case 'warning':
+                    toast.style.backgroundColor = '#ff9800';
+                    break;
+                default:
+                    toast.style.backgroundColor = '#2196F3';
+            }
+
+            // Add to page
+            document.body.appendChild(toast);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 3000);
+        }
+
+        // Function to show placeholder
+        function showPlaceholder() {
+            const placeholderSection = document.getElementById('placeholderSection');
+            const generatedSection = document.getElementById('generatedSection');
+
+            placeholderSection.style.display = 'block';
+            generatedSection.style.display = 'none';
+        }
+
+        // Function to load collections for the modal
+        async function loadCollections() {
+            try {
+                const response = await fetch('/api/collections', {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch collections');
+                }
+
+                const collections = await response.json();
+                console.log('Loaded collections:', collections);
+
+                // Populate the collections list
+                const collectionsList = document.querySelector('.collections-list');
+                if (collectionsList) {
+                    collectionsList.innerHTML = '';
+
+                    if (collections.length === 0) {
+                        collectionsList.innerHTML = `
+                            <div class="collection-item create-new" onclick="showNewCollectionDialog()">
+                                <i class="fas fa-plus"></i>
+                                <span>Create New Collection</span>
+                            </div>
+                        `;
+                    } else {
+                        collections.forEach(collection => {
+                            const collectionItem = document.createElement('div');
+                            collectionItem.className = 'collection-item';
+                            collectionItem.innerHTML = `
+                                <div class="collection-content">
+                                    <div class="collection-name">${collection.title || 'Untitled Collection'}</div>
+                                    <div class="image-count">${collection.stats?.imageCount || 0} images</div>
+                                </div>
+                            `;
+                            collectionItem.addEventListener('click', () => {
+                                addImageToCollection(collection._id);
+                            });
+                            collectionsList.appendChild(collectionItem);
+                        });
+
+                        // Add create new button at the end
+                        const createNewBtn = document.createElement('div');
+                        createNewBtn.className = 'collection-item create-new';
+                        createNewBtn.innerHTML = `
+                            <i class="fas fa-plus"></i>
+                            <span>Create New Collection</span>
+                        `;
+                        createNewBtn.addEventListener('click', showNewCollectionDialog);
+                        collectionsList.appendChild(createNewBtn);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading collections:', error);
+                showToast('Failed to load collections', 'error');
+            }
+        }
+
+        // Function to add image to a specific collection
+        async function addImageToCollection(collectionId) {
+            try {
+                if (!window.currentImageForCollection || !window.currentImageForCollection.imageUrl) {
+                    throw new Error('No image data available');
+                }
+
+                const payload = {
+                    imageUrl: window.currentImageForCollection.imageUrl,
+                    prompt: window.currentImageForCollection.prompt || ''
+                };
+
+                if (window.currentImageForCollection.generationId) {
+                    payload.generationId = window.currentImageForCollection.generationId;
+                }
+
+                const response = await fetch(`/api/collections/${collectionId}/images`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to add to collection');
+                }
+
+                // Show success message
+                showToast('Added to collection', 'success');
+
+                // Hide modal
+                const modal = document.getElementById('newCollectionModal');
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+
+            } catch (error) {
+                console.error('Error adding to collection:', error);
+                showToast('Failed to add to collection', 'error');
+            }
+        }
+
+        // Function to show new collection dialog
+        function showNewCollectionDialog() {
+            // Focus on the new collection name input
+            const nameInput = document.querySelector('#newCollectionName');
+            if (nameInput) {
+                nameInput.focus();
+            }
+        }
+
+        // Function to create a new collection
+        async function createNewCollection(title) {
+            try {
+                const response = await fetch('/api/collections', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ title })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create collection');
+                }
+
+                showToast('Collection created successfully', 'success');
+
+                // Reload collections to show the new one
+                loadCollections();
+
+            } catch (error) {
+                console.error('Error creating collection:', error);
+                showToast('Failed to create collection', 'error');
+            }
+        }
+
+        // Action button functions
+
+
+        function addToCollection() {
+            console.log('Add to collection');
+            const generatedImage = document.getElementById('generatedImage');
+            if (!generatedImage || !generatedImage.src) {
+                showToast('No image to add to collection', 'error');
+                return;
+            }
+
+            // Show the collection modal
+            const modal = document.getElementById('newCollectionModal');
+            if (modal) {
+                modal.classList.add('active');
+                // Store the current image data for the modal
+                window.currentImageForCollection = {
+                    imageUrl: generatedImage.src,
+                    generationId: window.currentGenerationId,
+                    prompt: window.currentPrompt || ''
+                };
+                // Load collections when showing the modal
+                loadCollections();
+            }
+        }
+
+        function downloadImage() {
+            console.log('Download image');
+            const generatedImage = document.getElementById('generatedImage');
+            if (!generatedImage || !generatedImage.src) {
+                showToast('No image to download', 'error');
+                return;
+            }
+
+            try {
+                // Open the download URL in a new window
+                window.open(`/api/download?imageUrl=${encodeURIComponent(generatedImage.src)}`, '_blank');
+                showToast('Image download started', 'info');
+            } catch (error) {
+                console.error('Error downloading image:', error);
+                showToast('Failed to download image', 'error');
+            }
+        }
+
+        async function saveToGenerations() {
+            console.log('Save to generations');
+
+            // IMMEDIATE DEBUG - Check what we have
+            console.log('🔥 IMMEDIATE DEBUG:');
+            console.log('🔥 window.currentPrompt:', window.currentPrompt);
+            console.log('🔥 window.currentGenerationId:', window.currentGenerationId);
+            console.log('🔥 window.currentModel:', window.currentModel);
+
+            // Check if we have the required data
+            if (!window.currentGenerationId || !window.currentPrompt) {
+                console.log('🔥 MISSING DATA - currentGenerationId:', !!window.currentGenerationId, 'currentPrompt:', !!window.currentPrompt);
+                showToast('No generation data found. Please regenerate the image.', 'warning');
+                return;
+            }
+
+            try {
+                // Get the current image URL
+                const generatedImage = document.getElementById('generatedImage');
+                if (!generatedImage || !generatedImage.src) {
+                    showToast('No image found to save.', 'warning');
+                    return;
+                }
+
+                // Extract object and text values from the prompt (simplified version)
+                const promptText = window.currentPrompt || '';
+
+                console.log('=== SAVE TO GENERATIONS DEBUG ===');
+                console.log('window.currentPrompt:', window.currentPrompt);
+                console.log('promptText:', promptText);
+                console.log('promptText length:', promptText.length);
+                console.log('window.currentModel:', window.currentModel);
+                console.log('generatedImage.src:', generatedImage.src);
+                console.log('=== END DEBUG ===');
+
+                // Create inspiration data
+                const inspirationData = {
+                    imageUrl: generatedImage.src,
+                    prompt: promptText,
+                    object: 'sticker', // Default object
+                    model: window.currentModel || 'flux-schnell', // Use current model or default
+                    textValues: [], // Empty for now
+                    colorPalette: {
+                        dark: '#2c3e50',
+                        medium: '#3498db',
+                        light: '#ecf0f1'
+                    },
+                    originalPalette: 'blue and white',
+                    tags: ['user-generated'],
+                    published: false // Save as unpublished by default
+                };
+
+                console.log('🔥 About to send to server:', inspirationData);
+                console.log('🔥 Prompt being sent:', inspirationData.prompt);
+                console.log('🔥 Prompt length being sent:', inspirationData.prompt ? inspirationData.prompt.length : 'null/undefined');
+
+                const response = await fetch('/api/inspirations', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(inspirationData)
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.message || 'Failed to save to Images Generated');
+                }
+
+                const savedInspiration = await response.json();
+                console.log('🔥 Server response:', savedInspiration);
+                console.log('🔥 Saved prompt:', savedInspiration.prompt);
+                console.log('🔥 Inspiration saved successfully:', savedInspiration._id);
+
+                showToast('Image saved to Images Generated!', 'success');
+
+            } catch (error) {
+                console.error('Error saving to Images Generated:', error);
+                showToast(error.message || 'Failed to save to Images Generated', 'error');
+            }
+        }
+
+
+
+
+
+        // Store previous object enhancement answers to avoid repetition
+        window.previousObjectAnswers = window.previousObjectAnswers || {};
+
+        // Enhance Object Function
+        async function enhanceObject() {
+            console.log('🎯 Enhance object called');
+
+            // Get the object input and tone selection
+            const objectInput = document.getElementById('objectInput')?.value?.trim();
+            const toneSelect = document.getElementById('toneSelect');
+            const selectedTone = toneSelect?.value || 'Generic';
+
+            if (!objectInput) {
+                showToast('Please enter an object/subject first', 'error');
+                return;
+            }
+
+            // Get the enhance button and update its state
+            const enhanceBtn = document.querySelector('.enhance-object-btn');
+            if (enhanceBtn) {
+                enhanceBtn.disabled = true;
+                enhanceBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            }
+
+            try {
+                // Store the original user input for regeneration
+                if (!enhanceBtn.dataset.originalInput) {
+                    enhanceBtn.dataset.originalInput = objectInput;
+                }
+                const originalInput = enhanceBtn.dataset.originalInput;
+
+                // Get previous answers for this original input + tone combination
+                const cacheKey = `${originalInput.toLowerCase().trim()}_${selectedTone.toLowerCase()}`;
+                const previousAnswers = window.previousObjectAnswers[cacheKey] || [];
+
+                // Build the prompt using the same template as inspiration.html
+                let prompt = `Give a simple, expressive idea for a t-shirt image of a ${originalInput} with a ${selectedTone} tone. Describe the subject, his look, pose, mood or action, no text. Max 85 characters but can be less, or a lot less.`;
+
+                // Add exclusions if we have previous answers
+                if (previousAnswers.length > 0) {
+                    prompt += '\n\nIMPORTANT: Do NOT use any of these previous suggestions:\n';
+                    previousAnswers.forEach((answer, index) => {
+                        prompt += `- "${answer}"\n`;
+                    });
+                    prompt += '\nCreate a completely different and original description.';
+                }
+
+                console.log('🤖 Sending object enhancement prompt:', prompt);
+
+                // Call the text generation API (reusing the same endpoint)
+                const response = await fetch('/api/generate-texts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        objectInput: originalInput,
+                        textCount: 1 // We only want one enhanced description
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to enhance object description');
+                }
+
+                const result = await response.json();
+                console.log('🤖 Object enhancement result:', result);
+
+                // Parse the generated description and update the input
+                if (result.texts && Array.isArray(result.texts) && result.texts[0]) {
+                    const enhancedDescription = result.texts[0].trim();
+                    console.log('🎯 Enhanced description:', enhancedDescription);
+
+                    // Update the input field
+                    const objectInputField = document.getElementById('objectInput');
+                    if (objectInputField) {
+                        objectInputField.value = enhancedDescription;
+                        // Trigger input event to update any listeners
+                        objectInputField.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+
+                    showToast('Object description enhanced successfully!', 'success');
+
+                    // Save the generated description to prevent repetition
+                    if (!window.previousObjectAnswers[cacheKey]) {
+                        window.previousObjectAnswers[cacheKey] = [];
+                    }
+                    window.previousObjectAnswers[cacheKey].push(enhancedDescription);
+
+                    // Keep only the last 5 attempts to avoid overly long prompts
+                    if (window.previousObjectAnswers[cacheKey].length > 5) {
+                        window.previousObjectAnswers[cacheKey] = window.previousObjectAnswers[cacheKey].slice(-5);
+                    }
+
+                    console.log('💾 Saved object answers for', cacheKey, ':', window.previousObjectAnswers[cacheKey]);
+
+                    // Change button to regenerate mode
+                    if (enhanceBtn) {
+                        enhanceBtn.classList.add('regenerate-mode');
+                        enhanceBtn.title = 'Generate different variation';
+                    }
+
+                } else {
+                    throw new Error('Invalid response format from object enhancement');
+                }
+
+            } catch (error) {
+                console.error('Error enhancing object:', error);
+                showToast('Failed to enhance object: ' + error.message, 'error');
+            } finally {
+                // Re-enable the button
+                if (enhanceBtn) {
+                    enhanceBtn.disabled = false;
+                    enhanceBtn.innerHTML = '<i class="fas fa-redo"></i>';
+                }
+            }
+        }
+
+        // Make all functions globally available
+        window.showSection = showSection;
+        window.selectBackground = selectBackground;
+        window.selectStyle = selectStyle;
+        window.selectTemplate = selectTemplate;
+        window.scrollCarousel = scrollCarousel;
+        window.toggleTextInput = toggleTextInput;
+        window.showGeneratedImage = showGeneratedImage;
+        window.showPlaceholder = showPlaceholder;
+        window.showToast = showToast;
+        window.addToCollection = addToCollection;
+        window.downloadImage = downloadImage;
+        window.saveToGenerations = saveToGenerations;
+        window.enhanceObject = enhanceObject;
+    </script>
+
+
+
+    <script>
+        // Function to update admin credits
+        async function updateAdminCredits(credits) {
+            try {
+                const response = await fetch('/api/admin/credits/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ credits })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to update credits');
+                }
+
+                const data = await response.json();
+                console.log('Admin credits updated:', data);
+                
+                // Update the credits display
+                const creditsElement = document.getElementById('credits');
+                if (creditsElement) {
+                    creditsElement.textContent = data.credits;
+                }
+
+                // Close any open modals
+                const modal = document.querySelector('.modal');
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+
+                alert('Credits updated successfully!');
+            } catch (error) {
+                console.error('Error updating admin credits:', error);
+                alert(error.message);
+            }
+        }
+
+        // Add to window object
+        window.updateAdminCredits = updateAdminCredits;
+    </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<div class="tool-section">
+    <h3>Fading Color Cut Settings</h3>
+    <div class="effect-control">
+        <div class="slider-container">
+            <label for="flcDistance">Distance:</label>
+            <input type="range" id="flcDistance" min="1" max="100" value="45">
+            <span class="slider-value" id="flcDistanceValue">45%</span>
+        </div>
+        <div class="slider-container">
+            <label for="flcMaxWeight">Max Weight:</label>
+            <input type="range" id="flcMaxWeight" min="1" max="20" value="5">
+            <span class="slider-value" id="flcMaxWeightValue">5px</span>
+        </div>
+        <div class="slider-container">
+            <label for="flcSpacing">Spacing:</label>
+            <input type="range" id="flcSpacing" min="1" max="30" value="10">
+            <span class="slider-value" id="flcSpacingValue">10px</span>
+        </div>
+        <div class="slider-container">
+            <label for="flcCoverage">Coverage:</label>
+            <input type="range" id="flcCoverage" min="100" max="300" value="100">
+            <span class="slider-value" id="flcCoverageValue">100%</span>
+        </div>
+        <div class="fill-direction">
+            <label>Fill Direction:</label>
+            <div class="radio-group">
+                <label class="radio-container">
+                    <input type="radio" name="flcFillDirection" id="flcFillTop" value="top" checked>
+                    <span class="radio-label">Top to Bottom</span>
+                </label>
+                <label class="radio-container">
+                    <input type="radio" name="flcFillDirection" id="flcFillBottom" value="bottom">
+                    <span class="radio-label">Bottom to Top</span>
+                </label>
+            </div>
+        </div>
+        <div class="simplified-color-picker">
+            <label for="flcColor">Fill Color:</label>
+            <input type="color" id="flcColor" value="#0000FF">
+        </div>
+    </div>
+</div>

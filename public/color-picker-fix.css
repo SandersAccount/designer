@@ -1,0 +1,191 @@
+/* Color Picker Enhancement Styles */
+
+/* General color input improvements */
+input[type="color"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border: 2px solid #cccccc;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    overflow: visible;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 2px;
+}
+
+input[type="color"]::-moz-color-swatch {
+    border: none;
+    border-radius: 2px;
+}
+
+/* Highlight the color picker on hover to indicate it's clickable */
+input[type="color"]:hover {
+    border-color: #ffffff;
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Color input text field styling */
+.color-text-input {
+    width: 85px;
+    padding: 5px 8px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    font-family: monospace;
+    margin-left: 5px;
+    background-color: #333;
+    color: white;
+}
+
+/* Color picker container styling */
+.color-picker-container {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+    position: relative;
+    z-index: 10;
+}
+
+/* Gradient stop color container */
+.gradient-stop-color {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+    position: relative;
+    z-index: 5;
+}
+
+/* Styles for the gradient color input */
+.gradient-color-input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    border: 2px solid #aaaaaa;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.gradient-color-input::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.gradient-color-input::-webkit-color-swatch {
+    border: none;
+    border-radius: 2px;
+}
+
+.gradient-color-input::-moz-color-swatch {
+    border: none;
+    border-radius: 2px;
+}
+
+/* Hex input for gradient stops */
+.gradient-color-hex {
+    width: 85px;
+    padding: 5px 8px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    font-family: monospace;
+    margin-left: 8px;
+    background-color: #333;
+    color: white;
+}
+
+/* Gradient stop styling */
+.gradient-stop {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #2a2a2a;
+    position: relative;
+}
+
+/* Gradient stop label */
+.gradient-stop-label {
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #ccc;
+}
+
+/* Gradient stop delete button */
+.gradient-stop-delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.gradient-stop-delete-btn:hover {
+    background-color: #ff0000;
+    transform: scale(1.1);
+}
+
+.gradient-stop-delete-btn::before {
+    content: "×";
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Action button styling */
+.action-btn {
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 10px;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background-color: #1a73e8;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Gradient preview */
+.gradient-preview {
+    height: 40px;
+    margin: 15px 0;
+    border-radius: 4px;
+    border: 1px solid #444;
+}

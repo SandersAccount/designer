@@ -1,0 +1,624 @@
+/* Filerobot Image Editor CSS */
+.fie-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  font-family: Arial, sans-serif;
+  color: #333;
+  background-color: #f5f5f5;
+  overflow: hidden;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.fie-layout {
+  display: flex;
+  flex: 1;
+  height: calc(100% - 50px);
+}
+
+.fie-toolbar {
+  width: 60px;
+  background-color: #333;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.fie-canvas-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #2a2a2a;
+  position: relative;
+  overflow: auto;
+}
+
+.fie-canvas {
+  max-width: 100%;
+  max-height: 100%;
+  background-color: transparent;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.fie-tab-button {
+  background: none;
+  border: none;
+  color: #ccc;
+  padding: 8px 12px;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s, color 0.2s;
+  margin-bottom: 5px;
+  border-radius: 4px;
+}
+
+.fie-tab-button:hover {
+  background-color: #444;
+  color: white;
+}
+
+.fie-tab-button.active {
+  background-color: #1e88e5;
+  color: white;
+}
+
+.fie-controls {
+  width: 260px;
+  background-color: #fff;
+  border-left: 1px solid #e0e0e0;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.fie-control-group {
+  margin-bottom: 15px;
+}
+
+.fie-control-group h3 {
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  color: #333;
+  font-weight: 500;
+}
+
+.fie-control {
+  margin-bottom: 10px;
+}
+
+.fie-control label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 5px;
+  color: #777;
+}
+
+.fie-slider {
+  width: 100%;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e0e0e0;
+  outline: none;
+  border-radius: 2px;
+}
+
+.fie-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1e88e5;
+  cursor: pointer;
+}
+
+.fie-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1e88e5;
+  cursor: pointer;
+  border: none;
+}
+
+.fie-button {
+  background-color: #1e88e5;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.fie-button:hover {
+  background-color: #1976d2;
+}
+
+.fie-button.secondary {
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.fie-button.secondary:hover {
+  background-color: #e0e0e0;
+}
+
+.fie-crop-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.fie-crop-selection {
+  position: absolute;
+  border: 2px dashed white;
+  box-sizing: border-box;
+  cursor: move;
+}
+
+.fie-crop-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: white;
+  border: 1px solid #333;
+  z-index: 101;
+}
+
+.fie-crop-handle-nw {
+  top: -6px;
+  left: -6px;
+  cursor: nw-resize;
+}
+
+.fie-crop-handle-ne {
+  top: -6px;
+  right: -6px;
+  cursor: ne-resize;
+}
+
+.fie-crop-handle-sw {
+  bottom: -6px;
+  left: -6px;
+  cursor: sw-resize;
+}
+
+.fie-crop-handle-se {
+  bottom: -6px;
+  right: -6px;
+  cursor: se-resize;
+}
+
+.fie-crop-handle-n {
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: n-resize;
+}
+
+.fie-crop-handle-s {
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: s-resize;
+}
+
+.fie-crop-handle-e {
+  top: 50%;
+  right: -6px;
+  transform: translateY(-50%);
+  cursor: e-resize;
+}
+
+.fie-crop-handle-w {
+  top: 50%;
+  left: -6px;
+  transform: translateY(-50%);
+  cursor: w-resize;
+}
+
+.fie-crop-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.fie-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.fie-filter-item {
+  background-color: #f0f0f0;
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.fie-filter-item:hover {
+  background-color: #e0e0e0;
+}
+
+.fie-filter-item.active {
+  background-color: #3498db;
+  color: white;
+}
+
+.fie-text-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.fie-color-input {
+  margin-bottom: 10px;
+  width: 100%;
+  height: 40px;
+}
+
+.fie-slider-input {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.fie-quick-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.fie-effect-btn {
+  background-color: #f0f0f0;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.fie-effect-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.fie-effect-btn.active {
+  background-color: #3498db;
+  color: white;
+}
+
+.fie-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 16px;
+}
+
+.fie-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 200px;
+  padding: 20px;
+  color: #ff4d4f;
+  font-size: 16px;
+  text-align: center;
+  background-color: #fff1f0;
+  border: 1px solid #ffccc7;
+  border-radius: 4px;
+}
+
+.fie-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 200px;
+}
+
+.fie-empty-message {
+  text-align: center;
+  padding: 20px;
+}
+
+.fie-upload-btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 16px;
+  color: #fff;
+  background-color: #1890ff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.fie-upload-btn:hover {
+  background-color: #40a9ff;
+}
+
+@keyframes fie-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.fie-spinner {
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top: 3px solid #fff;
+  width: 24px;
+  height: 24px;
+  animation: fie-spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+/* Annotation Controls Styles */
+.fie-annotate-controls {
+  padding: 15px;
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+.fie-control-section {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.fie-control-section h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.fie-input-container {
+  margin-bottom: 15px;
+}
+
+.fie-text-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #555;
+  background: #333;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.fie-text-input:focus {
+  outline: none;
+  border-color: #0078d7;
+}
+
+.fie-style-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fie-slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fie-slider-container label {
+  font-size: 13px;
+  color: #ccc;
+}
+
+.fie-slider {
+  width: 100%;
+  height: 4px;
+  background: #444;
+  border-radius: 2px;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+}
+
+.fie-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0078d7;
+  cursor: pointer;
+}
+
+.fie-slider-value {
+  font-size: 12px;
+  color: #ccc;
+}
+
+.fie-select-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fie-select-container label {
+  font-size: 13px;
+  color: #ccc;
+}
+
+.fie-select {
+  width: 100%;
+  padding: 8px;
+  background: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.fie-color-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fie-color-container label {
+  font-size: 13px;
+  color: #ccc;
+}
+
+.fie-color-input {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.fie-font-style-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.fie-style-btn {
+  width: 40px;
+  height: 40px;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.fie-style-btn:hover {
+  background: #444;
+}
+
+.fie-style-btn.active {
+  background: #0078d7;
+  border-color: #0078d7;
+}
+
+.fie-btn {
+  padding: 8px 16px;
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.fie-btn:hover {
+  background: #444;
+}
+
+.fie-primary-btn {
+  background: #0078d7;
+}
+
+.fie-primary-btn:hover {
+  background: #0086f0;
+}
+
+.fie-note {
+  margin-top: 15px;
+  color: #999;
+  font-size: 12px;
+}
+
+.fie-edit-controls {
+  display: flex;
+  padding: 8px;
+  background: #2a2a2a;
+  border-bottom: 1px solid #444;
+}
+
+.fie-toolbar-btn {
+  width: 32px;
+  height: 32px;
+  margin-right: 5px;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.fie-toolbar-btn:hover:not(:disabled) {
+  background: #444;
+}
+
+.fie-toolbar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fie-toolbar-separator {
+  width: 1px;
+  height: 20px;
+  background: #555;
+  margin: 0 8px;
+  align-self: center;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .fie-layout {
+    flex-direction: column;
+  }
+  
+  .fie-toolbar {
+    width: 100%;
+    height: 60px;
+    flex-direction: row;
+    padding: 0 10px;
+  }
+  
+  .fie-controls {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #e0e0e0;
+  }
+}

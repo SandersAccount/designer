@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collection Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="module" src="/js/components/Toast.js"></script>
+    <script type="module" src="/js/components/GenerationCard.js"></script>
+    <script type="module" src="/js/components/CollectionModal.js"></script>
+    <style>
+        body {
+            background: #111;
+            color: #fff;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .collection-header {
+            margin-bottom: 2rem;
+            padding: 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .collection-header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .collection-stats {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        #collection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 24px;
+            padding: 20px;
+        }
+
+        generation-card {
+            width: 100%;
+            aspect-ratio: 1;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="topbar"></div>
+    
+    <div class="container">
+        <div class="collection-header">
+            <h1 id="collection-title"></h1>
+            <div id="collection-stats" class="collection-stats"></div>
+        </div>
+
+        <div id="collection-grid">
+            <!-- Images will be loaded here -->
+        </div>
+    </div>
+
+    <collection-modal></collection-modal>
+
+    <script type="module">
+        import { CollectionPage } from '/js/pages/CollectionPage.js';
+        import { createTopbar } from '/js/components/Topbar.js';
+        
+        // Initialize topbar
+        const topbarEl = document.getElementById('topbar');
+        if (topbarEl) {
+            createTopbar(topbarEl);
+        }
+    </script>
+</body>
+</html>

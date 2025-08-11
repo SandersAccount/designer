@@ -1,0 +1,37 @@
+let isDragging = false;
+let draggedObjectGhost = null;
+
+canvas.addEventListener('mousedown', (e) => {
+    // ... check if an object was hit ...
+    isDragging = true;
+    // Create a simple ghost (e.g., a rect or a cached image)
+    draggedObjectGhost = createGhostFor(selectedObject); 
+});
+
+canvas.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    
+    // Just update the ghost's position
+    draggedObjectGhost.x = e.clientX; 
+    draggedObjectGhost.y = e.clientY;
+    
+    // Ask the browser to schedule a redraw of ONLY the ghost
+    requestAnimationFrame(drawGhost); 
+});
+
+function drawGhost() {
+    // A very fast function that clears a small area and redraws the ghost
+    clearAndDrawOnlyGhost(draggedObjectGhost);
+}
+
+canvas.addEventListener('mouseup', (e) => {
+    isDragging = false;
+    draggedObjectGhost = null;
+    
+    // NOW update the real object's position
+    selectedObject.x = e.clientX;
+    selectedObject.y = e.clientY;
+    
+    // And trigger ONE full, high-quality redraw
+    update(); 
+});

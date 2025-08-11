@@ -1,0 +1,900 @@
+{
+  "models": [
+    {
+      "name": "sticker-maker",
+      "displayName": "Sticker Maker",
+      "run": "fofr/sticker-maker:4acb778eb059772225ec213948f0660867b2e03f277448f18cf1800b96a65a1a",
+      "defaultInput": {
+        "prompt": "",
+        "steps": 17,
+        "width": 1152,
+        "height": 1152,
+        "output_format": "png",
+        "output_quality": 100,
+        "negative_prompt": "ugly, blurry, poor quality, distorted",
+        "number_of_images": 1
+      }
+    },
+    {
+      "name": "upscaler",
+      "displayName": "Real-ESRGAN Upscaler",
+      "run": "nightmareai/real-esrgan:42fed1c4974146d4d2414e2be2c5277c7fcf05fcc3a73abf41610695738c1d7b",
+      "defaultInput": {
+        "prompt": "",
+        "scale": 2,
+        "face_enhance": true
+      }
+    },
+    {
+      "name": "inpainting",
+      "version": "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
+      "model": "stability-ai/sdxl-inpainting",
+      "description": "SDXL inpainting model for high-quality image editing"
+    },
+    {
+      "name": "background-remover",
+      "displayName": "Background Remover",
+      "run": "codeplugtech/background_remover:37ff2aa89897c0de4a140a3d50969dc62b663ea467e1e2bde18008e3d3731b2b",
+      "defaultInput": {
+        "prompt": "",
+        "format": "png",
+        "reverse": false,
+        "threshold": 0,
+        "background_type": "rgba"
+      }
+    },
+    {
+      "name": "retro-scifi-vibes",
+      "displayName": "Retro Sci-Fi Vibes",
+      "run": "iamprofessorex/retro-scifi-vibes:616860de5ae1a068d8f7bfd8160ce70cb82c4a290119afd21b1fd19563e797f5",
+      "defaultInput": {
+        "prompt": "",
+        "num_outputs": 4,
+        "num_inference_steps": 50
+      }
+    },
+    {
+      "name": "phoenix-1.0",
+  "displayName": "Leonardo Phoenix Vector",
+  "run": "leonardoai/phoenix-1.0",
+  "defaultInput": {
+    "style": "graphic_design_vector",
+    "prompt": "",
+    "contrast": "medium",
+    "num_images": 1,
+    "aspect_ratio": "1:1",
+    "prompt_enhance": true,
+    "generation_mode": "fast"
+       }
+      },
+      {
+  "name": "phoenix-1.0",
+  "displayName": "Leonardo 3d Render",
+  "run": "leonardoai/phoenix-1.0",
+  "defaultInput": {
+    "style": "3d_render",
+    "prompt": "",
+    "contrast": "medium",
+    "num_images": 1,
+    "aspect_ratio": "1:1",
+    "prompt_enhance": true,
+    "generation_mode": "fast"
+       }
+      },
+      {
+  "name": "phoenix-1.0",
+  "displayName": "Leonardo Bokeh",
+  "run": "leonardoai/phoenix-1.0",
+  "defaultInput": {
+    "style": "bokeh",
+    "prompt": "",
+    "contrast": "medium",
+    "num_images": 1,
+    "aspect_ratio": "1:1",
+    "prompt_enhance": true,
+    "generation_mode": "fast"
+       }
+      },
+      {
+  "name": "phoenix-1.0",
+  "displayName": "Leonardo Cinematic",
+  "run": "leonardoai/phoenix-1.0",
+  "defaultInput": {
+    "style": "cinematic",
+    "prompt": "",
+    "contrast": "medium",
+    "num_images": 1,
+    "aspect_ratio": "1:1",
+    "prompt_enhance": true,
+    "generation_mode": "fast"
+       }
+      },
+      {
+  "name": "phoenix-1.0",
+  "displayName": "Leonardo Creative",
+  "run": "leonardoai/phoenix-1.0",
+  "defaultInput": {
+    "style": "creative",
+    "prompt": "",
+    "contrast": "medium",
+    "num_images": 1,
+    "aspect_ratio": "1:1",
+    "prompt_enhance": true,
+    "generation_mode": "fast"
+       }
+      },
+      {
+  "name": "phoenix-1.0",
+  "displayName": "Leonardo Dynamic",
+  "run": "leonardoai/phoenix-1.0",
+  "defaultInput": {
+    "style": "dynamic",
+    "prompt": "",
+    "contrast": "medium",
+    "num_images": 1,
+    "aspect_ratio": "1:1",
+    "prompt_enhance": true,
+    "generation_mode": "fast"
+       }
+      },
+      {
+  "name": "phoenix-1.0",
+  "displayName": "Leonardo Pop Art",
+  "run": "leonardoai/phoenix-1.0",
+  "defaultInput": {
+    "style": "graphic_design_pop_art",
+    "prompt": "",
+    "contrast": "medium",
+    "num_images": 1,
+    "aspect_ratio": "1:1",
+    "prompt_enhance": true,
+    "generation_mode": "fast"
+       }
+      },
+      {
+  "name": "phoenix-1.0",
+  "displayName": "Leonardo HDR",
+  "run": "leonardoai/phoenix-1.0",
+  "defaultInput": {
+    "style": "hdr",
+    "prompt": "",
+    "contrast": "medium",
+    "num_images": 1,
+    "aspect_ratio": "1:1",
+    "prompt_enhance": true,
+    "generation_mode": "fast"
+       }
+      },
+      {
+  "name": "phoenix-1.0",
+  "displayName": "Leonardo Illustration",
+  "run": "leonardoai/phoenix-1.0",
+  "defaultInput": {
+    "style": "illustration",
+    "prompt": "",
+    "contrast": "medium",
+    "num_images": 1,
+    "aspect_ratio": "1:1",
+    "prompt_enhance": true,
+    "generation_mode": "fast"
+       }
+      },
+      {
+  "name": "phoenix-1.0",
+  "displayName": "Leonardo Macro",
+  "run": "leonardoai/phoenix-1.0",
+  "defaultInput": {
+    "style": "macro",
+    "prompt": "",
+    "contrast": "medium",
+    "num_images": 1,
+    "aspect_ratio": "1:1",
+    "prompt_enhance": true,
+    "generation_mode": "fast"
+       }
+      },
+      {
+  "name": "phoenix-1.0",
+  "displayName": "Leonardo Minimalist",
+  "run": "leonardoai/phoenix-1.0",
+  "defaultInput": {
+    "style": "minimalist",
+    "prompt": "",
+    "contrast": "medium",
+    "num_images": 1,
+    "aspect_ratio": "1:1",
+    "prompt_enhance": true,
+    "generation_mode": "fast"
+       }
+      },
+      {
+  "name": "phoenix-1.0",
+  "displayName": "Leonardo Moody",
+  "run": "leonardoai/phoenix-1.0",
+  "defaultInput": {
+    "style": "moody",
+    "prompt": "",
+    "contrast": "medium",
+    "num_images": 1,
+    "aspect_ratio": "1:1",
+    "prompt_enhance": true,
+    "generation_mode": "fast"
+       }
+      },
+  {
+    "name": "ai_graphic",
+    "displayName": "Ai_Graphic",
+    "run": "scmdr/ai_graphic:a422294e9885bfbe0b46895ead2fb0394a5333a1f92b829cb6dbe28e97c7fa17",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 0.8,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "apollodog",
+    "displayName": "Apollodog",
+    "run": "sundai-club/apollodog:235fb6ab5930a1d8854b72367e23e8b7f89bda357924427d70843a09dd98f3f7",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "aram",
+    "displayName": "Aram",
+    "run": "tezzarida/aram:eb07a016ff7cb61e8dc9eedbafb9a7ee5e3f62a12bfd1f40c961349bd86ea4c4",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 2,
+      "output_quality": 100,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "brain-flakes-ai",
+    "displayName": "Brain Flakes Ai",
+    "run": "levelsio/brain-flakes-ai:9992e4fff3073581af66113e72a40ab6f8cd02a121a7b093a5dccf65447e012a",
+    "defaultInput": {
+      "prompt": "TOK ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "enna-sketch-style",
+    "displayName": "Enna Sketch Style",
+    "run": "aramintak/enna-sketch-style:d71246ed8256f5b5edf98b5cd181d0b6a1391f1825a108800fab58fadf6982f2",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 4,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 0.8,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux-2004",
+    "displayName": "Flux 2004",
+    "run": "fofr/flux-2004:6beb0fefabdbbcf9447b1835638084980b165ce568883b01a7d1c45f8a482fb8",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 0.75,
+      "megapixels": 1,
+      "num_outputs": 4,
+      "aspect_ratio": "3:2",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux-3d-emojis",
+    "displayName": "Flux 3D Emojis",
+    "run": "lucataco/flux-3d-emojis:90c9d165452f90e3ce38b35e7ac753e6bedcfc7f75c5188f90bcc41bbff99870",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux-autumn-green",
+    "displayName": "Flux Autumn Green",
+    "run": "jakedahn/flux-autumn-green:c6abaef834a0f28acb5fd95f6efd1b4efbb9e431ca2cc71a6db73449be55c849",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "extra_lora": "",
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 2.5,
+      "output_quality": 90,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 30
+    }
+  },
+  {
+    "name": "flux-autumn-green",
+    "displayName": "Flux Autumn Green",
+    "run": "jakedahn/flux-autumn-green:c6abaef834a0f28acb5fd95f6efd1b4efbb9e431ca2cc71a6db73449be55c849",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "extra_lora": "",
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 2.5,
+      "output_quality": 90,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 30
+    }
+  },
+  {
+    "name": "flux-black-light",
+    "displayName": "Flux Black Light",
+    "run": "fofr/flux-black-light:d0d48e298dcb51118c3f903817c833bba063936637a33ac52a8ffd6a94859af7",
+    "defaultInput": {
+      "prompt": " BLKLGHT ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 0.75,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux-black-sclera",
+    "displayName": "Flux Black Sclera",
+    "run": "fofr/flux-black-sclera:094b4279625149f583c3d3fd93f65facdf0031dfa146edb10443181c93fd5fd1",
+    "defaultInput": {
+      "prompt": " BLKSCLRA ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 0.85,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 2.5,
+      "output_quality": 90,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux-dev-lora",
+    "displayName": "Flux Dev Lora",
+    "run": "lucataco/flux-dev-lora:091495765fa5ef2725a175a57b276ec30dc9d39c22d30410f2ede68a3eab66b3",
+    "defaultInput": {
+      "prompt": "",
+      "hf_lora": "alvdansen/frosting_lane_flux",
+      "lora_scale": 0.8,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux-dreamscape",
+    "displayName": "Flux Dreamscape",
+    "run": "bingbangboom-lab/flux-dreamscape:b761fa16918356ee07f31fad9b0d41d8919b9ff08f999e2d298a5a35b672f47e",
+    "defaultInput": {
+      "prompt": " in the style of BSstyle004 ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 0.8,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux-film-foto",
+    "displayName": "Flux Film Foto",
+    "run": "aramintak/flux-film-foto:f43477e89617ab7bc66f93731b5027d6e46c116ff7b7dce7f5ffccb39a01b375",
+    "defaultInput": {
+      "prompt": " flmft photo style ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux-frosting-lane",
+    "displayName": "Flux Frosting Lane",
+    "run": "aramintak/flux-frosting-lane:04612fc7f01c413d33337bdd0df4a471f13397101015067e24e148dd5f2d5c2f",
+    "defaultInput": {
+      "prompt": " frstingln illustration ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux-game-assets",
+    "displayName": "Flux Game Assets",
+    "run": "lucataco/flux-game-assets:2968f90319821245e410fbc2b35de562a3bb9e8a937d0426e548d65c6e2d9b23",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux-geopop",
+    "displayName": "Flux Geopop",
+    "run": "bingbangboom-lab/flux-geopop:d6ea7dfd686872c239a397ba1aa01248661311ea757ec0069913d7b5598ea75b",
+    "defaultInput": {
+      "prompt": " NWGMTRCPOPV01 ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 90,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 25
+    }
+  },
+  {
+    "name": "flux-handwriting-and-sketch",
+    "displayName": "Flux Handwriting And Sketch",
+    "run": "fofr/flux-handwriting-and-sketch:d592f6972aadf30aadf04272cabb1698eb80feb669cbc356e8a3610d4fb2fb39",
+    "defaultInput": {
+      "prompt": "a HWRIT sketch ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux-jennai",
+    "displayName": "Flux Jennai",
+    "run": "lucataco/flux-jennai:256ddf3c5429bc028df29221cadb161393ed67f6eaf2c7de01cc2f77cf86b459",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": true,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux-lineart",
+    "displayName": "Flux Lineart",
+    "run": "cuuupid/flux-lineart:3cfd38225f82f47062567c783c555c97ac2669868b0c9a5002e14fe88cdde319",
+    "defaultInput": {
+      "prompt": " in the style of TOK ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux-myst",
+    "displayName": "Flux Myst",
+    "run": "fofr/flux-myst:e308e02c7228ea840e5f7ab57005ef57e655e9ef2bcbd3e0dbdb8123c41330ac",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 0.8,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux-new-whimscape",
+    "displayName": "Flux New Whimscape",
+    "run": "bingbangboom-lab/flux-new-whimscape:2e8de10f217bc56da163a0204cf09f89995eaf643459014803fae79753183682",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "width": 856,
+      "height": 1156,
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 100,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 25
+    }
+  },
+  {
+    "name": "flux-yarn-art",
+    "displayName": "Flux Yarn Art",
+    "run": "linoytsaban/flux-yarn-art:1b95fb03c08d7da6cfc3175fa55d84ca402892ccbc7337bf6ddac12b003fea80",
+    "defaultInput": {
+      "prompt": " yarn art style ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "flux1.lora.betty",
+    "displayName": "Flux1.Lora.Betty",
+    "run": "roelfrenkema/flux1.lora.betty:cbb649cb3216c72323e94ba6428196dafbf5fb450e2696ca28a9fa901a920daa",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 0.8,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "fluxloramimi",
+    "displayName": "Fluxloramimi",
+    "run": "gajendrajha09/fluxloramimi:f8df29a992eb987b45b5a8fb626aff5ec293fee878395074db9888f84d32a4b9",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 0.8,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "ginevra",
+    "displayName": "Ginevra",
+    "run": "melaesse/ginevra:e07dc58646fd4182e47c1cc7e3c54b175228aa43bf2ba27b7fa35219b099232c",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 0.8,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "golang-gopher-flux",
+    "displayName": "Golang Gopher Flux",
+    "run": "cdreier/golang-gopher-flux:b2e5b004d467b151869b7d5ab197ff3efa280b8ef7f297868c3a290051394b83",
+    "defaultInput": {
+      "prompt": "a GOGOPH image ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 0.8,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "lisflux",
+    "displayName": "Lisflux",
+    "run": "saysenbl/lisflux:4398e62adace59898d96e7be0a319a30e567248dc3138b4d23e4b2cb922228dd",
+    "defaultInput": {
+      "prompt": "LIS, ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "miyazaki-watercolor",
+    "displayName": "Miyazaki Watercolor",
+    "run": "koratkar/miyazaki-watercolor:4feba2b2a3fc621630b578635aefd007e32375407146a618757b22420bb13c2b",
+    "defaultInput": {
+      "prompt": " (MYZKSKETCH) ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 0.8,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "mooniverse",
+    "displayName": "Mooniverse",
+    "run": "aramintak/mooniverse:af9441cdc4a371dece5fbe6144d4587ccb68d7b00c2d573b206254180691f895",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 0.99,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 90,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "portra-800-flux",
+    "displayName": "Portra 800 Flux",
+    "run": "shapestudio/portra-800-flux:3d616c81c96b5578e485988d51f260c4159b8ce7822cf13fa0af63a7e5c833c2",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 0.86,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 38
+    }
+  },
+  {
+    "name": "pumkino",
+    "displayName": "Pumkino",
+    "run": "sundai-club/pumkino:86402cac92141dd074aa6a12d8b197cafc50adf91a3625e42fd5c36dc33ed45e",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 2.5,
+      "output_quality": 90,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 20,
+      "jakedahn/flux-latentpop": "c5e4432e01d30a523f9ebf1af1ad9f7ce82adc6709ec3061a817d53ff3bb06cc",
+      "input": "{"
+    }
+  },
+  {
+    "name": "sketch-lora",
+    "displayName": "Sketch Lora",
+    "run": "crivera/sketch-lora:32d7a493bcbd5212bf43e6a3f48b7ba716f9f159eabd13ccdbe5d0bcd747ff08",
+    "defaultInput": {
+      "prompt": "",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 90,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 1,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "urban-narrative",
+    "displayName": "Urban Narrative",
+    "run": "digitaljohn/urban-narrative:ea830af4eeb1f0c3d9eb209ecbbc4ef14bcb8d51ac59b6d0a8dc2eb632a2fa84",
+    "defaultInput": {
+      "prompt": " in the style of URBNAR ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 0.8,
+      "num_inference_steps": 28
+    }
+  },
+  {
+    "name": "ziki-flux",
+    "displayName": "Ziki Flux",
+    "run": "zeke/ziki-flux:dadc276a9062240e68f110ca06521752f334777a94f031feb0ae78ae3edca58e",
+    "defaultInput": {
+      "prompt": " ZIKI, ",
+      "model": "dev",
+      "go_fast": false,
+      "lora_scale": 1,
+      "megapixels": 1,
+      "num_outputs": 1,
+      "aspect_ratio": "1:1",
+      "guidance_scale": 3.5,
+      "output_quality": 80,
+      "prompt_strength": 0.8,
+      "extra_lora_scale": 0.8,
+      "num_inference_steps": 28
+        }
+      },
+      {
+        "name": "inpainting",
+        "version": "39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
+        "model": "stability-ai/sdxl-inpainting",
+        "description": "SDXL inpainting model for high-quality image editing"
+      }
+    ]
+  }
+  

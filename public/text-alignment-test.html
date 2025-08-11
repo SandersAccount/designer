@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Alignment Test - 4 Canvas Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .canvas-section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .canvas-section h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            display: block;
+            width: 100%;
+            height: 300px;
+        }
+        .info {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+        .controls {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .controls button {
+            margin: 0 5px;
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .controls button:hover {
+            background: #0056b3;
+        }
+        .controls button.active {
+            background: #28a745;
+        }
+        .controls button.active:hover {
+            background: #1e7e34;
+        }
+    </style>
+</head>
+<body>
+    <h1>Text Alignment Test - 4 Canvas Demo</h1>
+    <p>This test demonstrates proper text alignment behavior with character limits and text wrapping.</p>
+    
+    <div class="controls">
+        <button onclick="redrawAll()">Redraw All</button>
+        <button onclick="changeCharacterLimit(20)">20 Chars</button>
+        <button onclick="changeCharacterLimit(30)">30 Chars</button>
+        <button onclick="changeCharacterLimit(50)">50 Chars</button>
+    </div>
+
+    <div class="container">
+        <div class="canvas-section">
+            <h3>Left Alignment</h3>
+            <canvas id="leftCanvas" width="400" height="300"></canvas>
+            <div class="info">Text aligned to the left edge of the text box</div>
+        </div>
+
+        <div class="canvas-section">
+            <h3>Right Alignment</h3>
+            <canvas id="rightCanvas" width="400" height="300"></canvas>
+            <div class="info">Text aligned to the right edge of the text box</div>
+        </div>
+
+        <div class="canvas-section">
+            <h3>Center Alignment</h3>
+            <canvas id="centerCanvas" width="400" height="300"></canvas>
+            <div class="info">Text centered within the text box</div>
+        </div>
+
+        <div class="canvas-section">
+            <h3>Justify Alignment</h3>
+            <canvas id="justifyCanvas" width="400" height="300"></canvas>
+            <div class="info">Text justified to fill the text box width</div>
+        </div>
+    </div>
+
+    <div style="margin-top: 30px; text-align: center;">
+        <div class="canvas-section" style="max-width: 600px; margin: 0 auto;">
+            <h3>Interactive Alignment Demo</h3>
+            <div style="margin-bottom: 15px;">
+                <button onclick="switchAlignment('left')" id="btnLeft">Left</button>
+                <button onclick="switchAlignment('right')" id="btnRight">Right</button>
+                <button onclick="switchAlignment('center')" id="btnCenter">Center</button>
+                <button onclick="switchAlignment('justify')" id="btnJustify">Justify</button>
+            </div>
+            <canvas id="interactiveCanvas" width="500" height="350"></canvas>
+            <div class="info">
+                Current alignment: <span id="currentAlignment">left</span> |
+                Character limit: <span id="currentCharLimit">30</span> chars/line
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const testText = "Ultra-realistic 8K studio product photograph of Stickers with a , vertically design. . All Stickers are floating freely in mid-air, each positioned at a unique angle some upright.";
+        let characterLimit = 30; // Default character limit per line
+        let currentAlignment = 'left'; // Current alignment for interactive canvas
+
+        function wrapText(text, maxCharsPerLine) {
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = '';
+
+            for (const word of words) {
+                const testLine = currentLine ? currentLine + ' ' + word : word;
+                
+                if (testLine.length <= maxCharsPerLine) {
+                    currentLine = testLine;
+                } else {
+                    if (currentLine) {
+                        lines.push(currentLine);
+                        currentLine = word;
+                    } else {
+                        // Word is longer than max chars, break it
+                        lines.push(word.substring(0, maxCharsPerLine));
+                        currentLine = word.substring(maxCharsPerLine);
+                    }
+                }
+            }
+            
+            if (currentLine) {
+                lines.push(currentLine);
+            }
+            
+            return lines;
+        }
+
+        function drawTextBox(ctx, x, y, width, height, alignment, lines) {
+            // Clear the area
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            
+            // Draw text box boundary (dotted line)
+            ctx.strokeStyle = '#007bff';
+            ctx.setLineDash([5, 5]);
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, width, height);
+            ctx.setLineDash([]);
+
+            // Set text properties
+            ctx.font = '16px Arial';
+            ctx.fillStyle = '#333';
+            const lineHeight = 24;
+            
+            // Calculate starting Y position to center text vertically
+            const totalTextHeight = lines.length * lineHeight;
+            const startY = y + (height - totalTextHeight) / 2 + lineHeight * 0.8;
+
+            // Draw each line with proper alignment
+            lines.forEach((line, index) => {
+                const lineY = startY + index * lineHeight;
+                let lineX;
+
+                switch (alignment) {
+                    case 'left':
+                        lineX = x + 10; // Small padding from left edge
+                        ctx.textAlign = 'left';
+                        break;
+                    case 'right':
+                        lineX = x + width - 10; // Small padding from right edge
+                        ctx.textAlign = 'right';
+                        break;
+                    case 'center':
+                        lineX = x + width / 2;
+                        ctx.textAlign = 'center';
+                        break;
+                    case 'justify':
+                        lineX = x + 10;
+                        ctx.textAlign = 'left';
+                        // For justify, we'll space out the words
+                        if (index < lines.length - 1 && line.includes(' ')) {
+                            drawJustifiedLine(ctx, line, lineX, lineY, width - 20);
+                            return;
+                        }
+                        break;
+                }
+
+                ctx.fillText(line, lineX, lineY);
+            });
+
+            // Draw character limit info
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Character limit: ${characterLimit} chars/line`, x, y - 10);
+            ctx.fillText(`Lines: ${lines.length}`, x, y - 25);
+        }
+
+        function drawJustifiedLine(ctx, line, x, y, maxWidth) {
+            const words = line.split(' ');
+            if (words.length === 1) {
+                ctx.fillText(line, x, y);
+                return;
+            }
+
+            const totalWordWidth = words.reduce((sum, word) => sum + ctx.measureText(word).width, 0);
+            const totalSpaceWidth = maxWidth - totalWordWidth;
+            const spaceWidth = totalSpaceWidth / (words.length - 1);
+
+            let currentX = x;
+            words.forEach((word, index) => {
+                ctx.fillText(word, currentX, y);
+                currentX += ctx.measureText(word).width;
+                if (index < words.length - 1) {
+                    currentX += spaceWidth;
+                }
+            });
+        }
+
+        function drawCanvas(canvasId, alignment) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Wrap text according to character limit
+            const lines = wrapText(testText, characterLimit);
+            
+            // Define text box dimensions
+            const textBoxX = 50;
+            const textBoxY = 50;
+            const textBoxWidth = 300;
+            const textBoxHeight = 200;
+            
+            drawTextBox(ctx, textBoxX, textBoxY, textBoxWidth, textBoxHeight, alignment, lines);
+        }
+
+        function redrawAll() {
+            drawCanvas('leftCanvas', 'left');
+            drawCanvas('rightCanvas', 'right');
+            drawCanvas('centerCanvas', 'center');
+            drawCanvas('justifyCanvas', 'justify');
+        }
+
+        function changeCharacterLimit(newLimit) {
+            characterLimit = newLimit;
+            redrawAll();
+            drawInteractiveCanvas();
+            updateCharLimitDisplay();
+        }
+
+        function switchAlignment(alignment) {
+            currentAlignment = alignment;
+            drawInteractiveCanvas();
+            updateAlignmentDisplay();
+            updateButtonStates();
+        }
+
+        function drawInteractiveCanvas() {
+            const canvas = document.getElementById('interactiveCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Wrap text according to character limit
+            const lines = wrapText(testText, characterLimit);
+
+            // Define text box dimensions (larger for better visibility)
+            const textBoxX = 75;
+            const textBoxY = 75;
+            const textBoxWidth = 350;
+            const textBoxHeight = 200;
+
+            drawTextBox(ctx, textBoxX, textBoxY, textBoxWidth, textBoxHeight, currentAlignment, lines);
+        }
+
+        function updateAlignmentDisplay() {
+            document.getElementById('currentAlignment').textContent = currentAlignment;
+        }
+
+        function updateCharLimitDisplay() {
+            document.getElementById('currentCharLimit').textContent = characterLimit;
+        }
+
+        function updateButtonStates() {
+            // Remove active class from all buttons
+            ['btnLeft', 'btnRight', 'btnCenter', 'btnJustify'].forEach(id => {
+                document.getElementById(id).classList.remove('active');
+            });
+
+            // Add active class to current alignment button
+            const activeButtonId = 'btn' + currentAlignment.charAt(0).toUpperCase() + currentAlignment.slice(1);
+            document.getElementById(activeButtonId).classList.add('active');
+        }
+
+        // Initial draw
+        window.onload = function() {
+            redrawAll();
+            drawInteractiveCanvas();
+            updateAlignmentDisplay();
+            updateCharLimitDisplay();
+            updateButtonStates();
+        };
+    </script>
+</body>
+</html>

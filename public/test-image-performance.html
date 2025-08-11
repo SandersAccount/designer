@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Effects Performance Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .performance-stats {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Performance Optimization Test - Images & Text Shadows</h1>
+        
+        <div class="test-section">
+            <h2>Performance Optimization Status</h2>
+            <div id="optimizationStatus" class="performance-stats">
+                Checking optimization status...
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test Instructions</h2>
+            <ol>
+                <li>Open the main design editor in another tab</li>
+                <li>Add some images to the canvas and apply effects (duotone, halftone, glitch, CSS filters)</li>
+                <li>Add text objects with shadow effects (block shadow, perspective shadow, line shadow, 3D effects)</li>
+                <li>Start dragging objects and watch the console for performance improvements</li>
+                <li>Check the performance stats below</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h2>Performance Monitoring</h2>
+            <button class="button" onclick="startMonitoring()">Start Monitoring</button>
+            <button class="button" onclick="stopMonitoring()">Stop Monitoring</button>
+            <button class="button" onclick="clearStats()">Clear Stats</button>
+            
+            <div id="performanceStats" class="performance-stats">
+                Click "Start Monitoring" to begin tracking performance...
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Expected Improvements</h2>
+            <ul>
+                <li><strong>Reduced Image Processing:</strong> Background images should skip effects processing during drag</li>
+                <li><strong>Reduced Text Shadow Processing:</strong> Background text objects should skip expensive shadow rendering during drag</li>
+                <li><strong>Font Variant Caching:</strong> Font variant resolution should be cached to eliminate redundant "Need font variant" checks</li>
+                <li><strong>Text Metrics Caching:</strong> measureText() calls should be cached to prevent recalculation of text dimensions</li>
+                <li><strong>Frame Skipping:</strong> Image effects and text shadows should process every 3rd frame instead of every frame</li>
+                <li><strong>Smart Skipping:</strong> Only the dragged object gets full processing, background objects are skipped</li>
+                <li><strong>Performance Gain:</strong> Should see 60-80% reduction in processing calls and 50-80% cache hit rates during drag operations</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let monitoringInterval;
+        let stats = {
+            totalCalls: 0,
+            skippedCalls: 0,
+            processedCalls: 0,
+            startTime: null
+        };
+
+        function checkOptimizationStatus() {
+            const statusDiv = document.getElementById('optimizationStatus');
+
+            let imageStatus = '';
+            let textShadowStatus = '';
+
+            // Check image effects pipeline
+            if (window.parent && window.parent.imageEffectsPipeline) {
+                const pipeline = window.parent.imageEffectsPipeline;
+                imageStatus = `
+                    <strong>Image Effects:</strong> <span class="success">✅ Active</span><br>
+                    Drag Mode: ${pipeline.isDragMode ? 'ON' : 'OFF'}<br>
+                    Frame Skip Interval: ${pipeline.dragProcessInterval || 'N/A'}<br>
+                    Cache Size: ${pipeline.lastProcessedImages?.size || 0} images<br>
+                `;
+            } else {
+                imageStatus = `<strong>Image Effects:</strong> <span class="warning">⚠️ Not Found</span><br>`;
+            }
+
+            // Check text shadow optimization
+            if (window.parent && window.parent.textShadowOptimization) {
+                const textOpt = window.parent.textShadowOptimization;
+                textShadowStatus = `
+                    <strong>Text Shadows:</strong> <span class="success">✅ Active</span><br>
+                    Drag Mode: ${textOpt.isDragMode ? 'ON' : 'OFF'}<br>
+                    Frame Skip Interval: ${textOpt.shadowProcessInterval || 'N/A'}<br>
+                    Cache Size: ${textOpt.lastProcessedShadows?.size || 0} shadows<br>
+                `;
+            } else {
+                textShadowStatus = `<strong>Text Shadows:</strong> <span class="warning">⚠️ Not Found</span><br>`;
+            }
+
+            // Check font performance optimization
+            let fontPerfStatus = '';
+            if (window.parent && window.parent.fontPerformanceOptimization) {
+                const fontOpt = window.parent.fontPerformanceOptimization;
+                fontPerfStatus = `
+                    <strong>Font Performance:</strong> <span class="success">✅ Active</span><br>
+                    Drag Mode: ${fontOpt.isDragMode ? 'ON' : 'OFF'}<br>
+                    Font Variant Cache: ${fontOpt.fontVariantCache?.size || 0} entries<br>
+                    Text Metrics Cache: ${fontOpt.textMetricsCache?.size || 0} entries<br>
+                `;
+            } else {
+                fontPerfStatus = `<strong>Font Performance:</strong> <span class="warning">⚠️ Not Found</span><br>`;
+            }
+
+            statusDiv.innerHTML = imageStatus + textShadowStatus + fontPerfStatus +
+                `<br><small>Make sure the main design editor is loaded in another tab</small>`;
+        }
+
+        function startMonitoring() {
+            stats.startTime = Date.now();
+            stats.totalCalls = 0;
+            stats.skippedCalls = 0;
+            stats.processedCalls = 0;
+
+            monitoringInterval = setInterval(() => {
+                updatePerformanceStats();
+                checkOptimizationStatus();
+            }, 1000);
+
+            document.getElementById('performanceStats').innerHTML = 'Monitoring started... Drag objects in the design editor to see performance data.';
+        }
+
+        function stopMonitoring() {
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+                monitoringInterval = null;
+            }
+            document.getElementById('performanceStats').innerHTML += '<br><span class="success">Monitoring stopped.</span>';
+        }
+
+        function clearStats() {
+            stats = {
+                totalCalls: 0,
+                skippedCalls: 0,
+                processedCalls: 0,
+                startTime: Date.now()
+            };
+            document.getElementById('performanceStats').innerHTML = 'Stats cleared. Start monitoring to track new performance data.';
+        }
+
+        function updatePerformanceStats() {
+            const elapsed = stats.startTime ? ((Date.now() - stats.startTime) / 1000).toFixed(1) : 0;
+            let statsHtml = `<strong>Performance Statistics (${elapsed}s)</strong><br><br>`;
+
+            // Image effects stats
+            if (window.parent && window.parent.imageEffectsPipeline) {
+                const pipeline = window.parent.imageEffectsPipeline;
+                const imageSkipRate = pipeline.dragSkipCount + pipeline.dragProcessCount > 0 ?
+                    ((pipeline.dragSkipCount / (pipeline.dragSkipCount + pipeline.dragProcessCount)) * 100).toFixed(1) : 0;
+
+                statsHtml += `
+                    <strong>📸 Image Effects:</strong><br>
+                    Drag Mode: ${pipeline.isDragMode ? '<span class="success">ACTIVE</span>' : 'Inactive'}<br>
+                    Skipped: ${pipeline.dragSkipCount} | Processed: ${pipeline.dragProcessCount}<br>
+                    Skip Rate: ${imageSkipRate}%<br>
+                    Cache: ${pipeline.lastProcessedImages?.size || 0} images<br><br>
+                `;
+            }
+
+            // Text shadow stats
+            if (window.parent && window.parent.textShadowOptimization) {
+                const textOpt = window.parent.textShadowOptimization;
+                const shadowSkipRate = textOpt.shadowSkipCount + textOpt.shadowProcessCount > 0 ?
+                    ((textOpt.shadowSkipCount / (textOpt.shadowSkipCount + textOpt.shadowProcessCount)) * 100).toFixed(1) : 0;
+
+                statsHtml += `
+                    <strong>🎭 Text Shadows:</strong><br>
+                    Drag Mode: ${textOpt.isDragMode ? '<span class="success">ACTIVE</span>' : 'Inactive'}<br>
+                    Skipped: ${textOpt.shadowSkipCount} | Processed: ${textOpt.shadowProcessCount}<br>
+                    Skip Rate: ${shadowSkipRate}%<br>
+                    Cache: ${textOpt.lastProcessedShadows?.size || 0} shadows<br><br>
+                `;
+            }
+
+            // Font performance stats
+            if (window.parent && window.parent.fontPerformanceOptimization) {
+                const fontOpt = window.parent.fontPerformanceOptimization;
+                const fontHitRate = fontOpt.cacheHits + fontOpt.cacheMisses > 0 ?
+                    ((fontOpt.cacheHits / (fontOpt.cacheHits + fontOpt.cacheMisses)) * 100).toFixed(1) : 0;
+
+                statsHtml += `
+                    <strong>🔤 Font Performance:</strong><br>
+                    Drag Mode: ${fontOpt.isDragMode ? '<span class="success">ACTIVE</span>' : 'Inactive'}<br>
+                    Cache Hits: ${fontOpt.cacheHits} | Misses: ${fontOpt.cacheMisses}<br>
+                    Hit Rate: ${fontHitRate}%<br>
+                    Font Variants: ${fontOpt.fontVariantCache?.size || 0} | Text Metrics: ${fontOpt.textMetricsCache?.size || 0}<br><br>
+                `;
+
+                // Overall performance assessment
+                const overallSkipRate = Math.max(imageSkipRate || 0, shadowSkipRate || 0);
+                const overallHitRate = fontHitRate || 0;
+                statsHtml += `
+                    <strong>Overall Performance:</strong><br>
+                    ${(overallSkipRate > 50 || overallHitRate > 50) ? '<span class="success">🚀 Excellent optimization!</span>' :
+                      (overallSkipRate > 0 || overallHitRate > 0) ? '<span class="warning">⚠️ Some optimization active</span>' :
+                      '<span class="error">❌ No optimization detected</span>'}
+                `;
+            }
+
+            document.getElementById('performanceStats').innerHTML = statsHtml;
+        }
+
+        // Initial check
+        setTimeout(checkOptimizationStatus, 1000);
+        
+        // Auto-refresh status every 5 seconds
+        setInterval(checkOptimizationStatus, 5000);
+    </script>
+</body>
+</html>

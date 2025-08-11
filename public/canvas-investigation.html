@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Investigation - Step by Step</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .investigation-panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .step-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .step-btn {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .step-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .step-btn.completed {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .step-btn.failed {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+        
+        .quality-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .quality-btn {
+            padding: 8px 15px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .quality-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .canvas-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .canvas-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: grab;
+            overflow: hidden;
+            border: 1px solid #ddd;
+            background: white;
+        }
+        
+        .canvas-wrapper:active {
+            cursor: grabbing;
+        }
+        
+        #testCanvas {
+            display: block;
+            transform-origin: 0 0;
+            transition: transform 0.1s ease-out;
+        }
+        
+        .zoom-controls {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .zoom-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .zoom-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .zoom-info {
+            font-weight: bold;
+            color: #007bff;
+            min-width: 80px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .info {
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            text-align: left;
+        }
+        
+        .log {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 11px;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+        
+        .current-step {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .current-step h3 {
+            margin: 0 0 10px 0;
+            color: #856404;
+        }
+        
+        .current-step p {
+            margin: 0;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Canvas High-DPI Investigation</h1>
+        <p>Systematically adding main editor features to find what breaks high-DPI rendering</p>
+        
+        <div class="investigation-panel">
+            <h3>Investigation Steps</h3>
+            <div class="step-controls">
+                <button class="step-btn active" onclick="setStep(0)">Step 0: Baseline</button>
+                <button class="step-btn" onclick="setStep(1)">Step 1: + Update Loop</button>
+                <button class="step-btn" onclick="setStep(2)">Step 2: + Object System</button>
+                <button class="step-btn" onclick="setStep(3)">Step 3: + Text Rendering</button>
+                <button class="step-btn" onclick="setStep(4)">Step 4: + Shadows</button>
+                <button class="step-btn" onclick="setStep(5)">Step 5: + Decorations</button>
+                <button class="step-btn" onclick="setStep(6)">Step 6: + Full Editor</button>
+            </div>
+            
+            <div class="current-step" id="currentStepInfo">
+                <h3>Step 0: Baseline Test</h3>
+                <p>Pure canvas high-DPI rendering without any editor features. This should work perfectly.</p>
+            </div>
+        </div>
+        
+        <div class="investigation-panel">
+            <div class="quality-controls">
+                <button class="quality-btn active" onclick="setQuality(1)">1x Quality</button>
+                <button class="quality-btn" onclick="setQuality(2)">2x Quality</button>
+                <button class="quality-btn" onclick="setQuality(4)">4x Quality</button>
+            </div>
+        </div>
+        
+        <div class="canvas-container">
+            <div class="zoom-controls">
+                <button class="zoom-btn" onclick="zoomOut()">Zoom Out (-)</button>
+                <span class="zoom-info" id="zoomInfo">100%</span>
+                <button class="zoom-btn" onclick="zoomIn()">Zoom In (+)</button>
+                <button class="zoom-btn" onclick="resetZoom()">Reset</button>
+                <button class="zoom-btn" onclick="fitToView()">Fit to View</button>
+            </div>
+            
+            <div class="canvas-wrapper" id="canvasWrapper">
+                <canvas id="testCanvas" width="800" height="400"></canvas>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info" id="canvasInfo">
+                    Canvas Info: Loading...
+                </div>
+                
+                <div class="log" id="debugLog">
+                    Debug Log:
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/canvas-investigation.js?v=1751197007000"></script>
+</body>
+</html>

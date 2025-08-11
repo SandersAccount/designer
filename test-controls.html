@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Property Controls</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .control-group {
+            margin: 10px 0;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        input[type="range"] {
+            flex: 1;
+        }
+        .slider-value {
+            min-width: 50px;
+            font-weight: bold;
+        }
+        .simplified-color-picker {
+            display: inline-block;
+        }
+        #test-output {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Property Controls</h1>
+    
+    <div class="control-group">
+        <label for="iImageOpacity">Opacity:</label>
+        <div class="slider-container">
+            <input type="range" id="iImageOpacity" min="0" max="100" value="100" step="1">
+            <span class="slider-value" id="vImageOpacity">100%</span>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="iImageShadow">Shadow:</label>
+        <select id="iImageShadow">
+            <option value="none" selected>No Shadow</option>
+            <option value="standard">Standard</option>
+        </select>
+    </div>
+
+    <div class="control-group">
+        <label for="iImageColor">Color:</label>
+        <div class="simplified-color-picker">
+            <input type="color" id="iImageColor" value="#000000">
+        </div>
+    </div>
+
+    <div id="test-output">
+        <h3>Test Output:</h3>
+        <div id="output-content">Ready to test...</div>
+    </div>
+
+    <script>
+        // Test the event handlers
+        const iImageOpacity = document.getElementById('iImageOpacity');
+        const vImageOpacity = document.getElementById('vImageOpacity');
+        const iImageShadow = document.getElementById('iImageShadow');
+        const iImageColor = document.getElementById('iImageColor');
+        const outputContent = document.getElementById('output-content');
+
+        function logOutput(message) {
+            console.log(message);
+            outputContent.innerHTML += '<div>' + message + '</div>';
+        }
+
+        if (iImageOpacity) {
+            iImageOpacity.oninput = (e) => {
+                const value = e.target.value;
+                vImageOpacity.textContent = value + '%';
+                logOutput('🎛️ Image opacity slider changed: ' + value);
+            };
+            logOutput('✅ Opacity event handler attached');
+        } else {
+            logOutput('❌ iImageOpacity element not found');
+        }
+
+        if (iImageShadow) {
+            iImageShadow.onchange = (e) => {
+                logOutput('🌫️ Image shadow dropdown changed: ' + e.target.value);
+            };
+            logOutput('✅ Shadow event handler attached');
+        } else {
+            logOutput('❌ iImageShadow element not found');
+        }
+
+        if (iImageColor) {
+            iImageColor.oninput = (e) => {
+                logOutput('🎨 Image/Shape color picker changed: ' + e.target.value);
+            };
+            logOutput('✅ Color event handler attached');
+        } else {
+            logOutput('❌ iImageColor element not found');
+        }
+    </script>
+</body>
+</html>

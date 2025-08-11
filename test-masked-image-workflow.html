@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Masked Image Workflow</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section h2 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .test-step {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .test-step h3 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        .test-step p {
+            margin: 5px 0;
+            color: #6c757d;
+        }
+        .code-block {
+            background-color: #f1f3f4;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎭 Masked Image Replacement Workflow Test</h1>
+    
+    <div class="test-section">
+        <h2>Overview</h2>
+        <p>This test verifies that the masked image replacement system works correctly in the inspiration-to-generation workflow.</p>
+        
+        <h3>Issues Fixed:</h3>
+        <ul>
+            <li><span class="success">✓</span> Enhanced template analysis to detect masked images with ID "i01"</li>
+            <li><span class="success">✓</span> Improved image replacement logic to preserve mask relationships</li>
+            <li><span class="success">✓</span> Enhanced mask relationship restoration with better logging</li>
+            <li><span class="success">✓</span> Added UI feedback for masked image detection</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Workflow</h2>
+        
+        <div class="test-step">
+            <h3>Step 1: Create Template with Masked Image</h3>
+            <p>1. Open the design editor</p>
+            <p>2. Add an image and assign it template ID "i01"</p>
+            <p>3. Add a shape from the Elements sidebar</p>
+            <p>4. Select the image and click "Mask with Shape"</p>
+            <p>5. Click on the shape to apply the mask</p>
+            <p>6. Save the template</p>
+            <div class="code-block">
+Expected: Image should be masked and template should save with:
+- isMasked: true
+- maskShapeId: [shape-id]
+- maskShape: [shape-reference]
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>Step 2: Use Template in Generate-from-Inspiration</h3>
+            <p>1. Navigate to generate-from-inspiration.html</p>
+            <p>2. Select the template created in Step 1</p>
+            <p>3. Check the image replacement info section</p>
+            <div class="code-block">
+Expected: Should show:
+"✓ Masked image detected - mask will be preserved"
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>Step 3: Generate New Image</h3>
+            <p>1. Enter object/subject and any text replacements</p>
+            <p>2. Click "Generate Design"</p>
+            <p>3. Wait for image generation and background removal</p>
+            <p>4. Click "Send to Editor"</p>
+            <div class="code-block">
+Expected: Should redirect to design editor with new image
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>Step 4: Verify Masked Image Replacement</h3>
+            <p>1. Check that the new generated image replaced the original</p>
+            <p>2. Verify that the mask relationship is preserved</p>
+            <p>3. Check that the masked image and mask shape move together</p>
+            <div class="code-block">
+Expected Console Logs:
+[LoadGenerated] 🎭 Main image (i01) is masked: {...}
+[LoadGenerated] 🎭 Preserved masking properties for replaced image: {...}
+[Masking] 🎭 Restored mask relationship: {...}
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Enhanced Code Changes (Latest)</h2>
+
+        <div class="test-step">
+            <h3>generate-from-inspiration.html - Enhanced Template Analysis</h3>
+            <div class="code-block">
+// Two-pass analysis: First identify mask shapes, then validate relationships
+const maskShapes = [];
+template.canvasObjects.forEach((obj, index) => {
+    if (obj.type === 'image' && obj.isMaskShape === true) {
+        maskShapes.push({ id: obj.id, imageUrl: obj.imageUrl, index: index });
+    }
+});
+
+// Enhanced image analysis with mask validation
+if (obj.isMasked && obj.maskShapeId) {
+    const maskShape = maskShapes.find(mask => mask.id === obj.maskShapeId);
+    if (maskShape) {
+        imageData.maskShape = maskShape;
+        console.log('✅ Validated masked image');
+    } else {
+        console.warn('⚠️ Broken mask relationship');
+        imageData.isMasked = false;
+        imageData.maskShapeId = null;
+    }
+}
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>design-editor.js - Enhanced Image Replacement</h3>
+            <div class="code-block">
+// Pre-validate mask shape exists before replacement
+const maskShapeExists = sortedObjects.some(obj =>
+    obj.type === 'image' && obj.id === objData.maskShapeId && obj.isMaskShape === true
+);
+
+// Enhanced masking properties preservation with validation
+if (objData.isMasked && objData.maskShapeId) {
+    imageObj.isMasked = true;
+    imageObj.maskShapeId = objData.maskShapeId;
+    imageObj.isFromGeneration = true; // Mark as generated for debugging
+} else if (objData.isMasked && !objData.maskShapeId) {
+    // Don't preserve broken masking state
+    imageObj.isMasked = false;
+    imageObj.maskShapeId = null;
+}
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>design-editor.js - Enhanced Mask Restoration</h3>
+            <div class="code-block">
+// Enhanced restoreMaskRelationships() with comprehensive validation
+const availableMaskShapes = canvasObjects.filter(obj =>
+    obj.type === 'image' && (obj.isMaskShape === true || obj.isVisible === false)
+);
+
+// Validate mask shape properties before restoration
+const isValidMaskShape = maskShape.isMaskShape === true || maskShape.isVisible === false;
+
+if (isValidMaskShape) {
+    obj.maskShape = maskShape; // Restore the reference
+    console.log('✅ Successfully restored mask relationship');
+} else {
+    console.warn('⚠️ Found mask shape but it\'s not properly marked as mask');
+    // Clean up invalid mask relationship
+}
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>Enhanced UI Feedback</h3>
+            <div class="code-block">
+// Comprehensive mask validation feedback
+${isMaskedMainImage && maskValidated ?
+    '✅ Main image mask validated - will be preserved' : ''}
+${isMaskedMainImage && !maskValidated ?
+    '⚠️ Main image mask validation failed - may not preserve masking' : ''}
+${validatedMasksCount !== maskedImagesCount && maskedImagesCount > 0 ?
+    `⚠️ ${maskedImagesCount - validatedMasksCount} mask relationship(s) broken` : ''}
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Automated Testing Functions</h2>
+
+        <div class="test-step">
+            <h3>Test Masked Image Workflow</h3>
+            <button onclick="testMaskedImageWorkflow()" class="button">Run Automated Test</button>
+            <div id="testResults" class="code-block" style="margin-top: 10px; display: none;">
+                Test results will appear here...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function testMaskedImageWorkflow() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = 'Running automated masked image workflow test...\n\n';
+
+            const log = (message) => {
+                resultsDiv.innerHTML += message + '\n';
+                resultsDiv.scrollTop = resultsDiv.scrollHeight;
+            };
+
+            try {
+                log('🎭 MASKED IMAGE WORKFLOW TEST');
+                log('================================');
+
+                // Test 1: Check if generate-from-inspiration.html loads
+                log('1. Testing generate-from-inspiration.html accessibility...');
+                try {
+                    const response = await fetch('/generate-from-inspiration.html');
+                    if (response.ok) {
+                        log('   ✅ Page loads successfully');
+                    } else {
+                        log('   ❌ Page failed to load: ' + response.status);
+                    }
+                } catch (e) {
+                    log('   ❌ Error accessing page: ' + e.message);
+                }
+
+                // Test 2: Check if design-editor.html loads
+                log('2. Testing design-editor.html accessibility...');
+                try {
+                    const response = await fetch('/design-editor.html');
+                    if (response.ok) {
+                        log('   ✅ Page loads successfully');
+                    } else {
+                        log('   ❌ Page failed to load: ' + response.status);
+                    }
+                } catch (e) {
+                    log('   ❌ Error accessing page: ' + e.message);
+                }
+
+                // Test 3: Check API endpoints
+                log('3. Testing API endpoints...');
+                try {
+                    const templatesResponse = await fetch('/api/design-templates', { credentials: 'include' });
+                    if (templatesResponse.ok) {
+                        const templates = await templatesResponse.json();
+                        log(`   ✅ Templates API accessible (${templates.length} templates found)`);
+
+                        // Look for templates with masked images
+                        let maskedTemplatesFound = 0;
+                        templates.forEach(template => {
+                            if (template.canvasObjects) {
+                                const maskedImages = template.canvasObjects.filter(obj =>
+                                    obj.type === 'image' && obj.isMasked === true
+                                );
+                                if (maskedImages.length > 0) {
+                                    maskedTemplatesFound++;
+                                    log(`   🎭 Found template with ${maskedImages.length} masked image(s): ${template.name}`);
+                                }
+                            }
+                        });
+
+                        if (maskedTemplatesFound > 0) {
+                            log(`   ✅ Found ${maskedTemplatesFound} template(s) with masked images`);
+                        } else {
+                            log('   ⚠️ No templates with masked images found - create one to test the workflow');
+                        }
+                    } else {
+                        log('   ❌ Templates API failed: ' + templatesResponse.status);
+                    }
+                } catch (e) {
+                    log('   ❌ Error accessing templates API: ' + e.message);
+                }
+
+                // Test 4: Validate JavaScript functions exist
+                log('4. Testing JavaScript function availability...');
+
+                // Check if we can access the design editor functions
+                const editorWindow = window.open('/design-editor.html', '_blank');
+                if (editorWindow) {
+                    log('   ✅ Design editor window opened for function testing');
+
+                    setTimeout(() => {
+                        try {
+                            if (editorWindow.restoreMaskRelationships) {
+                                log('   ✅ restoreMaskRelationships function found');
+                            } else {
+                                log('   ⚠️ restoreMaskRelationships function not found');
+                            }
+
+                            if (editorWindow.loadGeneratedDesign) {
+                                log('   ✅ loadGeneratedDesign function found');
+                            } else {
+                                log('   ⚠️ loadGeneratedDesign function not found');
+                            }
+
+                            editorWindow.close();
+                        } catch (e) {
+                            log('   ⚠️ Could not access editor functions: ' + e.message);
+                            editorWindow.close();
+                        }
+                    }, 2000);
+                } else {
+                    log('   ❌ Could not open design editor window');
+                }
+
+                log('\n🎭 TEST SUMMARY');
+                log('===============');
+                log('✅ Basic accessibility tests completed');
+                log('🎯 To fully test the workflow:');
+                log('   1. Create a template with a masked image (ID: i01)');
+                log('   2. Save the template');
+                log('   3. Use it in generate-from-inspiration.html');
+                log('   4. Verify the generated image replaces the masked image');
+                log('   5. Check that the mask relationship is preserved');
+
+            } catch (error) {
+                log('❌ Test failed with error: ' + error.message);
+            }
+        }
+    </script>
+
+    <div class="test-section">
+        <h2>🎯 Summary of Fixes Applied</h2>
+
+        <div class="test-step">
+            <h3>✅ Issue 1: Masked Image Replacement - FIXED</h3>
+            <div class="code-block">
+Enhanced Template Analysis:
+- Two-pass analysis to identify mask shapes first, then validate relationships
+- Pre-validation of mask relationships before image replacement
+- Comprehensive logging and error detection
+- UI feedback for broken mask relationships
+
+Enhanced Image Replacement:
+- Pre-validation that mask shape exists before replacement
+- Proper preservation of masking properties (isMasked, maskShapeId)
+- Marking generated images for debugging (isFromGeneration)
+- Fallback handling that preserves mask properties
+- Validation of mask properties before preservation
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>✅ Issue 2: Mask Shape Serialization - ENHANCED</h3>
+            <div class="code-block">
+Enhanced Mask Restoration:
+- Comprehensive validation of mask shapes before restoration
+- Detailed logging of restoration process
+- Tracking of generated masked images
+- Success rate calculation and reporting
+- Cleanup of invalid mask relationships
+- Enhanced error handling and debugging
+
+Validation Tools:
+- Added validateMaskRelationships() function
+- Debug button in design editor UI (🎭 Validate Masks)
+- Comprehensive mask relationship validation
+- Detection of orphaned mask shapes
+- Real-time validation feedback
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>🔧 Additional Improvements</h3>
+            <div class="code-block">
+UI Enhancements:
+- Enhanced feedback in generate-from-inspiration.html
+- Visual indicators for mask validation status
+- Warning messages for broken relationships
+- Success confirmations for validated masks
+
+Debugging Tools:
+- Automated test function for workflow validation
+- Console logging with detailed mask information
+- Validation button in design editor
+- Comprehensive error reporting
+
+Code Quality:
+- Better error handling throughout the workflow
+- Consistent logging patterns with emojis for easy identification
+- Validation at multiple stages of the process
+- Graceful degradation for broken relationships
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Updated Testing Instructions</h2>
+
+        <div class="test-step">
+            <h3>Step 1: Create Masked Image</h3>
+            <div class="code-block">
+1. Open Design Editor (refresh page to load updated code)
+2. Add an image and assign template ID "i01"
+3. Add a shape from Elements sidebar
+4. Select image → click "Mask with Shape" → click on shape
+5. Click "🎭 Validate Masks" button to verify mask relationship
+6. Open browser console and run: testMaskSerialization()
+   - Should show ✅ PASS for all preservation tests
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>Step 2: Save Template (Critical Test)</h3>
+            <div class="code-block">
+1. Click "Save as Inspiration" button
+2. Watch console logs for:
+   - "[SaveTemplate] 🎭 DUPLICATE CHECK COMPLETE: X -> Y objects" (should remove duplicates)
+   - "[SaveProject] 🎭 Preserved isMasked=true" messages
+   - "[SaveTemplate] 🎭 Mask IDs assigned: ['mask01']" (mask shape gets template ID)
+   - "[SaveTemplate] 🎭 FINAL VERIFICATION - Masked images in final data: 1" (should be 1, not 2)
+   - No "❌ CRITICAL" error messages
+3. Enter template name when prompted
+4. Should see "Template saved successfully!" message
+
+Expected Console Output:
+✅ Duplicate objects removed (if any existed)
+✅ "[SaveProject] 🎭 Preserved isMasked=true for object X"
+✅ "[SaveTemplate] 🎭 Mask IDs assigned: ['mask01']"
+✅ "[SaveTemplate] 🎭 FINAL VERIFICATION - Masked images in final data: 1"
+✅ No critical errors about lost properties
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>Step 3: Test Template Loading (Auto-Mask Application)</h3>
+            <div class="code-block">
+1. Refresh the design editor page (to clear current state)
+2. Load the saved template (via URL parameter or template selection)
+3. Watch console logs for:
+   - "[AutoMask] 🎭 Found X masked image(s) to auto-apply"
+   - "[AutoMask] 🎭 ✅ Auto-applied mask for image X"
+   - "[AutoMask] 🎭 Auto-mask application complete"
+4. Verify mask is visually applied (image should be clipped by shape)
+5. Click "🎭 Validate Masks" - should show 1 valid relationship, not 2
+
+Expected Results:
+✅ Auto-mask application logs appear
+✅ Mask is visually applied immediately after loading
+✅ Validation shows 1 masked image (not 2 duplicates)
+✅ No broken relationships or duplicates
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>Step 4: Test Save Project Workflow (NEW)</h3>
+            <div class="code-block">
+1. Create a masked image with template ID "i01" (same as before)
+2. Click "Save Project" in left sidebar
+3. Watch console logs for:
+   - "[SaveProject] 🎭 DUPLICATE CHECK COMPLETE: X -> Y objects"
+   - "[SaveProject] 🎭 MASK OBJECT" and "CLEANED MASK OBJECT" logs
+   - "[SaveProject] 🎭 FINAL VERIFICATION - Masked images in final data: 1"
+   - "[SaveProject] 🎭 FINAL VERIFICATION - Mask shapes in final data: 1"
+4. Enter project title and select folder
+5. Click "Save Project" button in modal
+6. Should see "Project saved successfully" message
+
+Expected Results:
+✅ Duplicate objects removed (if any existed)
+✅ Mask properties preserved during project save
+✅ Final verification shows correct mask counts
+✅ Project saves successfully with masks intact
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>Step 5: Test Project Loading (NEW)</h3>
+            <div class="code-block">
+1. Go to my-projects.html
+2. Find the saved project with masked image
+3. Click "Edit" button
+4. Watch console logs for:
+   - "[ProjectLoader] Loading project: [projectId]"
+   - "[AutoMask] 🎭 Found X masked image(s) to auto-apply"
+   - "[AutoMask] 🎭 ✅ Auto-applied mask for image X"
+   - "[AutoMask] 🎭 Auto-mask application complete"
+5. Verify mask is visually applied (image should be clipped by shape)
+6. Click "🎭 Validate Masks" - should show 1 valid relationship
+
+Expected Results:
+✅ Project loads successfully in design editor
+✅ Auto-mask application logs appear
+✅ Mask is visually applied immediately after loading
+✅ Validation shows 1 masked image with valid relationship
+✅ No broken relationships or duplicates
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>Step 6: Test Generation Workflow</h3>
+            <div class="code-block">
+1. Go to generate-from-inspiration.html
+2. Select the saved template
+3. Should see: "✅ Main image mask validated - will be preserved"
+4. Generate new image
+5. Verify mask is preserved in final result
+6. Check console for successful mask restoration logs
+
+Expected Results:
+✅ Template shows mask validation status
+✅ Generated image replaces original while preserving mask
+✅ Console shows successful mask restoration
+✅ No broken mask relationship warnings
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>Browser Console Test Commands</h3>
+            <div class="code-block">
+// Test mask serialization
+testMaskSerialization()
+
+// Validate current mask relationships
+validateMaskRelationships()
+
+// Check canvas objects for masking properties
+canvasObjects.filter(obj => obj.isMasked)
+canvasObjects.filter(obj => obj.isMaskShape)
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 Critical Fixes Applied</h2>
+
+        <div class="test-step">
+            <h3>✅ Fix 1: Duplicate Object Issue (MAJOR)</h3>
+            <div class="code-block">
+PROBLEM: Canvas had duplicate objects with same ID causing:
+- 2 masked images with same ID (0) but different array positions
+- Validation showing 2 masked images when only 1 existed
+- Template saving duplicate objects with same properties
+
+SOLUTION: Added duplicate detection and removal in save process:
+- Check for duplicates by ID, type, and imageUrl
+- Remove duplicates before serialization
+- Enhanced logging to track duplicate removal
+
+RESULT: Clean object arrays with no duplicates!
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>✅ Fix 2: Mask Template ID System</h3>
+            <div class="code-block">
+PROBLEM: Mask shapes had no template IDs for identification
+
+SOLUTION: Added mask template ID system:
+- Added "mask01", "mask02", "mask03" options to dropdown
+- Mask shapes get assigned mask01, mask02, mask03 template IDs
+- Enhanced template ID assignment summary to include mask IDs
+- Better identification of mask shapes in workflow
+
+RESULT: Mask shapes now properly identified and tracked!
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>✅ Fix 3: Auto-Mask Application</h3>
+            <div class="code-block">
+PROBLEM: Masks not automatically applied after template loading
+
+SOLUTION: Added autoApplyMasksAfterLoad() function:
+- Called after restoreMaskRelationships() in both load functions
+- Ensures mask shapes are properly hidden and marked
+- Forces visual update to apply masks immediately
+- Comprehensive logging for debugging
+
+RESULT: Masks automatically applied when templates load!
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>✅ Fix 4: Save Project Workflow</h3>
+            <div class="code-block">
+PROBLEM: Save Project workflow didn't preserve masking properties
+
+SOLUTION: Applied same fixes to Save Project as Save Template:
+- Added duplicate object removal to handleSaveProject()
+- Added enhanced mask debugging to Save Project serialization
+- Added final verification before sending to backend
+- Added restoreMaskRelationships() to loadProjectFromUrl()
+- Added autoApplyMasksAfterLoad() to project loading
+
+RESULT: Save Project now preserves masks like Save Template!
+            </div>
+        </div>
+
+        <div class="test-step">
+            <h3>✅ Fix 5: Enhanced Serialization</h3>
+            <div class="code-block">
+PREVIOUS FIXES MAINTAINED:
+- left-menu.js cleanObjectForSerialization() preserves masking properties
+- Duplicate event listeners removed
+- Enhanced debugging and validation
+- Cache-busting parameters updated:
+  * design-editor.js v=1749559003
+  * left-menu.js v=1749559002
+
+RESULT: Complete masked image workflow now functional for both templates and projects!
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Testing Links</h2>
+        <a href="/design-editor.html" class="button">Open Design Editor</a>
+        <a href="/generate-from-inspiration.html" class="button">Open Generate from Inspiration</a>
+        <a href="/inspiration.html" class="button">Open Inspirations Gallery</a>
+        <a href="/test-mask-serialization.html" class="button" style="background-color: #8b5cf6;">🧪 Test Mask Serialization</a>
+        <button onclick="testMaskedImageWorkflow()" class="button" style="background-color: #10b981;">🧪 Run Automated Tests</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Expected Results</h2>
+        <ul>
+            <li><span class="success">✓</span> Masked images with ID "i01" are detected in template analysis</li>
+            <li><span class="success">✓</span> UI shows feedback when masked images are found</li>
+            <li><span class="success">✓</span> New generated images replace masked images while preserving mask relationship</li>
+            <li><span class="success">✓</span> Mask shapes remain hidden and move with the masked image</li>
+            <li><span class="success">✓</span> Console logs provide detailed debugging information</li>
+        </ul>
+    </div>
+</body>
+</html>

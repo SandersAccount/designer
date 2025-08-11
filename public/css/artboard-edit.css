@@ -1,0 +1,21 @@
+/* Artboard Edit Mode Styles */
+.artboard-edit-mode {
+    cursor: crosshair !important;
+}
+
+.artboard-edit-mode::after {
+    content: "Artboard Edit Mode - Click Confirm when done";
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(220, 255, 203, 0.9);
+    color: #333;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

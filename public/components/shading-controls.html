@@ -1,0 +1,57 @@
+<!-- Shading Effects Controls -->
+<div class="tool-section" id="shadingEffectsSection">
+    <h3>Shading Effects</h3>
+    
+    <!-- Shading Type Selector (Single selection only) -->
+    <div class="shading-type-selector">
+        <div class="toggle-container">
+            <input type="checkbox" id="shadowEffectToggle" name="shadingType" class="shading-checkbox" data-shading-type="shadow">
+            <label for="shadowEffectToggle">Drop Shadow</label>
+        </div>
+        <div class="toggle-container">
+            <input type="checkbox" id="lineShadowEffectToggle" name="shadingType" class="shading-checkbox" data-shading-type="lineShadow">
+            <label for="lineShadowEffectToggle">Line Shadow</label>
+        </div>
+        <div class="toggle-container">
+            <input type="checkbox" id="blockShadowEffectToggle" name="shadingType" class="shading-checkbox" data-shading-type="blockShadow">
+            <label for="blockShadowEffectToggle">Block Shadow</label>
+        </div>
+        <div class="toggle-container">
+            <input type="checkbox" id="detailed3DEffectToggle" name="shadingType" class="shading-checkbox" data-shading-type="detailed3D">
+            <label for="detailed3DEffectToggle">Detailed 3D</label>
+        </div>
+    </div>
+    
+    <!-- Shading Control Content Areas -->
+    <div class="shading-controls-content">
+        <div id="shadowControlsContent" class="shading-control-panel" style="display: none;"></div>
+        <div id="lineShadowControlsContent" class="shading-control-panel" style="display: none;"></div>
+        <div id="blockShadowControlsContent" class="shading-control-panel" style="display: none;"></div>
+        <div id="detailed3DControlsContent" class="shading-control-panel" style="display: none;"></div>
+    </div>
+</div>
+
+<style>
+    .shading-type-selector {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+    
+    .toggle-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .toggle-container label {
+        margin: 0;
+        color: #fff;
+        font-size: 14px;
+    }
+    
+    .shading-control-panel {
+        margin-top: 10px;
+    }
+</style>

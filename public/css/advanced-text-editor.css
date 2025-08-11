@@ -1,0 +1,269 @@
+/* Advanced Text Editor Styles */
+
+/* Text Effects Panel */
+.text-effects-panel {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.effect-group {
+    margin-bottom: 12px;
+}
+
+.effect-group h4 {
+    color: #eee;
+    font-size: 14px;
+    margin: 0 0 8px 0;
+    font-weight: 500;
+}
+
+/* Gradient Controls */
+.gradient-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.gradient-preview {
+    height: 24px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    border: 1px solid #333;
+}
+
+.gradient-stops {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.gradient-stop {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.gradient-stop input[type="color"] {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 4px;
+    background: none;
+    cursor: pointer;
+}
+
+.gradient-stop input[type="range"] {
+    flex: 1;
+    height: 6px;
+}
+
+.gradient-stop.active {
+    background-color: rgba(0, 102, 255, 0.2);
+    border: 1px solid rgba(0, 102, 255, 0.5);
+}
+
+.gradient-type-selector {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.gradient-type-option {
+    flex: 1;
+    padding: 5px;
+    text-align: center;
+    background: #333;
+    color: #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.gradient-type-option.active {
+    background: #0066ff;
+    color: white;
+}
+
+/* Shadow Controls */
+.shadow-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.shadow-preview {
+    height: 40px;
+    border-radius: 4px;
+    background: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    grid-column: span 2;
+}
+
+.shadow-preview span {
+    color: white;
+    font-size: 18px;
+}
+
+/* Effects Toggle Buttons */
+.effects-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.effect-toggle {
+    background: #333;
+    color: #ccc;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.effect-toggle i {
+    font-size: 14px;
+}
+
+.effect-toggle.active {
+    background: #0066ff;
+    color: white;
+}
+
+/* Text Transform Controls */
+.text-transform-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* Font Browser */
+.font-browser {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 10px;
+    padding-right: 5px;
+}
+
+.font-category {
+    margin-bottom: 10px;
+}
+
+.font-category-title {
+    font-size: 14px;
+    color: #ddd;
+    margin-bottom: 5px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid #333;
+}
+
+.font-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.font-option {
+    padding: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.font-option:hover {
+    background: #333;
+}
+
+.font-option.selected {
+    background: #0066ff33;
+}
+
+/* Layer Panel */
+.layer-panel {
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.layer-list {
+    max-height: 150px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.layer-item {
+    display: flex;
+    align-items: center;
+    background: #2a2a2a;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.layer-item.selected {
+    background: #0066ff33;
+}
+
+.layer-visibility {
+    margin-right: 8px;
+    color: #ccc;
+    cursor: pointer;
+}
+
+.layer-name {
+    flex: 1;
+    font-size: 12px;
+    color: #eee;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.layer-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.layer-control-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.layer-control-btn:hover {
+    color: white;
+}
+
+/* Responsive adjustments for small screens */
+@media (max-width: 768px) {
+    .shadow-controls,
+    .text-transform-controls {
+        grid-template-columns: 1fr;
+    }
+    
+    .shadow-preview {
+        grid-column: span 1;
+    }
+}

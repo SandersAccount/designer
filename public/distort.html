@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Text Warp Control</title>
+ 
+</head>
+ <style>
+ body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f0f0f0;
+}
+
+.controls {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.controls label {
+    margin-right: 10px;
+}
+
+.controls input[type="text"] {
+    padding: 8px;
+    margin-right: 10px;
+    min-width: 200px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.controls button {
+    padding: 8px 15px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.controls button:hover {
+    background-color: #0056b3;
+}
+
+.controls p {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 10px;
+}
+
+
+#warpCanvas {
+    border: 1px solid #ccc;
+    background-color: #ffffff;
+    cursor: default; /* Default cursor */
+}
+</style>
+<body>
+    <h1>Canvas Text Warp Demo</h1>
+
+    <div class="controls">
+        <label for="textInput">Enter Text:</label>
+        <input type="text" id="textInput" value="WARP SVG ONLINE">
+        <button id="addTextButton">Update Text</button>
+        <p>(Drag the black control points on the canvas)</p>
+    </div>
+
+    <canvas id="warpCanvas" width="700" height="450"></canvas>
+
+      <script>
+	  const canvas = document.getElementById('warpCanvas');
+const ctx = canvas.getContext('2d');
+const textInput = document.getElementById('textInput');
+const addTextButton = document.getElementById('addTextButton');
+
+// --- Configuration ---
+const NUM_COLS = 5; // Horizontal control points
+const NUM_ROWS = 3; // Vertical control points
+const POINT_RADIUS = 8;
+const POINT_COLOR = 'black';
+const LINE_COLOR = 'rgba(150, 150, 150, 0.7)';
+const HIT_TOLERANCE = POINT_RADIUS + 2; // How close mouse needs to be to drag
+const TEXT_PADDING = 50; // Padding around text for initial grid
+const FONT_SIZE = 60;
+const FONT_FAMILY = 'Arial Black, Gadget, sans-serif';
+const TEXT_COLOR = 'black';
+const TEXT_SHADOW_COLOR = 'mediumspringgreen'; // Like the example
+const TEXT_SHADOW_OFFSET = 5;
+
+// --- State Variables ---
+let controlPoints = []; // Array of {x, y} objects for the *current* grid state
+let initialControlPoints = []; // Array of {x, y} for the *original* grid state
+let currentText = '';
+let textMetrics = null;
+let isDragging = false;
+let draggingPointIndex = -1; // Index of the point being dragged
+let offsetX = 0; // Offset for smooth dragging
+let offsetY = 0;
+let initialGridRect = { x: 0, y: 0, width: 0, height: 0 }; // Store original grid bounds
+
+// --- Helper Functions ---
+
+// Calculate distance between two points {x, y}
+function dist(p1, p2) {
+    if (!p1 || !p2) return 0; // Basic check
+    const dx = p1.x - p2.x;
+    const dy = p1.y - p2.y;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+// Bilinear interpolation helper
+function interpolate(p00, p10, p01, p11, u, v) {
+    // Check for valid points
+    if (!p00 || !p10 || !p01 || !p11) {
+        console.warn("Interpolation called with missing points.");
+        // Return a default or potentially the first point if available
+        return p00 || { x: 0, y: 0 };
+    }
+    // Clamp u and v just in case
+    u = Math.max(0, Math.min(1, u));
+    v = Math.max(0, Math.min(1, v));
+
+    const val_x = p00.x * (1 - u) * (1 - v) + p10.x * u * (1 - v) + p01.x * (1 - u) * v + p11.x * u * v;
+    const val_y = p00.y * (1 - u) * (1 - v) + p10.y * u * (1 - v) + p01.y * (1 - u) * v + p11.y * u * v;
+    return { x: val_x, y: val_y };
+}
+
+
+// Map a point from the original grid space to the warped grid space
+// Also returns the corner points of the cell for scaling calculation.
+function getWarpedData(originalX, originalY) {
+    // Ensure grid data is valid
+    if (!initialGridRect.width || !initialGridRect.height || controlPoints.length !== initialControlPoints.length || initialControlPoints.length === 0) {
+         // Return default structure indicating failure or uninitialized state
+        return { pos: { x: originalX, y: originalY }, p00: null, p10: null, p01: null, p11: null, orig_p00: null, orig_p10: null, orig_p01: null, orig_p11: null };
+    }
+
+    // Normalize coordinates (u,v) within the initial grid bounds (0 to 1)
+    let u = (originalX - initialGridRect.x) / initialGridRect.width;
+    let v = (originalY - initialGridRect.y) / initialGridRect.height;
+
+    // Clamp u, v to [0, 1] range
+    u = Math.max(0, Math.min(1, u));
+    v = Math.max(0, Math.min(1, v));
+
+    // Determine grid cell indices (c0, r0) for the top-left corner
+    const col = u * (NUM_COLS - 1);
+    const row = v * (NUM_ROWS - 1);
+    const c0 = Math.floor(col);
+    const r0 = Math.floor(row);
+
+    // Determine indices for the other 3 corners (handle boundary cases)
+    const c1 = Math.min(c0 + 1, NUM_COLS - 1);
+    const r1 = Math.min(r0 + 1, NUM_ROWS - 1);
+
+    // Get the indices of the 4 corner control points of the cell
+    const p00_idx = r0 * NUM_COLS + c0;
+    const p10_idx = r0 * NUM_COLS + c1; // Top-right
+    const p01_idx = r1 * NUM_COLS + c0; // Bottom-left
+    const p11_idx = r1 * NUM_COLS + c1; // Bottom-right
+
+    // Check if indices are valid (should always be if calculation is correct)
+     if (p00_idx < 0 || p00_idx >= controlPoints.length ||
+        p10_idx < 0 || p10_idx >= controlPoints.length ||
+        p01_idx < 0 || p01_idx >= controlPoints.length ||
+        p11_idx < 0 || p11_idx >= controlPoints.length ||
+        p00_idx >= initialControlPoints.length || // Also check initial points array
+        p10_idx >= initialControlPoints.length ||
+        p01_idx >= initialControlPoints.length ||
+        p11_idx >= initialControlPoints.length
+        ) {
+        console.error("Calculated invalid control point index:", {p00_idx, p10_idx, p01_idx, p11_idx});
+        return { pos: { x: originalX, y: originalY }, p00: null, p10: null, p01: null, p11: null, orig_p00: null, orig_p10: null, orig_p01: null, orig_p11: null };
+    }
+
+
+    // Get the *current* positions of these control points
+    const p00 = controlPoints[p00_idx];
+    const p10 = controlPoints[p10_idx];
+    const p01 = controlPoints[p01_idx];
+    const p11 = controlPoints[p11_idx];
+
+     // Get the *original* positions of these control points
+    const orig_p00 = initialControlPoints[p00_idx];
+    const orig_p10 = initialControlPoints[p10_idx];
+    const orig_p01 = initialControlPoints[p01_idx];
+    const orig_p11 = initialControlPoints[p11_idx];
+
+    // Calculate local interpolation factors (u_local, v_local)
+    // Handle division by zero if c0 == c1 or r0 == r1 (e.g., if NUM_COLS/ROWS is 1 or points overlap)
+    const u_local = (c1 === c0) ? 0 : (col - c0); // Use unclamped col here
+    const v_local = (r1 === r0) ? 0 : (row - r0); // Use unclamped row here
+
+
+    // Perform bilinear interpolation for the position
+    const interpolatedPos = interpolate(p00, p10, p01, p11, u_local, v_local);
+
+    return { pos: interpolatedPos, p00, p10, p01, p11, orig_p00, orig_p10, orig_p01, orig_p11 };
+}
+
+
+// --- Initialization and Setup ---
+function initialize() {
+    addEventListeners();
+    currentText = textInput.value;
+    setupInitialGrid();
+    draw();
+}
+
+function addEventListeners() {
+    addTextButton.addEventListener('click', handleUpdateText);
+    textInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleUpdateText();
+        }
+    });
+
+    canvas.addEventListener('mousedown', handleMouseDown);
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseup', handleMouseUp);
+    canvas.addEventListener('mouseleave', handleMouseUp); // Stop dragging if mouse leaves
+}
+
+function handleUpdateText() {
+    currentText = textInput.value;
+    if (!currentText) {
+        controlPoints = [];
+        initialControlPoints = [];
+        textMetrics = null;
+        initialGridRect = { x: 0, y: 0, width: 0, height: 0 };
+    } else {
+        setupInitialGrid(); // Recalculates initial points and grid rect
+    }
+    draw();
+}
+
+function setupInitialGrid() {
+    if (!currentText) return;
+
+    ctx.font = `${FONT_SIZE}px ${FONT_FAMILY}`;
+    textMetrics = ctx.measureText(currentText);
+    let textWidth = textMetrics.width;
+    // Estimate height (actualBoundingBoxAscent/Descent are more accurate but less supported)
+    let textHeight = FONT_SIZE; // Approximation
+
+    // Calculate text drawing position (centered)
+    const textX = (canvas.width - textWidth) / 2;
+    const textY = canvas.height / 2; // Baseline position
+
+    // Calculate the bounding box for the initial grid
+    const gridLeft = textX - TEXT_PADDING;
+    const gridTop = textY - textHeight / 1.5 - TEXT_PADDING; // Adjust top based on baseline
+    const gridWidth = textWidth + 2 * TEXT_PADDING;
+    const gridHeight = textHeight + 2 * TEXT_PADDING;
+
+    // Store the initial grid bounds for mapping later
+    initialGridRect = { x: gridLeft, y: gridTop, width: gridWidth, height: gridHeight };
+
+    controlPoints = [];
+    initialControlPoints = []; // Reset and store the initial positions
+    for (let r = 0; r < NUM_ROWS; r++) {
+        for (let c = 0; c < NUM_COLS; c++) {
+            const x = gridLeft + (c / (NUM_COLS - 1)) * gridWidth;
+            const y = gridTop + (r / (NUM_ROWS - 1)) * gridHeight;
+            const point = { x, y };
+            controlPoints.push({ ...point }); // Add to current points (start identical to initial)
+            initialControlPoints.push({ ...point }); // Add to initial reference points
+        }
+    }
+}
+
+
+// --- Drawing ---
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Check if essential data is present
+    if (!currentText || controlPoints.length === 0 || initialControlPoints.length === 0 || initialControlPoints.length !== controlPoints.length) {
+        ctx.fillStyle = '#aaa';
+        ctx.font = '20px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Enter text above and click Update', canvas.width / 2, canvas.height / 2);
+        return;
+    }
+
+    // --- Draw Warped Text ---
+    ctx.font = `${FONT_SIZE}px ${FONT_FAMILY}`;
+    ctx.textBaseline = 'middle'; // Vertically center drawing relative to y coordinate
+    ctx.textAlign = 'center';   // Horizontally center drawing relative to x coordinate
+
+    const originalTextWidth = ctx.measureText(currentText).width;
+    const originalStartX = (canvas.width - originalTextWidth) / 2;
+    const originalBaselineY = canvas.height / 2;
+
+    let currentX = originalStartX; // Tracks original X position along baseline
+
+    for (let i = 0; i < currentText.length; i++) {
+        const char = currentText[i];
+        // Measure character BEFORE any transformations are applied
+        const charMetrics = ctx.measureText(char);
+        const charWidth = charMetrics.width;
+
+        // Calculate the *original* center position of this character
+        const originalCharCenterX = currentX + charWidth / 2;
+        const originalCharCenterY = originalBaselineY;
+
+        // Get warped position and the corner points data for the cell this char center falls into
+        const warpData = getWarpedData(originalCharCenterX, originalCharCenterY);
+
+        // Skip if we couldn't get valid warp data (e.g., grid not initialized, index out of bounds)
+        if (!warpData || !warpData.p00 || !warpData.orig_p00) {
+             console.warn(`Skipping character '${char}' due to missing warp data.`);
+             currentX += charWidth; // Still advance X position
+             continue;
+        }
+
+        const warpedPos = warpData.pos;
+
+        // --- Calculate Scaling ---
+        // Original cell dimensions (average width and height)
+        const orig_top_w = dist(warpData.orig_p00, warpData.orig_p10);
+        const orig_bottom_w = dist(warpData.orig_p01, warpData.orig_p11);
+        const orig_avg_w = (orig_top_w + orig_bottom_w) / 2;
+
+        const orig_left_h = dist(warpData.orig_p00, warpData.orig_p01);
+        const orig_right_h = dist(warpData.orig_p10, warpData.orig_p11);
+        const orig_avg_h = (orig_left_h + orig_right_h) / 2;
+
+        // Current cell dimensions (average width and height)
+        const current_top_w = dist(warpData.p00, warpData.p10);
+        const current_bottom_w = dist(warpData.p01, warpData.p11);
+        const current_avg_w = (current_top_w + current_bottom_w) / 2;
+
+        const current_left_h = dist(warpData.p00, warpData.p01);
+        const current_right_h = dist(warpData.p10, warpData.p11);
+        const current_avg_h = (current_left_h + current_right_h) / 2;
+
+        // Calculate scale factors, prevent division by zero or NaN, add minimum scale
+        let scaleX = (orig_avg_w > 0.1) ? (current_avg_w / orig_avg_w) : 1;
+        let scaleY = (orig_avg_h > 0.1) ? (current_avg_h / orig_avg_h) : 1;
+        scaleX = Math.max(0.05, isNaN(scaleX) ? 1 : scaleX); // Allow significant shrinking
+        scaleY = Math.max(0.05, isNaN(scaleY) ? 1 : scaleY);
+
+
+        // --- Draw Character with Transform ---
+        ctx.save(); // Save context state (transform, fillStyle, etc.)
+
+        // 1. Translate origin to the character's warped center position
+        ctx.translate(warpedPos.x, warpedPos.y);
+
+        // 2. Apply scaling relative to the new origin
+        // Note: More advanced would calculate rotation/skew from corner points too
+        ctx.scale(scaleX, scaleY);
+
+        // 3. Draw shadow and character centered at the *transformed* origin (0,0)
+
+        // Calculate shadow offset in the scaled coordinate system to maintain visual consistency
+        const shadowDrawX = (scaleX !== 0) ? TEXT_SHADOW_OFFSET / scaleX : 0;
+        const shadowDrawY = (scaleY !== 0) ? TEXT_SHADOW_OFFSET / scaleY : 0;
+
+        ctx.fillStyle = TEXT_SHADOW_COLOR;
+        ctx.fillText(char, shadowDrawX, shadowDrawY); // Draw shadow at calculated offset
+
+        // Draw Main Text (centered at the transformed origin 0,0)
+        ctx.fillStyle = TEXT_COLOR;
+        ctx.fillText(char, 0, 0);
+
+        ctx.restore(); // Restore context state (removes scale and translation)
+
+
+        // Advance the original X position tracker for the *next* character's calculation
+        // Base advancement on the *original* width to maintain consistent character flow logic
+        currentX += charWidth;
+
+    } // End character loop
+
+
+    // --- Draw Grid and Points (after text so they are on top) ---
+    ctx.strokeStyle = LINE_COLOR;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    // Horizontal lines
+    for (let r = 0; r < NUM_ROWS; r++) {
+        for (let c = 0; c < NUM_COLS - 1; c++) {
+            const p1 = controlPoints[r * NUM_COLS + c];
+            const p2 = controlPoints[r * NUM_COLS + c + 1];
+             if(p1 && p2) { // Add checks for valid points
+                 ctx.moveTo(p1.x, p1.y);
+                 ctx.lineTo(p2.x, p2.y);
+             }
+        }
+    }
+    // Vertical lines
+    for (let c = 0; c < NUM_COLS; c++) {
+        for (let r = 0; r < NUM_ROWS - 1; r++) {
+            const p1 = controlPoints[r * NUM_COLS + c];
+            const p2 = controlPoints[(r + 1) * NUM_COLS + c];
+            if(p1 && p2) { // Add checks for valid points
+                 ctx.moveTo(p1.x, p1.y);
+                 ctx.lineTo(p2.x, p2.y);
+            }
+        }
+    }
+    ctx.stroke();
+
+    // Draw Control Points
+    ctx.fillStyle = POINT_COLOR;
+    controlPoints.forEach(point => {
+        if (!point) return; // Add check
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, POINT_RADIUS, 0, Math.PI * 2);
+        ctx.fill();
+    });
+}
+
+
+// --- Interaction Handling ---
+function getMousePos(canvasElement, event) {
+    const rect = canvasElement.getBoundingClientRect();
+    return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+    };
+}
+
+function findPointAt(mouseX, mouseY) {
+    for (let i = 0; i < controlPoints.length; i++) {
+        // Ensure point exists before accessing properties
+        if (!controlPoints[i]) continue;
+        const point = controlPoints[i];
+        const dx = mouseX - point.x;
+        const dy = mouseY - point.y;
+        if (dx * dx + dy * dy < HIT_TOLERANCE * HIT_TOLERANCE) {
+            return i; // Return index of the point
+        }
+    }
+    return -1; // No point found
+}
+
+function handleMouseDown(e) {
+    const mousePos = getMousePos(canvas, e);
+    draggingPointIndex = findPointAt(mousePos.x, mousePos.y);
+
+    if (draggingPointIndex !== -1) {
+        isDragging = true;
+        // Ensure the point exists before accessing
+        if(controlPoints[draggingPointIndex]) {
+            const point = controlPoints[draggingPointIndex];
+            offsetX = mousePos.x - point.x; // Store offset for smooth drag
+            offsetY = mousePos.y - point.y;
+            canvas.style.cursor = 'grabbing';
+        } else {
+            // Point not found (shouldn't happen if findPointAt worked), reset
+            draggingPointIndex = -1;
+            isDragging = false;
+            canvas.style.cursor = 'default';
+        }
+    } else {
+         canvas.style.cursor = 'default';
+    }
+}
+
+function handleMouseMove(e) {
+    const mousePos = getMousePos(canvas, e);
+
+    if (isDragging && draggingPointIndex !== -1) {
+        // Ensure point exists before modifying
+        if(controlPoints[draggingPointIndex]) {
+            // Update the position of the dragged point
+            controlPoints[draggingPointIndex].x = mousePos.x - offsetX;
+            controlPoints[draggingPointIndex].y = mousePos.y - offsetY;
+            draw(); // Redraw the canvas with updated point position AND warped text
+        } else {
+             // Point missing, stop dragging
+             isDragging = false;
+             draggingPointIndex = -1;
+             canvas.style.cursor = 'default';
+        }
+    } else {
+        // Change cursor if hovering over a point (even when not dragging)
+        const hoverPointIndex = findPointAt(mousePos.x, mousePos.y);
+        if (hoverPointIndex !== -1) {
+            canvas.style.cursor = 'grab';
+        } else {
+            canvas.style.cursor = 'default';
+        }
+    }
+}
+
+function handleMouseUp(e) {
+    if (isDragging) {
+        isDragging = false;
+        draggingPointIndex = -1;
+        // Check cursor style again in case mouse is released over a point
+        let mousePos = { x: -1, y: -1 };
+        // Event might not have clientX/Y if it's 'mouseleave' without position data
+         if (e.clientX !== undefined && e.clientY !== undefined) {
+             mousePos = getMousePos(canvas, e);
+         }
+
+        const hoverPointIndex = findPointAt(mousePos.x, mousePos.y);
+         if (hoverPointIndex !== -1) {
+            canvas.style.cursor = 'grab';
+        } else {
+            canvas.style.cursor = 'default';
+        }
+    }
+     // Ensure cursor is default if mouse leaves canvas while not dragging
+     if (!isDragging && e.type === 'mouseleave') {
+         canvas.style.cursor = 'default';
+     }
+}
+
+// --- Start the application ---
+initialize();
+	 
+	 </script>
+</body>
+</html> 

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Themes</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .theme-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .theme-item {
+            background: #3d3d3d;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .theme-form {
+            display: grid;
+            gap: 1rem;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #2d2d2d;
+            border-radius: 8px;
+        }
+
+        .theme-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .theme-form input[type="text"],
+        .theme-form textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background: #333;
+            color: #fff;
+        }
+
+        .theme-form textarea {
+            min-height: 100px;
+            font-family: monospace;
+        }
+
+        .theme-form button {
+            padding: 0.75rem 1rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .theme-form button:hover {
+            background: #0056b3;
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 0.25rem;
+        }
+
+        .variables-list {
+            background: #333;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+            font-family: monospace;
+        }
+
+        .variables-list h3 {
+            margin-top: 0;
+            color: #fff;
+        }
+
+        .variables-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .variables-list li {
+            color: #7cb7ff;
+            margin: 0.5rem 0;
+        }
+
+        .variables-list .description {
+            color: #999;
+            margin-left: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Theme Management</h1>
+        
+        <form id="themeForm" class="theme-form">
+            <div>
+                <label for="name">Theme Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div>
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+
+            <div class="variables-list">
+                <h3>Theme Variables</h3>
+                <p>These variables will be available for use in style prompts:</p>
+                <ul>
+                    <li>[art-theme] <span class="description">- Art style from theme's art styles list</span></li>
+                    <li>[elements-theme] <span class="description">- Random elements from theme's elements list</span></li>
+                    <li>[font] <span class="description">- Theme's font style description</span></li>
+                    <li>[look] <span class="description">- Theme's look & feel description</span></li>
+                </ul>
+            </div>
+
+            <div>
+                <label for="prompt">Prompt Template:</label>
+                <textarea id="prompt" name="prompt" required></textarea>
+                <div class="help-text">
+                    Available variables: [object], [art-theme], [elements-theme], [font], [look], [bg]<br>
+                    Example: "For [object] lovers. Include [elements-theme], the font [font] very important, in a [look] with a classic [art-theme] aesthetic. [bg] background"
+                </div>
+            </div>
+
+            <div>
+                <label for="elements">Theme Elements:</label>
+                <textarea id="elements" name="elements" required placeholder="Enter comma-separated elements, e.g.: flames, lightning bolts, motorcycle parts, chains, wings"></textarea>
+                <div class="help-text">These elements will be available via [elements-theme] in style prompts</div>
+            </div>
+
+            <div>
+                <label for="artStyles">Art Styles:</label>
+                <textarea id="artStyles" name="artStyles" required placeholder="Enter comma-separated art styles, e.g.: vintage biker, modern motorcycle, classic chopper, retro rider"></textarea>
+                <div class="help-text">These art styles will be available via [art-theme] in style prompts</div>
+            </div>
+
+            <div>
+                <label for="font">Font Style (Optional):</label>
+                <input type="text" id="font" name="font" placeholder="e.g.: aggressive condensed serif">
+                <div class="help-text">This font description will be available via [font] in style prompts. Leave empty to use default font.</div>
+            </div>
+
+            <div>
+                <label for="look">Look & Feel (Optional):</label>
+                <input type="text" id="look" name="look" placeholder="e.g.: Fast energetic sentiment of velocity">
+                <div class="help-text">This look & feel description will be available via [look] in style prompts. Leave empty to use default look.</div>
+            </div>
+
+            <button type="submit">Add Theme</button>
+        </form>
+
+        <div id="themeList" class="theme-list"></div>
+    </div>
+
+    <script>
+        let themes = [];
+        let editingId = null;
+
+        async function loadThemes() {
+            const response = await fetch('/api/themes');
+            themes = await response.json();
+            displayThemes();
+        }
+
+        function displayThemes() {
+            const themeList = document.getElementById('themeList');
+            themeList.innerHTML = '';
+
+            themes.sort((a, b) => a.order - b.order).forEach((theme, index) => {
+                const div = document.createElement('div');
+                div.className = 'theme-item';
+                div.innerHTML = `
+                    <div class="theme-header">
+                        <span class="drag-handle">☰</span>
+                        <h3>${theme.name}</h3>
+                    </div>
+                    <p><strong>Description:</strong> ${theme.description}</p>
+                    <p><strong>Prompt:</strong> ${theme.prompt}</p>
+                    <p><strong>Elements:</strong> ${theme.elements}</p>
+                    <p><strong>Art Styles:</strong> ${theme.artStyles}</p>
+                    <p><strong>Font:</strong> ${theme.font}</p>
+                    <p><strong>Look & Feel:</strong> ${theme.look}</p>
+                    <button onclick="editTheme('${theme._id}')">Edit</button>
+                    <button onclick="deleteTheme('${theme._id}')">Delete</button>
+                `;
+                div.draggable = true;
+                div.dataset.id = theme._id;
+                div.dataset.index = index;
+                themeList.appendChild(div);
+            });
+
+            setupDragAndDrop();
+        }
+
+        function setupDragAndDrop() {
+            const items = document.querySelectorAll('.theme-item');
+            items.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('drop', handleDrop);
+            });
+        }
+
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.id);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        async function handleDrop(e) {
+            e.preventDefault();
+            const draggedId = e.dataTransfer.getData('text/plain');
+            const targetId = e.target.closest('.theme-item').dataset.id;
+            
+            if (draggedId === targetId) return;
+
+            const draggedIndex = themes.findIndex(t => t._id === draggedId);
+            const targetIndex = themes.findIndex(t => t._id === targetId);
+            
+            // Update orders
+            const updatedThemes = [...themes];
+            const [removed] = updatedThemes.splice(draggedIndex, 1);
+            updatedThemes.splice(targetIndex, 0, removed);
+            
+            // Update order numbers
+            updatedThemes.forEach((theme, index) => {
+                theme.order = index;
+            });
+
+            // Save new order to server
+            try {
+                await fetch('/api/themes/reorder', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedThemes.map(t => ({ id: t._id, order: t.order })))
+                });
+
+                themes = updatedThemes;
+                displayThemes();
+            } catch (error) {
+                console.error('Error updating order:', error);
+            }
+        }
+
+        async function editTheme(id) {
+            const theme = themes.find(t => t._id === id);
+            if (!theme) return;
+
+            document.getElementById('name').value = theme.name;
+            document.getElementById('description').value = theme.description;
+            document.getElementById('prompt').value = theme.prompt;
+            document.getElementById('elements').value = theme.elements;
+            document.getElementById('artStyles').value = theme.artStyles;
+            document.getElementById('font').value = theme.font;
+            document.getElementById('look').value = theme.look;
+            
+            editingId = id;
+            document.querySelector('#themeForm button').textContent = 'Update Theme';
+        }
+
+        async function deleteTheme(id) {
+            if (!confirm('Are you sure you want to delete this theme?')) return;
+
+            try {
+                await fetch(`/api/themes/${id}`, { method: 'DELETE' });
+                themes = themes.filter(t => t._id !== id);
+                displayThemes();
+            } catch (error) {
+                console.error('Error deleting theme:', error);
+                alert('Error deleting theme');
+            }
+        }
+
+        document.getElementById('themeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                name: document.getElementById('name').value.trim(),
+                description: document.getElementById('description').value.trim(),
+                prompt: document.getElementById('prompt').value.trim(),
+                elements: document.getElementById('elements').value.trim(),
+                artStyles: document.getElementById('artStyles').value.trim(),
+                font: document.getElementById('font').value.trim() || null,  
+                look: document.getElementById('look').value.trim() || null   
+            };
+
+            try {
+                const method = editingId ? 'PUT' : 'POST';
+                const url = editingId ? `/api/themes/${editingId}` : '/api/themes';
+
+                const response = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to save theme');
+                }
+
+                // Reset form
+                e.target.reset();
+                editingId = null;
+                document.querySelector('#themeForm button').textContent = 'Add Theme';
+
+                // Reload themes
+                await loadThemes();
+            } catch (error) {
+                console.error('Error saving theme:', error);
+                alert('Error saving theme');
+            }
+        });
+
+        // Load themes on page load
+        loadThemes();
+    </script>
+</body>
+</html>

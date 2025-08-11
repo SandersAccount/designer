@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create from Inspiration - Prompt to Sticker Generator</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: #111;
+            color: #fff;
+        }
+
+        .topbar-wrapper {
+            background-color: #1a1a1a;
+            padding: 10px 0;
+        }
+
+        #topbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header .back-link {
+            color: #999;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+        }
+
+        .page-header .back-link:hover {
+            color: #fff;
+        }
+
+        .inspiration-container {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .inspiration-image {
+            flex: 0 0 300px;
+        }
+
+        .inspiration-image img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .inspiration-form {
+            flex: 1;
+        }
+
+        .text-input-container {
+            margin-bottom: 1rem;
+        }
+
+        .text-input-container label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .text-input-container input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .generate-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .generate-btn:hover {
+            background-color: #45a049;
+        }
+
+        .generate-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .result-container {
+            margin-top: 2rem;
+        }
+
+        .inspiration-details {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .inspiration-details img {
+            max-width: 250px;
+            display: block;
+            margin: 0 auto 1rem;
+        }
+
+        .inspiration-details h4 {
+            text-align: center;
+            color: #333;
+        }
+
+        .inspiration-details p {
+            text-align: center;
+            color: #666;
+        }
+
+        .text-input-optional {
+            font-size: 0.8rem;
+            color: #666;
+            margin-left: 0.5rem;
+            font-style: italic;
+        }
+
+        .text-replacement-info {
+            display: block;
+            font-size: 0.75rem;
+            color: #e74c3c;
+            font-weight: bold;
+            margin: 2px 0;
+            font-style: normal;
+        }
+
+        .image-replacement-info {
+            background-color: #f8f9fa;
+            border: 2px solid #e74c3c;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .image-replacement-info h4 {
+            color: #e74c3c;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .image-replacement-info ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .image-replacement-info li {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .template-analysis-info {
+            font-family: monospace;
+        }
+
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .generated-image-container {
+            display: none;
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .generated-image-container img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .image-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .image-actions button {
+            background: #222;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .image-actions button:hover {
+            background: #333;
+        }
+
+        .error-message {
+            display: none;
+            background: rgba(255, 0, 0, 0.1);
+            border-left: 4px solid #ff3a3a;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 6px;
+            color: #ff9999;
+        }
+
+        .color-palette-section {
+            margin-bottom: 20px;
+        }
+        
+        .color-palette-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .original-palette-description {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .original-palette-description p {
+            margin: 0;
+            color: #555;
+        }
+        
+        .original-palette-description strong {
+            color: #333;
+        }
+
+        /* Spinner animation for loading states */
+        .spinner {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5em;
+        }
+        
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="topbar"></div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Create from Inspiration</h1>
+            <a href="/inspiration.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Inspirations
+            </a>
+        </div>
+
+        <div id="inspiration-content">
+            <div class="loading-container" style="display: block;">
+                <div class="loading-spinner"></div>
+                <p class="loading-text">Loading inspiration...</p>
+            </div>
+        </div>
+
+        <div id="result" class="result" style="display: none;">
+            <div id="loadingContainer" class="loading-container" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p class="loading-text">Generating your design...</p>
+            </div>
+
+            <div id="generatedImageContainer" class="generated-image-container" >
+                <img id="generatedImage" src="" alt="Generated design">
+                <div class="image-actions">
+                    <button id="downloadBtn">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                    <button id="addToCollectionBtn">
+                        <i class="fas fa-folder-plus"></i> Add to Collection
+                    </button>
+                    <button id="regenerateBtn">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                    <!-- Add Send to Editor Button -->
+                    <button id="sendToEditorBtn" style="display: none; background-color: #3b82f6;">
+                        <i class="fas fa-edit"></i> Send to Editor
+                    </button>
+                </div>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createTopbar } from '/js/components/Topbar.js';
+        import { showToast } from '/js/utils.js';
+        import { getPaletteById, getTextColorForPalette } from '/js/data/colorPalettes.js';
+        import { ColorPaletteSelector } from '/js/components/ColorPaletteSelector.js';
+        
+        // The ColorPaletteSelector component is already registered in its own file
+        
+        // Global variables
+        let currentInspiration = null; // Will store the full Design Template data now
+        let colorPaletteSelector = null;
+        
+        // Make colorPaletteSelector globally accessible
+        window.colorPaletteSelector = null;
+        
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Initialize topbar
+                const topbar = document.getElementById('topbar');
+                if (topbar) {
+                    await createTopbar(topbar);
+                }
+
+                // Get inspiration ID from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const inspirationId = urlParams.get('id');
+                
+                if (!inspirationId) {
+                    displayError('No inspiration ID provided. Please select an inspiration first.');
+                    return;
+                }
+                
+                // Load inspiration
+                await loadInspiration(inspirationId);
+            } catch (error) {
+                console.error('Initialization error:', error);
+                displayError('Failed to initialize the page. Please try again later.');
+            }
+        });
+
+        // Function to load inspiration
+        async function loadInspiration(inspirationId) {
+            const container = document.getElementById('inspiration-content');
+            
+            try {
+                // Fetch the full Design Template data using the ID
+                console.log(`Fetching Design Template data for ID: ${inspirationId}`);
+                const response = await fetch(`/api/design-templates/${inspirationId}`, { credentials: 'include' });
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Failed to load design template: ${response.statusText} - ${errorText}`);
+                }
+                
+                currentInspiration = await response.json(); // Store the full template data
+                console.log("Fetched Design Template:", currentInspiration);
+
+                // Load persistent parameters for all objects in the template
+                await loadPersistentParametersForTemplate(currentInspiration);
+
+                // Analyze template for replaceable elements
+                const templateAnalysis = generateTemplateInputs(currentInspiration);
+                const textElementsCount = currentInspiration.canvasObjects?.filter(obj => obj.type === 'text').length || 0;
+                const replaceableTextCount = templateAnalysis.replaceableElements.texts.length;
+                const replaceableImageCount = templateAnalysis.replaceableElements.images.length;
+
+                // Store template analysis globally for later use
+                window.currentTemplateAnalysis = templateAnalysis;
+
+                // Create inspiration UI using the fetched template data
+                const inspirationHTML = `
+                    <div class="inspiration-details mb-4" style="background-color: #2a2a2a; color: #ccc;">
+                        <p><i>Generating based on template: ${currentInspiration.name || 'Untitled'}</i></p>
+                        <p class="text-muted small" style="font-size: 0.7em; line-height: 1.2; max-height: 50px; overflow: hidden;">Original Prompt: ${currentInspiration.adminData?.prompt || 'N/A'}</p>
+                        <p class="text-muted small">Model: ${currentInspiration.adminData?.model || 'N/A'}</p>
+                        <div class="template-analysis-info" style="margin-top: 10px; padding: 8px; background-color: #1a1a1a; border-radius: 4px;">
+                            <small>
+                                📝 ${textElementsCount} text elements total (${replaceableTextCount} replaceable)
+                                ${replaceableImageCount > 0 ? `| 🖼️ ${replaceableImageCount} replaceable images` : ''}
+                            </small>
+                        </div>
+                    </div>
+                    <div class="inspiration-container">
+                        <div class="inspiration-image">
+                            <img src="${currentInspiration.previewImageUrl}" alt="Template preview">
+                        </div>
+                        <div class="inspiration-form">
+                            <div class="form-group mb-3">
+                                <label for="objectInput">What object/subject should the image feature?</label>
+                                <input type="text" id="objectInput" class="form-control" placeholder="e.g., cat, dog, dragon" value="">
+                            </div>
+
+                            ${templateAnalysis.imageInputs}
+
+                            <div class="form-group mb-3">
+                                <label>Enter text for the design elements:</label>
+                                <div id="textInputsContainer" class="text-inputs-container">
+                                    ${templateAnalysis.textInputs || generateTextInputs(textElementsCount)}
+                                </div>
+                            </div>
+                            
+                            <div class="color-palette-section mb-4">
+                                <h3>Choose Color Palette</h3>
+                                <div class="original-palette-description bg-secondary text-white">
+                                    <p>Original Palette: <strong id="originalPaletteText">${currentInspiration.adminData?.palette || 'Not specified'}</strong></p>
+                                </div>
+                                <div id="colorPaletteContainer">
+                                    <color-palette-selector id="color-palette-selector"></color-palette-selector>
+                                </div>
+                            </div>
+
+
+                            
+                            <button id="generateBtn" class="generate-btn btn btn-success w-100">
+                                <i class="fas fa-magic"></i> Generate Design
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML = inspirationHTML;
+                
+                // Add event listener to generate button
+                document.getElementById('generateBtn').addEventListener('click', generateFromInspiration);
+                
+                // Add event listeners for download and collection buttons (these are hidden initially)
+                document.getElementById('downloadBtn').addEventListener('click', downloadImage);
+                document.getElementById('addToCollectionBtn').addEventListener('click', addToCollection);
+                document.getElementById('regenerateBtn').addEventListener('click', regenerateImage);
+                
+                // Initialize color palette selector
+                const paletteSelector = document.getElementById('color-palette-selector');
+                if (paletteSelector) {
+                    window.colorPaletteSelector = paletteSelector; // Make globally accessible
+                    // Set the default selection to "Original Palette" if the template has one specified
+                    if (currentInspiration.adminData?.palette) {
+                         console.log('Setting palette selector to "original" based on template adminData');
+                         // Wait for the component to potentially finish loading its options
+                         setTimeout(() => {
+                             paletteSelector.selectedPaletteId = 'original';
+                             console.log('Palette selector value set to:', paletteSelector.selectedPaletteId);
+                         }, 100); // Small delay might be needed
+                    } else {
+                         console.log('No original palette in template adminData, selector will use its default.');
+                    }
+                } else {
+                     console.error("Color palette selector element not found!");
+                }
+                
+                // Make sure the loading container is hidden
+                document.getElementById('loadingContainer').style.display = 'none';
+            } catch (error) {
+                console.error('Error loading inspiration:', error);
+                container.innerHTML = `
+                    <div class="error-message" style="display: block;">
+                        <p>Failed to load the inspiration. Please try again later.</p>
+                        <p class="error-details">${error.message}</p>
+                    </div>
+                `;
+                // Make sure the loading container is hidden on error
+                document.getElementById('loadingContainer').style.display = 'none';
+            }
+        }
+
+        // Function to load persistent parameters for all objects in a template
+        async function loadPersistentParametersForTemplate(template) {
+            console.log('💾 Loading persistent parameters for template objects...');
+
+            if (!template || !template.canvasObjects) {
+                console.log('💾 No template or canvas objects found');
+                return;
+            }
+
+            const loadPromises = template.canvasObjects.map(async (obj) => {
+                try {
+                    console.log(`💾 Loading persistent parameters for object ${obj.id}`);
+
+                    const response = await fetch(`/api/persistent-parameters/${obj.id}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            console.log(`💾 No persistent parameters found for object ${obj.id}`);
+                            return;
+                        }
+                        throw new Error(`Failed to load persistent parameters: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    console.log(`💾 Loaded persistent parameters for object ${obj.id}:`, result.data);
+
+                    // Apply the persistent parameters to the object
+                    if (result.data.newColorIntensity) {
+                        obj.newColorIntensity = result.data.newColorIntensity.value;
+                        console.log(`💾 Applied newColorIntensity: ${obj.newColorIntensity} to object ${obj.id}`);
+                    }
+
+                    if (result.data.newTemplateId) {
+                        obj.newTemplateId = result.data.newTemplateId.value;
+                        console.log(`💾 Applied newTemplateId: ${obj.newTemplateId} to object ${obj.id}`);
+                    }
+
+                } catch (error) {
+                    console.error(`💾 Error loading persistent parameters for object ${obj.id}:`, error);
+                    // Don't throw - just log the error and continue
+                }
+            });
+
+            await Promise.all(loadPromises);
+            console.log('💾 Finished loading persistent parameters for all template objects');
+        }
+
+        // Function to analyze template and generate appropriate inputs (Enhanced System)
+        function generateTemplateInputs(template) {
+            console.log('🎭 [Template Analysis] Starting enhanced template analysis for masked image detection');
+            if (!template || !template.canvasObjects) {
+                console.log('🎭 [Template Analysis] No template or canvas objects found');
+                return { textInputs: '', imageInputs: '', replaceableElements: { texts: [], images: [] } };
+            }
+            console.log('🎭 [Template Analysis] Found', template.canvasObjects.length, 'canvas objects to analyze');
+
+            const replaceableTexts = [];
+            const replaceableImages = [];
+            const maskShapes = [];
+            let textInputs = '';
+            let imageInputs = '';
+
+            // First pass: Identify all mask shapes for reference
+            template.canvasObjects.forEach((obj, index) => {
+                if (obj.type === 'image' && obj.isMaskShape === true) {
+                    maskShapes.push({
+                        id: obj.id,
+                        imageUrl: obj.imageUrl,
+                        index: index,
+                        isVisible: obj.isVisible
+                    });
+                    console.log(`🎭 [Template Analysis] Found mask shape:`, {
+                        id: obj.id,
+                        imageUrl: obj.imageUrl,
+                        isVisible: obj.isVisible,
+                        index: index
+                    });
+                }
+            });
+
+            // Second pass: Analyze canvas objects for replaceable elements (t01-t05, i01-i05)
+            // Using NEW persistent template ID system
+            template.canvasObjects.forEach((obj, index) => {
+                if (obj.type === 'text' && obj.newTemplateId && obj.newTemplateId.match(/^t0[1-5]$/)) {
+                    replaceableTexts.push({
+                        id: obj.newTemplateId,
+                        originalText: obj.text,
+                        index: index
+                    });
+                } else if (obj.type === 'image' && obj.newTemplateId && obj.newTemplateId.match(/^i0[1-5]$/)) {
+                    // Enhanced image analysis with mask validation
+                    const imageData = {
+                        id: obj.newTemplateId,
+                        originalUrl: obj.imageUrl,
+                        index: index,
+                        isMasked: obj.isMasked || false,
+                        maskShapeId: obj.maskShapeId || null,
+                        maskShape: null // Will be populated if mask is found
+                    };
+
+                    // If image is masked, validate mask relationship
+                    if (obj.isMasked && obj.maskShapeId) {
+                        const maskShape = maskShapes.find(mask => mask.id === obj.maskShapeId);
+                        if (maskShape) {
+                            imageData.maskShape = maskShape;
+                            console.log(`🎭 [Template Analysis] ✅ Validated masked image ${obj.newTemplateId}:`, {
+                                imageUrl: obj.imageUrl,
+                                isMasked: obj.isMasked,
+                                maskShapeId: obj.maskShapeId,
+                                maskShapeUrl: maskShape.imageUrl,
+                                maskVisible: maskShape.isVisible,
+                                index: index
+                            });
+                        } else {
+                            console.warn(`🎭 [Template Analysis] ⚠️ Broken mask relationship for image ${obj.newTemplateId}:`, {
+                                imageUrl: obj.imageUrl,
+                                maskShapeId: obj.maskShapeId,
+                                availableMasks: maskShapes.map(m => m.id)
+                            });
+                            // Reset masking properties for broken relationships
+                            imageData.isMasked = false;
+                            imageData.maskShapeId = null;
+                        }
+                    }
+
+                    replaceableImages.push(imageData);
+
+                    // Enhanced logging for masked images
+                    if (imageData.isMasked) {
+                        console.log(`🎭 [Template Analysis] Found masked image with ID ${obj.newTemplateId}:`, {
+                            imageUrl: obj.imageUrl,
+                            isMasked: imageData.isMasked,
+                            maskShapeId: imageData.maskShapeId,
+                            maskValidated: !!imageData.maskShape,
+                            index: index
+                        });
+                    }
+                }
+            });
+
+            // Sort texts by ID (t01, t02, t03, t04, t05)
+            replaceableTexts.sort((a, b) => a.id.localeCompare(b.id));
+
+            // Generate text input fields (max 5)
+            if (replaceableTexts.length > 0) {
+                replaceableTexts.forEach((textObj, i) => {
+                    const textNumber = textObj.id.replace('t0', '');
+                    textInputs += `
+                        <div class="text-input-container">
+                            <label for="textInput_${textObj.id}">
+                                Text ${textNumber}
+                                <span class="text-replacement-info">(Replaces: "${textObj.originalText}")</span>
+                                <span class="text-input-optional">(optional)</span>
+                            </label>
+                            <input type="text"
+                                   id="textInput_${textObj.id}"
+                                   class="text-input"
+                                   data-template-id="${textObj.id}"
+                                   placeholder="Enter text or leave empty for random value"
+                                   value="">
+                        </div>
+                    `;
+                });
+            }
+
+            // Show enhanced image replacement info (always show if there are replaceable images)
+            if (replaceableImages.length > 0) {
+                const hasMainImage = replaceableImages.some(img => img.id === 'i01');
+                const mainImage = replaceableImages.find(img => img.id === 'i01');
+                const isMaskedMainImage = mainImage && mainImage.isMasked;
+                const maskValidated = mainImage && mainImage.isMasked && mainImage.maskShape;
+
+                let replacementText = hasMainImage ? 'The generated image will replace the main image (i01)' : 'Generated image will replace the first available image';
+
+                // Enhanced feedback for masked images
+                if (isMaskedMainImage) {
+                    if (maskValidated) {
+                        replacementText += ' - Image is masked and mask relationship is validated';
+                    } else {
+                        replacementText += ' - Image has masking properties but mask validation failed';
+                    }
+                }
+
+                // Count masked images for summary
+                const maskedImagesCount = replaceableImages.filter(img => img.isMasked).length;
+                const validatedMasksCount = replaceableImages.filter(img => img.isMasked && img.maskShape).length;
+
+                imageInputs = `
+                    <div class="image-replacement-info">
+                        <h4>🖼️ Image Replacement:</h4>
+                        <p>${replacementText}</p>
+                        <small>Total replaceable images: ${replaceableImages.length}</small>
+                        ${maskedImagesCount > 0 ? `<small style="display: block; margin-top: 4px;">Masked images found: ${maskedImagesCount}</small>` : ''}
+                        ${isMaskedMainImage && maskValidated ? '<small style="color: #10b981; display: block; margin-top: 4px;">✅ Main image mask validated - will be preserved</small>' : ''}
+                        ${isMaskedMainImage && !maskValidated ? '<small style="color: #f59e0b; display: block; margin-top: 4px;">⚠️ Main image mask validation failed - may not preserve masking</small>' : ''}
+                        ${validatedMasksCount !== maskedImagesCount && maskedImagesCount > 0 ? `<small style="color: #ef4444; display: block; margin-top: 4px;">⚠️ ${maskedImagesCount - validatedMasksCount} mask relationship(s) broken</small>` : ''}
+                    </div>
+                `;
+            }
+
+            // Enhanced analysis summary logging
+            const maskedImages = replaceableImages.filter(img => img.isMasked);
+            const validatedMasks = maskedImages.filter(img => img.maskShape);
+            const brokenMasks = maskedImages.filter(img => !img.maskShape);
+            const mainImage = replaceableImages.find(img => img.id === 'i01');
+
+            console.log('🎭 [Template Analysis] Enhanced analysis complete:', {
+                totalTexts: replaceableTexts.length,
+                totalImages: replaceableImages.length,
+                totalMaskShapes: maskShapes.length,
+                maskedImages: maskedImages.length,
+                validatedMasks: validatedMasks.length,
+                brokenMasks: brokenMasks.length,
+                maskedImageIds: maskedImages.map(img => img.id),
+                maskShapeIds: maskShapes.map(mask => mask.id),
+                hasMainImage: !!mainImage,
+                mainImageIsMasked: mainImage?.isMasked || false,
+                mainImageMaskValidated: mainImage?.isMasked && !!mainImage?.maskShape
+            });
+
+            // Log detailed mask relationships
+            if (maskedImages.length > 0) {
+                console.log('🎭 [Template Analysis] Mask relationships:');
+                maskedImages.forEach(img => {
+                    console.log(`🎭   ${img.id}: ${img.isMasked ? 'MASKED' : 'NOT_MASKED'} -> maskShapeId: ${img.maskShapeId} -> ${img.maskShape ? 'VALIDATED' : 'BROKEN'}`);
+                });
+            }
+
+            if (brokenMasks.length > 0) {
+                console.warn('🎭 [Template Analysis] ⚠️ Broken mask relationships detected:', brokenMasks.map(img => ({
+                    imageId: img.id,
+                    maskShapeId: img.maskShapeId,
+                    imageUrl: img.originalUrl
+                })));
+            }
+
+            return {
+                textInputs,
+                imageInputs,
+                replaceableElements: {
+                    texts: replaceableTexts,
+                    images: replaceableImages
+                }
+            };
+        }
+
+        // Legacy function for backward compatibility
+        function generateTextInputs(count) {
+            let inputs = '';
+            for (let i = 0; i < count; i++) {
+                inputs += `
+                    <div class="text-input-container">
+                        <label for="textInput${i+1}">Text ${i+1} <span class="text-input-optional">(optional)</span></label>
+                        <input type="text" id="textInput${i+1}" class="text-input" placeholder="Enter text or leave empty for random value" value="">
+                    </div>
+                `;
+            }
+            return inputs;
+        }
+
+        // Function to generate image from inspiration (New Flow)
+        async function generateFromInspiration() {
+            if (!currentInspiration || !currentInspiration.adminData) {
+                displayError('Template data not loaded correctly.');
+                return;
+            }
+
+            // Get user inputs
+            const objectInput = document.getElementById('objectInput').value.trim();
+            if (!objectInput) {
+                displayError('Please enter an object/subject.');
+                return;
+            }
+
+            // Get text values - support both template ID-based and legacy numbered inputs
+            const textInputs = document.querySelectorAll('.text-input');
+            const userTexts = [];
+            const templateTextReplacements = {};
+
+            // Check if we have template analysis data
+            if (window.currentTemplateAnalysis && window.currentTemplateAnalysis.replaceableElements.texts.length > 0) {
+                // New template ID-based system
+                window.currentTemplateAnalysis.replaceableElements.texts.forEach(textObj => {
+                    const input = document.getElementById(`textInput_${textObj.id}`);
+                    if (input) {
+                        const value = input.value.trim();
+                        templateTextReplacements[textObj.id] = value;
+                        userTexts.push(value); // Also add to legacy array for backward compatibility
+                    }
+                });
+                console.log('Template-based text replacements:', templateTextReplacements);
+            } else {
+                // Legacy numbered system
+                userTexts.push(...Array.from(textInputs).map(input => input.value.trim()));
+            }
+
+            console.log('User entered texts:', userTexts);
+
+            // Get selected color palette description
+            let finalPaletteDescription = currentInspiration.adminData.palette || 'default colors'; // Default if original is missing
+            const paletteSelector = document.getElementById('color-palette-selector');
+            if (paletteSelector && paletteSelector.selectedPaletteId !== 'original' && paletteSelector.selectedPalette) {
+                finalPaletteDescription = paletteSelector.selectedPalette.description;
+                console.log(`Using selected palette: ${finalPaletteDescription}`);
+            } else {
+                console.log(`Using original palette: ${finalPaletteDescription}`);
+            }
+
+            // Prepare the prompt using the *original* template prompt
+            let promptToSend = currentInspiration.adminData.prompt || '';
+            promptToSend = promptToSend.replace(/\[input-object\]/gi, objectInput);
+            promptToSend = promptToSend.replace(/\[palette\]/gi, finalPaletteDescription);
+            console.log('Prompt being sent to AI:', promptToSend);
+
+            // Get the model name from the template
+            const modelName = currentInspiration.adminData.model;
+            if (!modelName) {
+                displayError('Original model name not found in the template data.');
+                return;
+            }
+            console.log('Using model:', modelName);
+
+            // Show loading state
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('generateBtn').innerHTML = '<span class="spinner"></span> Generating Image...';
+            document.getElementById('generatedImageContainer').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('loadingContainer').style.display = 'block';
+
+            try {
+                // Call the standard generate endpoint
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming token auth
+                    },
+                    body: JSON.stringify({
+                        prompt: promptToSend,
+                        model: modelName
+                        // Add other necessary parameters like n, size if needed by /api/generate
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || `Failed to generate image (${response.status})`);
+                }
+
+                console.log('AI Generation successful:', result);
+                const newImageUrl = result.imageUrl; // Assuming the endpoint returns imageUrl
+                const generationId = result.generationId; // Assuming the endpoint returns generationId
+
+                if (!newImageUrl) {
+                    throw new Error('API did not return a valid image URL.');
+                }
+
+                // Store necessary data in sessionStorage for the editor
+                sessionStorage.setItem('generatedImageUrl', newImageUrl);
+                sessionStorage.setItem('userTexts', JSON.stringify(userTexts));
+                sessionStorage.setItem('originalTemplateId', currentInspiration._id);
+                sessionStorage.setItem('generationId', generationId); // <-- Store generationId
+
+                // Store template replacement data for the new ID-based system
+                if (Object.keys(templateTextReplacements).length > 0) {
+                    sessionStorage.setItem('templateTextReplacements', JSON.stringify(templateTextReplacements));
+                }
+                if (window.currentTemplateAnalysis) {
+                    sessionStorage.setItem('templateAnalysis', JSON.stringify(window.currentTemplateAnalysis));
+                }
+
+                // Redirect to the editor
+                const editorUrl = new URL('/design-editor.html', window.location.origin);
+                editorUrl.searchParams.set('source', 'generation');
+                editorUrl.searchParams.set('templateId', currentInspiration._id);
+                // --- Display the generated image and actions on this page ---
+                const generatedImageEl = document.getElementById('generatedImage');
+                const generatedImageContainer = document.getElementById('generatedImageContainer');
+                const loadingContainer = document.getElementById('loadingContainer');
+                const imageActionsDiv = generatedImageContainer.querySelector('.image-actions');
+
+                generatedImageEl.src = newImageUrl; // Show the initially generated image
+                generatedImageEl.dataset.imageUrl = newImageUrl; // Store URL for potential BG removal
+                generatedImageEl.dataset.generationId = generationId; // Store ID for BG removal
+
+                loadingContainer.style.display = 'none';
+                generatedImageContainer.style.display = 'block'; // Show the container
+
+                // Ensure the BG remove button doesn't already exist
+                if (!document.getElementById('manualRemoveBgBtn')) {
+                    const removeBgBtn = document.createElement('button');
+                    removeBgBtn.id = 'manualRemoveBgBtn';
+                    removeBgBtn.innerHTML = '<i class="fas fa-cut"></i> Remove Background';
+                    removeBgBtn.addEventListener('click', handleManualBgRemove);
+                    imageActionsDiv.appendChild(removeBgBtn); // Add button to existing actions
+                } else {
+                    // Re-enable if it exists from a previous attempt
+                    const existingBtn = document.getElementById('manualRemoveBgBtn');
+                    existingBtn.disabled = false;
+                    existingBtn.innerHTML = '<i class="fas fa-cut"></i> Remove Background';
+                }
+                 // Reset the main generate button
+                // Show the Send to Editor button
+                const sendToEditorBtn = document.getElementById('sendToEditorBtn');
+                if (sendToEditorBtn) {
+                    sendToEditorBtn.style.display = 'flex'; // Use flex to align icon and text
+                    sendToEditorBtn.onclick = handleSendToEditor; // Attach listener
+                }
+
+                // --- Automatically trigger background removal ---
+                console.log('Automatically triggering background removal...');
+                await handleManualBgRemove(); // Call the existing function
+
+
+            } catch (error) {
+                console.error('Generation error:', error);
+                displayError(error.message || 'Failed to generate image. Please try again.', error.stack);
+                // Reset button state on error
+                document.getElementById('generateBtn').disabled = false;
+                document.getElementById('generateBtn').innerHTML = '<i class="fas fa-magic"></i> Generate Design';
+                document.getElementById('loadingContainer').style.display = 'none';
+            }
+        }
+
+        // Function to download generated image
+        async function downloadImage() {
+            const imageElement = document.getElementById('generatedImage');
+            const imageUrl = imageElement.src;
+            
+            if (!imageUrl) {
+                displayError('No image to download.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ imageUrl })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to download image');
+                }
+                
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'sticker-design.png';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Download error:', error);
+                displayError('Failed to download image. Please try again.', error.stack);
+            }
+        }
+
+        // Function to add to collection
+        function addToCollection() {
+            const imageElement = document.getElementById('generatedImage');
+            const imageUrl = imageElement.src;
+            const prompt = imageElement.dataset.prompt;
+            
+            if (!imageUrl) {
+                displayError('No image to add to collection.');
+                return;
+            }
+            
+            // Call global addToCollection function
+            window.addToCollection(imageUrl, prompt);
+        }
+
+        // Function to regenerate image
+        function regenerateImage() {
+            // Hide previous result before regenerating
+            document.getElementById('generatedImageContainer').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            generateFromInspiration();
+        }
+
+        // --- NEW: Function to handle manual background removal ---
+        async function handleManualBgRemove() {
+            const imageElement = document.getElementById('generatedImage');
+            const imageUrl = imageElement.dataset.imageUrl;
+            const generationId = imageElement.dataset.generationId;
+            const removeBgBtn = document.getElementById('manualRemoveBgBtn');
+
+            if (!imageUrl || !generationId) {
+                displayError('Missing image URL or Generation ID for background removal.');
+                return;
+            }
+
+            removeBgBtn.disabled = true;
+            removeBgBtn.innerHTML = '<span class="spinner"></span> Removing BG...';
+            if (window.showToast) window.showToast('Removing background...', 'info');
+
+            try {
+                const response = await fetch('/api/images/bgremove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imageUrl, generationId })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || data.details || 'Background removal failed');
+                }
+
+                const newImageUrl = data.imageUrl; // URL of the BG-removed image in B2
+                console.log('Manual Background removed successfully. New URL:', newImageUrl);
+
+                // Update the displayed image
+                imageElement.src = newImageUrl;
+                // Update the stored URL in case user wants to download/add this version
+                imageElement.dataset.imageUrl = newImageUrl;
+                // Optionally disable/hide the button permanently after success
+                removeBgBtn.textContent = 'Background Removed';
+                    // removeBgBtn.style.display = 'none'; // Or just keep it disabled
+
+                    if (window.showToast) window.showToast('Background removed! Sending to editor...', 'success');
+
+                    // --- Automatically send to editor after successful BG removal 
+                    console.log('Background removal successful, automatically sending to editor...');
+                    handleSendToEditor(); // Call the function to redirect
+
+            } catch (error) {
+                console.error('Error removing background manually:', error);
+                displayError(`Error removing background: ${error.message}`);
+                removeBgBtn.disabled = false; // Re-enable on error
+                removeBgBtn.innerHTML = '<i class="fas fa-cut"></i> Remove Background';
+            }
+        }
+        // --- END NEW FUNCTION ---
+
+        // --- NEW: Function to handle sending data to editor ---
+        function handleSendToEditor() {
+            const imageElement = document.getElementById('generatedImage');
+            const currentImageUrl = imageElement.src; // Get the current src (could be original or BG removed)
+            const generationId = imageElement.dataset.generationId; // Get the original generation ID
+            const templateId = currentInspiration?._id;
+
+            if (!currentImageUrl || !templateId) {
+                displayError('Cannot send to editor: Missing image URL or template ID.');
+                return;
+            }
+
+            // Get current user texts
+            const textInputs = document.querySelectorAll('.text-input');
+            const userTexts = Array.from(textInputs).map(input => input.value.trim());
+
+            console.log('[SendToEditor] Data being stored:', {
+                generatedImageUrl: currentImageUrl, // Store the *current* image URL
+                userTexts: userTexts,
+                originalTemplateId: templateId,
+                generationId: generationId
+            });
+
+            // Get selected palette for smart text colors
+            const paletteSelector = document.getElementById('color-palette-selector');
+            const selectedPaletteId = paletteSelector?.selectedPaletteId || 'original';
+
+            console.log('🎨 Applying smart text colors before sending to editor:', {
+                selectedPaletteId
+            });
+
+            // Apply smart text colors to the template
+            let modifiedTemplate = JSON.parse(JSON.stringify(currentInspiration)); // Deep copy
+            modifiedTemplate = applySmartTextColors(modifiedTemplate, selectedPaletteId);
+
+            // Ensure font styles list is preserved (should already be there from deep copy)
+            if (currentInspiration.adminData?.fontStylesList) {
+                console.log('🎯 Font styles preserved in modified template:', currentInspiration.adminData.fontStylesList.length, 'styles');
+            } else {
+                console.log('🎯 No font styles found in current inspiration');
+            }
+
+            // Store necessary data in sessionStorage for the editor
+            sessionStorage.setItem('generatedImageUrl', currentImageUrl); // Use the current URL
+            sessionStorage.setItem('userTexts', JSON.stringify(userTexts));
+            sessionStorage.setItem('originalTemplateId', templateId);
+            sessionStorage.setItem('generationId', generationId); // Pass the original ID
+            sessionStorage.setItem('modifiedTemplate', JSON.stringify(modifiedTemplate)); // Store the modified template
+
+            // Store template replacement data for the new ID-based system
+            if (typeof templateTextReplacements !== 'undefined' && Object.keys(templateTextReplacements).length > 0) {
+                sessionStorage.setItem('templateTextReplacements', JSON.stringify(templateTextReplacements));
+            }
+            if (window.currentTemplateAnalysis) {
+                sessionStorage.setItem('templateAnalysis', JSON.stringify(window.currentTemplateAnalysis));
+            }
+
+            // Redirect to the editor
+            const editorUrl = new URL('/design-editor.html', window.location.origin);
+            editorUrl.searchParams.set('source', 'generation'); // Keep source as generation
+            editorUrl.searchParams.set('templateId', templateId); // Pass template ID
+            window.location.href = editorUrl.toString();
+        }
+        // --- END NEW FUNCTION ---
+
+        // Function to apply smart text colors to template based on palette and color intensity settings
+        function applySmartTextColors(template, paletteId) {
+            console.log('🎨 Applying smart text colors:', { paletteId });
+
+            if (!template || !template.canvasObjects || !paletteId) {
+                console.log('🎨 Missing template data or palette ID, skipping smart colors');
+                return template;
+            }
+
+            // Apply colors based on each object's persistent color intensity setting
+            template.canvasObjects.forEach(obj => {
+                if (obj.type === 'text' || (obj.type === 'image' && obj.imageUrl && obj.imageUrl.toLowerCase().endsWith('.svg'))) {
+                    // Get the persistent color intensity setting for this object (NEW SYSTEM)
+                    const colorIntensity = obj.newColorIntensity;
+
+                    // If no color intensity is set, set to N/A, or set to no-change, skip this object
+                    if (!colorIntensity || colorIntensity === 'N/A' || colorIntensity === 'no-change') {
+                        console.log(`🎨 Object "${obj.text || obj.id}" has no persistent color intensity (${colorIntensity}), keeping original color`);
+                        return; // Skip this object
+                    }
+
+                    // Get the appropriate color for this palette and intensity
+                    const newColor = getTextColorForPalette(paletteId, colorIntensity);
+
+                    if (newColor) {
+                        const oldColor = obj.color || obj.svgColor;
+                        if (obj.type === 'text') {
+                            obj.color = newColor;
+                        } else if (obj.type === 'image') {
+                            obj.svgColor = newColor;
+                        }
+                        console.log(`🎨 Updated ${obj.type} "${obj.text || obj.id}" color using persistent intensity (${colorIntensity}): ${oldColor} → ${newColor}`);
+                    }
+                }
+            });
+
+            // Store the palette in admin data for the editor
+            if (!template.adminData) {
+                template.adminData = {};
+            }
+            template.adminData.appliedPalette = paletteId;
+
+            console.log('🎨 Smart text colors applied successfully');
+            return template;
+        }
+
+        // Function to show custom error message in our UI
+        function displayError(message, details = '') {
+            const errorEl = document.getElementById('errorMessage');
+            
+            let errorHTML = `<p>${message}</p>`;
+            
+            if (details) {
+                errorHTML += `<details><summary>Technical Details</summary><p>${details}</p></details>`;
+            }
+            
+            errorEl.innerHTML = errorHTML;
+            errorEl.style.display = 'block';
+            
+            // Hide loading spinner
+            document.getElementById('loadingContainer').style.display = 'none';
+            
+            // Reset generate button
+            const generateBtn = document.getElementById('generateBtn');
+            if (generateBtn) {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate Design';
+            }
+            
+            // Scroll to error message
+            errorEl.scrollIntoView({ behavior: 'smooth' });
+            
+            console.error('Error shown to user:', message, details);
+        }
+        document.getElementById("generatedImageContainer").style.display = "none";
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,626 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Decoration Tool</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1200px;
+            gap: 20px;
+        }
+
+        .canvas-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            background-color: white;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .font-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .font-controls select, .font-controls input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .font-controls input[type="number"] {
+            width: 70px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            background-color: #f5f5f5;
+            margin-right: 5px;
+        }
+
+        .tab.active {
+            background-color: #fff;
+            border-color: #ddd;
+            margin-bottom: -1px;
+            padding-bottom: 11px;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .effect-control {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider-container label {
+            width: 100px;
+            font-size: 14px;
+        }
+
+        .slider-container input[type="range"] {
+            flex-grow: 1;
+        }
+
+        .slider-container .value {
+            width: 40px;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-picker label {
+            width: 100px;
+            font-size: 14px;
+        }
+
+        .color-picker input[type="color"] {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Text Decoration Tool</h1>
+    <div class="container">
+        <div class="canvas-container">
+            <canvas id="textCanvas"></canvas>
+        </div>
+        <div class="controls">
+            <input type="text" class="text-input" id="textInput" placeholder="Enter your text here..." value="Sample Text">
+            <div class="font-controls">
+                <select id="fontFamily">
+                    <option value="Arial">Arial</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Impact">Impact</option>
+                </select>
+                <input type="number" id="fontSize" min="12" max="200" value="100">
+                <input type="color" id="textColor" value="#000000">
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="horizontal">Horizontal Lines</div>
+                <div class="tab" data-tab="colorCut">Color Cut</div>
+                <div class="tab" data-tab="oblique">Oblique Lines</div>
+                <div class="tab" data-tab="fading">Fading Color Cut</div>
+            </div>
+            
+            <div class="tab-content active" id="horizontalTab">
+                <div class="effect-control">
+                    <div class="slider-container">
+                        <label for="hWeight">Weight:</label>
+                        <input type="range" id="hWeight" min="1" max="20" value="3">
+                        <span class="value" id="hWeightValue">3%</span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="hDistance">Distance:</label>
+                        <input type="range" id="hDistance" min="1" max="50" value="7">
+                        <span class="value" id="hDistanceValue">7%</span>
+                    </div>
+                    <div class="color-picker">
+                        <label for="hColor">Line Color:</label>
+                        <input type="color" id="hColor" value="#0000FF">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="colorCutTab">
+                <div class="effect-control">
+                    <div class="slider-container">
+                        <label for="ccDistance">Distance:</label>
+                        <input type="range" id="ccDistance" min="1" max="100" value="21">
+                        <span class="value" id="ccDistanceValue">21%</span>
+                    </div>
+                    <div class="color-picker">
+                        <label for="ccColor">Top Color:</label>
+                        <input type="color" id="ccColor" value="#0000FF">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="obliqueTab">
+                <div class="effect-control">
+                    <div class="slider-container">
+                        <label for="oWeight">Weight:</label>
+                        <input type="range" id="oWeight" min="1" max="20" value="4">
+                        <span class="value" id="oWeightValue">4%</span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="oDistance">Distance:</label>
+                        <input type="range" id="oDistance" min="1" max="50" value="3">
+                        <span class="value" id="oDistanceValue">3%</span>
+                    </div>
+                    <div class="color-picker">
+                        <label for="oColor">Line Color:</label>
+                        <input type="color" id="oColor" value="#0000FF">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="fadingTab">
+                <div class="effect-control">
+                    <div class="slider-container">
+                        <label for="fWeight">Weight:</label>
+                        <input type="range" id="fWeight" min="1" max="20" value="5">
+                        <span class="value" id="fWeightValue">5%</span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="fDistance">Distance:</label>
+                        <input type="range" id="fDistance" min="1" max="100" value="45">
+                        <span class="value" id="fDistanceValue">45%</span>
+                    </div>
+                    <div class="color-picker">
+                        <label for="fColor">Fill Color:</label>
+                        <input type="color" id="fColor" value="#0000FF">
+                    </div>
+                </div>
+            </div>
+            
+            <button id="applyBtn">Apply Decoration</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const canvas = document.getElementById('textCanvas');
+        const ctx = canvas.getContext('2d');
+        const textInput = document.getElementById('textInput');
+        const fontFamily = document.getElementById('fontFamily');
+        const fontSize = document.getElementById('fontSize');
+        const textColor = document.getElementById('textColor');
+        const applyBtn = document.getElementById('applyBtn');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Horizontal Lines controls
+        const hWeight = document.getElementById('hWeight');
+        const hDistance = document.getElementById('hDistance');
+        const hColor = document.getElementById('hColor');
+        const hWeightValue = document.getElementById('hWeightValue');
+        const hDistanceValue = document.getElementById('hDistanceValue');
+        
+        // Color Cut controls
+        const ccDistance = document.getElementById('ccDistance');
+        const ccColor = document.getElementById('ccColor');
+        const ccDistanceValue = document.getElementById('ccDistanceValue');
+        
+        // Oblique Lines controls
+        const oWeight = document.getElementById('oWeight');
+        const oDistance = document.getElementById('oDistance');
+        const oColor = document.getElementById('oColor');
+        const oWeightValue = document.getElementById('oWeightValue');
+        const oDistanceValue = document.getElementById('oDistanceValue');
+        
+        // Fading Color Cut controls
+        const fWeight = document.getElementById('fWeight');
+        const fDistance = document.getElementById('fDistance');
+        const fColor = document.getElementById('fColor');
+        const fWeightValue = document.getElementById('fWeightValue');
+        const fDistanceValue = document.getElementById('fDistanceValue');
+        
+        // Current active tab
+        let currentTab = 'horizontal';
+        
+        // Canvas setup
+        function setupCanvas() {
+            // Set canvas dimensions
+            canvas.width = canvas.parentElement.clientWidth - 40;
+            canvas.height = canvas.parentElement.clientHeight - 40;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        // Update slider value displays
+        function updateSliderValues() {
+            hWeightValue.textContent = hWeight.value + '%';
+            hDistanceValue.textContent = hDistance.value + '%';
+            ccDistanceValue.textContent = ccDistance.value + '%';
+            oWeightValue.textContent = oWeight.value + '%';
+            oDistanceValue.textContent = oDistance.value + '%';
+            fWeightValue.textContent = fWeight.value + '%';
+            fDistanceValue.textContent = fDistance.value + '%';
+        }
+        
+// Draw text with selected decoration
+function drawText() {
+    setupCanvas();
+    
+    const text = textInput.value || 'Sample Text';
+    const font = `${fontSize.value}px ${fontFamily.value}`;
+    const color = textColor.value;
+    
+    ctx.font = font;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    // Get text metrics
+    const metrics = ctx.measureText(text);
+    const fontSizeValue = parseInt(fontSize.value);
+    const textHeight = fontSizeValue * 1.2; // Approximate text height
+    const textWidth = metrics.width;
+    
+    // Position text
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    
+    // Apply decoration based on current tab
+    switch (currentTab) {
+        case 'horizontal':
+            drawHorizontalLines(text, font, color, centerX, centerY, textWidth, textHeight);
+            break;
+        case 'colorCut':
+            drawColorCut(text, font, color, centerX, centerY, textWidth, textHeight);
+            break;
+        case 'oblique':
+            drawObliqueLines(text, font, color, centerX, centerY, textWidth, textHeight);
+            break;
+        case 'fading':
+            drawFadingColorCut(text, font, color, centerX, centerY, textWidth, textHeight);
+            break;
+    }
+}
+
+
+// Draw horizontal lines decoration
+function drawHorizontalLines(text, font, color, centerX, centerY, textWidth, textHeight) {
+    const lineWeight = parseInt(hWeight.value) / 100 * textHeight;
+    const lineDistance = parseInt(hDistance.value) / 100 * textHeight;
+    const lineColor = hColor.value;
+    
+    // Calculate text boundaries with padding
+    const textTop = centerY - textHeight / 2;
+    const textBottom = centerY + textHeight / 2;
+    const padding = textHeight; // Add padding for lines
+    
+    // Draw the text first
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.fillText(text, centerX, centerY);
+    
+    // Create a temporary canvas for the lines
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    
+    // Draw lines on the temporary canvas
+    tempCtx.fillStyle = lineColor;
+    for (let y = textTop - padding; y <= textBottom + padding; y += lineDistance + lineWeight) {
+        tempCtx.fillRect(0, y, canvas.width, lineWeight);
+    }
+    
+    // Apply lines only where text exists
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.drawImage(tempCanvas, 0, 0);
+    ctx.globalCompositeOperation = 'source-over'; // Reset to default
+}
+
+
+/// Draw color cut decoration
+function drawColorCut(text, font, color, centerX, centerY, textWidth, textHeight) {
+    const cutDistance = parseInt(ccDistance.value) / 100;
+    const topColor = ccColor.value;
+    
+    // Calculate text boundaries
+    const textTop = centerY - textHeight / 2;
+    const cutY = textTop + (textHeight * cutDistance);
+    
+    // First draw the normal text
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.fillText(text, centerX, centerY);
+    
+    // Apply color to the top part
+    ctx.save();
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.fillStyle = topColor;
+    ctx.fillRect(0, 0, canvas.width, cutY);
+    ctx.restore();
+}
+
+// Draw oblique lines decoration
+function drawObliqueLines(text, font, color, centerX, centerY, textWidth, textHeight) {
+    const lineWeight = parseInt(oWeight.value) / 100 * textHeight;
+    const lineDistance = parseInt(oDistance.value) / 100 * textHeight;
+    const lineColor = oColor.value;
+    
+    // First draw the normal text
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.fillText(text, centerX, centerY);
+    
+    // Create a temporary canvas for the lines
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    
+    // Calculate the maximum size for the diagonal lines
+    const maxSize = Math.sqrt(canvas.width * canvas.width + canvas.height * canvas.height);
+    
+    // Draw lines on the temporary canvas
+    tempCtx.save();
+    tempCtx.translate(centerX, centerY);
+    tempCtx.rotate(Math.PI / 4); // 45 degrees
+    tempCtx.fillStyle = lineColor;
+    
+    // Draw diagonal lines
+    for (let x = -maxSize; x < maxSize; x += lineDistance + lineWeight) {
+        tempCtx.fillRect(x, -maxSize, lineWeight, maxSize * 2);
+    }
+    tempCtx.restore();
+    
+    // Apply lines only where text exists
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.drawImage(tempCanvas, 0, 0);
+    ctx.globalCompositeOperation = 'source-over'; // Reset to default
+}
+
+// Draw fading color cut decoration
+function drawFadingColorCut(text, font, color, centerX, centerY, textWidth, textHeight) {
+    const weight = parseInt(fWeight.value) / 100 * textHeight;
+    const fillDistance = parseInt(fDistance.value) / 100;
+    const fillColor = fColor.value;
+    
+    // Calculate text boundaries
+    const textTop = centerY - textHeight / 2;
+    const textBottom = centerY + textHeight / 2;
+    const fillY = textTop + (textHeight * fillDistance);
+    
+    // First draw the normal text
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.fillText(text, centerX, centerY);
+    
+    // Create a temporary canvas for the effect
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    
+    // Fill the bottom portion with solid color
+    tempCtx.fillStyle = fillColor;
+    tempCtx.fillRect(0, fillY, canvas.width, canvas.height - fillY);
+    
+    // Draw gradient lines from top to bottom
+    let lineThickness = Math.max(0.5, weight * 0.2); // Start with thin lines
+    const lineGap = Math.max(1, weight); // Ensure gap is at least 1 pixel
+    
+    for (let y = textTop; y < fillY; y += lineGap) {
+        tempCtx.fillRect(0, y, canvas.width, lineThickness);
+        // Make lines thicker as we go down
+        lineThickness = Math.min(lineThickness * 1.2 + 0.5, weight);
+    }
+    
+    // Apply effect only where text exists
+    ctx.globalCompositeOperation = 'source-atop';
+    ctx.drawImage(tempCanvas, 0, 0);
+    ctx.globalCompositeOperation = 'source-over'; // Reset to default
+}
+
+
+
+// Helper function for color conversion
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
+// Initialize the app
+window.addEventListener('load', function() {
+    setupCanvas();
+    updateSliderValues();
+    drawText(); // Draw initial text
+});
+
+// Tab switching functionality
+tabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-tab');
+        
+        // Update active tab
+        tabs.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Update active tab content
+        tabContents.forEach(content => content.classList.remove('active'));
+        document.getElementById(tabId + 'Tab').classList.add('active');
+        
+        // Update current tab
+        currentTab = tabId;
+        
+        // Redraw text with new decoration
+        drawText();
+    });
+});
+
+// Add event listeners for all controls
+textInput.addEventListener('input', drawText);
+fontFamily.addEventListener('change', drawText);
+fontSize.addEventListener('input', drawText);
+textColor.addEventListener('input', drawText);
+applyBtn.addEventListener('click', drawText);
+
+// Horizontal line controls
+hWeight.addEventListener('input', function() {
+    hWeightValue.textContent = this.value + '%';
+    drawText();
+});
+hDistance.addEventListener('input', function() {
+    hDistanceValue.textContent = this.value + '%';
+    drawText();
+});
+hColor.addEventListener('input', drawText);
+
+// Color cut controls
+ccDistance.addEventListener('input', function() {
+    ccDistanceValue.textContent = this.value + '%';
+    drawText();
+});
+ccColor.addEventListener('input', drawText);
+
+// Oblique lines controls
+oWeight.addEventListener('input', function() {
+    oWeightValue.textContent = this.value + '%';
+    drawText();
+});
+oDistance.addEventListener('input', function() {
+    oDistanceValue.textContent = this.value + '%';
+    drawText();
+});
+oColor.addEventListener('input', drawText);
+
+// Fading color cut controls
+fWeight.addEventListener('input', function() {
+    fWeightValue.textContent = this.value + '%';
+    drawText();
+});
+fDistance.addEventListener('input', function() {
+    fDistanceValue.textContent = this.value + '%';
+    drawText();
+});
+fColor.addEventListener('input', drawText);
+
+// Handle window resize
+window.addEventListener('resize', function() {
+    setupCanvas();
+    drawText();
+});
+</script>
+</body>
+</html>

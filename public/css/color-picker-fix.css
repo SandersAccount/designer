@@ -1,0 +1,25 @@
+/* Fix for color input elements */
+.gradient-color-input {
+    -webkit-appearance: auto !important;
+    -moz-appearance: auto !important;
+    appearance: auto !important;
+    padding: 0 !important;
+    background: none !important;
+    cursor: pointer !important;
+}
+
+/* Fix for WebKit browsers */
+.gradient-color-input::-webkit-color-swatch-wrapper {
+    padding: 0 !important;
+}
+
+.gradient-color-input::-webkit-color-swatch {
+    border: none !important;
+    border-radius: 4px !important;
+}
+
+/* Fix for Firefox */
+.gradient-color-input::-moz-color-swatch {
+    border: none !important;
+    border-radius: 4px !important;
+}

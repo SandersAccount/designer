@@ -1,0 +1,10 @@
+{
+  "name": "Palette Test Template",
+  "category": "test",
+  "template": "A stylized [object] design with [text1] text, featuring [image-palette] color scheme in a modern artistic style",
+  "thumbnailUrl": "",
+  "randomOptions": {
+    "object": ["t-shirt", "poster", "sticker", "logo"],
+    "text1": ["bold", "elegant", "playful", "professional"]
+  }
+}

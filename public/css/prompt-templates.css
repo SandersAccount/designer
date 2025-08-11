@@ -1,0 +1,270 @@
+/* Prompt Templates CSS */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 30px;
+  color: #333;
+  text-align: center;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-bottom: none;
+  margin-right: 5px;
+  border-radius: 5px 5px 0 0;
+  background-color: #f5f5f5;
+  transition: all 0.3s ease;
+}
+
+.tab:hover {
+  background-color: #e9e9e9;
+}
+
+.tab.active {
+  background-color: #fff;
+  border-color: #ddd;
+  border-bottom-color: #fff;
+  font-weight: bold;
+}
+
+.tab-content {
+  display: none;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 5px 5px;
+  background-color: #fff;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Form */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #8a8a8a;
+}
+
+.form-group input[type="text"],
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.form-group select {
+  height: 42px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+button.primary {
+  background-color: #4CAF50;
+  color: white;
+}
+
+button.primary:hover {
+  background-color: #45a049;
+}
+
+button.secondary {
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+button.secondary:hover {
+  background-color: #e9e9e9;
+}
+
+/* Templates List */
+.template-category {
+  margin-bottom: 30px;
+}
+
+.template-category h3 {
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #eee;
+  color: #444;
+}
+
+.templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.template-card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.template-card:hover {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.template-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-bottom: 1px solid #eee;
+}
+
+.template-card-header h4 {
+  margin: 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.template-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.template-actions button {
+  padding: 5px 10px;
+  font-size: 14px;
+}
+
+.edit-template {
+  background-color: #2196F3;
+  color: white;
+}
+
+.edit-template:hover {
+  background-color: #0b7dda;
+}
+
+.delete-template {
+  background-color: #f44336;
+  color: white;
+}
+
+.delete-template:hover {
+  background-color: #da190b;
+}
+
+.template-preview {
+  padding: 15px;
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: #fff;
+}
+
+.template-preview pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Thumbnail Preview */
+.thumbnail-preview {
+  margin-top: 10px;
+  max-width: 200px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.thumbnail-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Random Options Section */
+.random-options-section {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.random-options-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: #444;
+}
+
+.random-option-group {
+  margin-bottom: 15px;
+}
+
+.random-option-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.random-option-group textarea {
+  width: 100%;
+  height: 80px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .templates-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  button {
+    width: 100%;
+  }
+}

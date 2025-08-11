@@ -1,0 +1,3268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inspirations Gallery - Sticker Generator</title> <!-- Updated Title -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        body {
+            background: #f8fafc;
+            color: #1f2937;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            padding-top: 80px; /* Add space for topbar */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+            color: #1f2937;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .lead {
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+
+        /* Categories/Folders Section */
+        .categories-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin: 0;
+            color: #1f2937;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .view-btn {
+            padding: 0.5rem;
+            background: #e5e7eb;
+            border: none;
+            border-radius: 6px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-card:hover {
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-card.selected {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .category-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3b82f6;
+        }
+
+        .category-title {
+            font-weight: 500;
+            margin: 0;
+            color: #1f2937;
+        }
+
+        .category-count {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        /* Templates Gallery */
+        .inspiration-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .inspiration-gallery.list-view {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .inspiration-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .inspiration-card:hover {
+            border-color: #d1d5db;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        /* List View Styles */
+        .inspiration-card.list-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 8px;
+            min-height: 80px;
+        }
+
+        .inspiration-card.list-item:hover {
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .template-preview {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .template-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* List View Template Preview */
+        .list-item .template-preview {
+            width: 60px;
+            height: 60px;
+            min-width: 60px;
+            min-height: 60px;
+            border-radius: 6px;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        /* List View Content */
+        .list-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 0; /* Allow text truncation */
+        }
+
+        .list-info {
+            flex: 1;
+            min-width: 0;
+            margin-right: 1rem;
+        }
+
+        .list-info h3 {
+            margin: 0 0 0.25rem 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1f2937;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .list-info .template-date {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #6b7280;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .list-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .list-actions .btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        /* Mobile responsive for list view */
+        @media (max-width: 768px) {
+            .list-item .template-preview {
+                width: 50px;
+                height: 50px;
+                min-width: 50px;
+                min-height: 50px;
+            }
+
+            .list-info h3 {
+                font-size: 0.9rem;
+            }
+
+            .list-info .template-date {
+                font-size: 0.75rem;
+            }
+
+            .list-actions {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .list-actions .btn {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .card-text {
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            font-size: 0.8rem;
+        }
+
+        .model-text {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-bottom: 0.75rem;
+        }
+
+        .template-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .template-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+
+        .template-btn.use {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .template-btn.use:hover {
+            background: #2563eb;
+        }
+
+        .template-btn.edit {
+            background: #6b7280;
+            color: white;
+        }
+
+        .template-btn.edit:hover {
+            background: #4b5563;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-outline-primary {
+            background: transparent;
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+        }
+
+        .btn-outline-primary:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 8px;
+            margin-top: 2rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            color: #374151;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            color: #6b7280;
+            max-width: 500px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #e5e7eb;
+            border-top: 5px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .d-none {
+            display: none !important;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .header-actions {
+                justify-content: center;
+            }
+
+            .inspiration-gallery {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+
+            .categories-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .template-preview {
+                aspect-ratio: 1/1; /* Keep square on mobile too */
+            }
+
+            .template-actions {
+                flex-direction: column;
+            }
+
+            .template-btn {
+                flex: none;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .inspiration-gallery {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Inline Generation Interface Styles */
+        .inspiration-card.expanded {
+            grid-column: 1 / -1; /* Take full width */
+            max-width: none;
+            margin-bottom: 2rem;
+            border: 2px solid #3b82f6;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Hide original template content when expanded */
+        .inspiration-card.expanded .template-preview,
+        .inspiration-card.expanded .card-body {
+            display: none;
+        }
+
+        .inline-generation-interface {
+            display: none;
+            padding-top: 0rem;
+            padding-right: 2rem;
+            padding-bottom: 2rem;
+            padding-left: 2rem;
+            background: #f8fafc;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .inline-generation-interface.active {
+            display: block;
+        }
+
+        .generation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-left: 92%;
+        }
+
+        .generation-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .close-generation {
+            background: #6b728000;
+            color: rgb(97, 97, 97);
+            border: none;
+            border-radius: 6px;
+            padding: 1rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+
+        .close-generation:hover {
+            background: #4b556300;
+        }
+
+        .generation-content {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .template-preview-section {
+            position: sticky;
+            top: 2rem;
+        }
+
+        .template-preview-section img {
+            width: 268.4px;
+            height: 268.4px;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            background: var(--template-canvas-color, #f9fafb);
+        }
+
+        .template-info {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .generation-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb00;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Form Section Styles */
+        .form-section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f000;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .form-section h3 {
+            margin: 0 0 1rem 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-section h3 i {
+            color: #6b7280;
+        }
+
+        /* Form Input Styles */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input[type="text"],
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: white;
+            color: #374151;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-group input[type="text"]::placeholder {
+            color: #9ca3af;
+        }
+
+        /* Color Palette Section Styles */
+        .color-palette-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .original-palette-info {
+            border: 1px solid #d1d5db00;
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-size: 0.75rem;
+            color: #a0a0a0;
+            background: white;
+        }
+
+        /* Text replacement hint styling */
+        .text-replacement-hint {
+            font-weight: normal;
+            color: #6b7280;
+            font-size: 0.8rem;
+        }
+
+        /* Generate button improvements */
+        .generate-button {
+            width: 100%;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+
+        .generate-button:hover {
+                        background: #3a6ec2;
+
+        }
+
+        .generate-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* Color Palette Selector Light Styling */
+        .generation-form color-palette-selector {
+            --palette-bg: #ffffff;
+            --palette-bg-hover: #f9fafb;
+            --palette-border: #d1d5db;
+            --palette-text: #374151;
+            --palette-text-secondary: #6b7280;
+            --palette-dropdown-bg: #ffffff;
+            --palette-option-hover: #f3f4f6;
+            --palette-option-selected: #eff6ff;
+            --palette-shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Fix dropdown overflow */
+        .form-section {
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-section:has(color-palette-selector) {
+            z-index: 10;
+            overflow: visible;
+        }
+
+        /* Ensure color palette dropdown is visible */
+        .generation-form {
+            overflow: visible;
+        }
+
+        .modal-content {
+            overflow: visible;
+        }
+
+        .inline-generation-interface {
+            overflow: visible;
+        }
+
+        .modal-body {
+            overflow: visible;
+        }
+
+        .form-section {
+            margin-bottom: 1rem;
+        }
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #b1b1b1;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .text-replacement-hint {
+            font-size: 0.75rem;
+            color: #444343;
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+
+        .color-palette-section {
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .original-palette-info {
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-size: 0.75rem;
+            color: #252525;
+        }
+
+        .generate-button {
+            width: 100%;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .generate-button:hover {
+            background: #3a6ec2;
+        }
+
+        .generate-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .generation-result {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+            display: none;
+        }
+
+        .generation-result.active {
+            display: block;
+        }
+
+        .result-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .result-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-btn.primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .result-btn.primary:hover {
+            background: #2563eb;
+        }
+
+        .result-btn.secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .result-btn.secondary:hover {
+            background: #4b5563;
+        }
+
+        .loading-state {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading-state.active {
+            display: block;
+        }
+
+        .loading-spinner-inline {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        .error-state {
+            display: none;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            color: #dc2626;
+        }
+
+        .error-state.active {
+            display: block;
+        }
+
+        /* Responsive adjustments for inline interface */
+        @media (max-width: 768px) {
+            .generation-content {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .template-preview-section {
+                position: static;
+            }
+
+            .inline-generation-interface {
+                padding: 1rem;
+            }
+
+            .generation-form {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Image Modal Styles */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-modal.show {
+            display: flex;
+        }
+
+        .image-modal-content {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            background-color: #f9fafb; /* Default background, will be overridden by JavaScript */
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .image-modal-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .image-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 1001;
+            transition: background 0.2s ease;
+        }
+
+        .image-modal-close:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        /* Generate Texts Button Styling */
+        .generate-texts-btn {
+            transition: all 0.2s ease;
+            }
+
+        /* Object Input Container Styling */
+        .object-input-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .object-input-field {
+            flex: 2;
+            min-width: 200px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .object-input-field:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        .tone-dropdown {
+            flex: 0 0 140px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .tone-dropdown:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        .enhance-object-btn {
+            background: #ffffff;
+            color: #393939;
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 44px;
+            height: 44px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .enhance-object-btn:hover {
+            background: #f8f9fa;
+            border-color: #007bff;
+            color: #007bff;
+        }
+
+        .enhance-object-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .enhance-object-btn.regenerate-mode {
+            background: #6c757d;
+            color: white;
+            border-color: #6c757d;
+        }
+
+        .enhance-object-btn.regenerate-mode:hover {
+            background: #5a6268;
+            border-color: #545b62;
+        }
+        
+
+        .generate-texts-btn:hover {
+            background: #dadada !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(196, 196, 196, 0.3);
+        }
+
+        .generate-texts-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-texts-btn:disabled {
+            background: #9ca3af !important;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="topbar-container"></div>
+
+        <div class="container">
+            <div class="page-header">
+                <h1>Inspirations Gallery</h1>
+                <div class="header-actions">
+                    <a href="/design-editor.html" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        New Design
+                    </a>
+                    <a href="/" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Generator
+                    </a>
+                </div>
+            </div>
+
+            <p class="lead">Browse through our collection of design templates and create your own variations.</p>
+
+            <!-- Categories Section -->
+            <div class="categories-section">
+                <div class="section-header">
+                    <h2 class="section-title">Categories</h2>
+                </div>
+                <div class="categories-grid" id="categoriesGrid">
+                    <!-- Categories will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Templates Section -->
+            <div class="templates-section">
+                <div class="section-header">
+                    <h2 class="section-title">Design Templates</h2>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="grid">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button class="view-btn" data-view="list">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="loading-container" class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <p>Loading templates...</p>
+                </div>
+
+                <div id="inspiration-gallery" class="inspiration-gallery d-none"></div>
+
+                <div id="empty-state" class="empty-state d-none">
+                    <i class="fas fa-palette"></i>
+                    <h3>No Design Templates Yet</h3>
+                    <p>Create some designs in the editor and save them as templates to see them here!</p>
+                    <a href="/design-editor.html" class="btn btn-primary">Create Your First Design</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module">
+        import { createTopbar } from './js/components/Topbar.js';
+        import { showToast } from './js/components/Toast.js';
+        import { getPaletteById, getTextColorForPalette } from './js/data/colorPalettes.js';
+        import { ColorPaletteSelector } from './js/components/ColorPaletteSelector.js';
+        
+        let currentView = 'grid';
+        let selectedCategory = 'all';
+        let allTemplates = [];
+        let isAdmin = false;
+        let expandedCardId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await createTopbar();
+                await checkIfAdmin();
+                await initializeCategories();
+                await loadAndRenderTemplates();
+                initializeViewToggle();
+
+                // Listen for template updates from other tabs/windows
+                if (typeof BroadcastChannel !== 'undefined') {
+                    const channel = new BroadcastChannel('template-updates');
+                    channel.addEventListener('message', (event) => {
+                        if (event.data.type === 'TEMPLATE_UPDATED') {
+                            console.log('[Inspiration] Received template update notification:', event.data);
+                            loadAndRenderTemplates();
+                            showToast(`Template "${event.data.templateName}" was updated in another tab. Gallery refreshed.`, 'success');
+                        }
+                    });
+                    console.log('[Inspiration] Listening for template updates via BroadcastChannel');
+                }
+
+                window.addEventListener('message', (event) => {
+                    if (event.data.type === 'TEMPLATE_UPDATED') {
+                        console.log('[Inspiration] Received template update via postMessage:', event.data);
+                        loadAndRenderTemplates();
+                        showToast(`Template "${event.data.templateName}" was updated. Gallery refreshed.`, 'success');
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error initializing page:', error);
+                showToast('Failed to load templates', 'error');
+                document.getElementById('loading-container').classList.add('d-none');
+                document.getElementById('empty-state').classList.remove('d-none');
+            }
+        });
+
+        async function checkIfAdmin() {
+            try {
+                const response = await fetch('/api/user/profile', { credentials: 'include' });
+                if (response.ok) {
+                    const user = await response.json();
+                    isAdmin = user.role === 'admin';
+                    console.log('Admin status:', isAdmin);
+                } else if (response.status === 404) {
+                    console.log('🔧 [PERFORMANCE] User profile endpoint not available, assuming non-admin');
+                    isAdmin = false;
+                }
+            } catch (error) {
+                console.log('🔧 [PERFORMANCE] Admin check failed, assuming non-admin:', error.message);
+                isAdmin = false;
+            }
+        }
+
+        function initializeCategories() {
+            const categoriesGrid = document.getElementById('categoriesGrid');
+            const categories = [
+                { id: 'all', name: 'All Templates', icon: 'fas fa-th-large', count: 0 },
+                { id: 'text', name: 'Text Designs', icon: 'fas fa-font', count: 0 },
+                { id: 'image', name: 'Image Designs', icon: 'fas fa-image', count: 0 },
+                { id: 'mixed', name: 'Mixed Designs', icon: 'fas fa-layer-group', count: 0 }
+            ];
+
+            categoriesGrid.innerHTML = categories.map(category => `
+                <div class="category-card ${category.id === 'all' ? 'selected' : ''}" data-category="${category.id}">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="${category.icon}"></i>
+                        </div>
+                        <h3 class="category-title">${category.name}</h3>
+                    </div>
+                    <div class="category-count" id="count-${category.id}">0 templates</div>
+                </div>
+            `).join('');
+
+            // Add click handlers
+            categoriesGrid.addEventListener('click', (e) => {
+                const categoryCard = e.target.closest('.category-card');
+                if (categoryCard) {
+                    document.querySelectorAll('.category-card').forEach(card => card.classList.remove('selected'));
+                    categoryCard.classList.add('selected');
+                    selectedCategory = categoryCard.dataset.category;
+                    filterAndDisplayTemplates();
+                }
+            });
+        }
+
+        function initializeViewToggle() {
+            const viewButtons = document.querySelectorAll('.view-btn');
+            viewButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    viewButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    switchToView(btn.dataset.view);
+                });
+            });
+        }
+
+        async function loadAndRenderTemplates() {
+            try {
+                const templates = await fetchTemplates();
+                allTemplates = templates;
+
+                // Debug: Check what templates we loaded and their originalPalette fields
+                console.log('🎨 Loaded templates debug:', templates.map(t => ({
+                    id: t._id,
+                    name: t.name,
+                    originalPalette: t.originalPalette,
+                    adminDataPalette: t.adminData?.palette,
+                    hasOriginalPalette: !!t.originalPalette,
+                    fontStylesList: t.adminData?.fontStylesList,
+                    fontStylesCount: t.adminData?.fontStylesList?.length || 0
+                })));
+
+                // Debug: Check specific template that user is trying to load
+                const templateWithFontStyles = templates.find(t => t.fontStylesList?.length > 0 || t.adminData?.fontStylesList?.length > 0);
+                if (templateWithFontStyles) {
+                    console.log('🎨 ✅ Found template with font styles:', {
+                        id: templateWithFontStyles._id,
+                        name: templateWithFontStyles.name,
+                        'top-level fontStylesCount': templateWithFontStyles.fontStylesList?.length || 0,
+                        'adminData fontStylesCount': templateWithFontStyles.adminData?.fontStylesList?.length || 0,
+                        'top-level fontStylesData': templateWithFontStyles.fontStylesList,
+                        'adminData fontStylesData': templateWithFontStyles.adminData?.fontStylesList
+                    });
+                } else {
+                    console.log('🎨 ❌ No templates found with font styles in the loaded data');
+
+                    // Debug: Show what's actually in the first few templates
+                    console.log('🎨 Debug: First 3 templates structure:', templates.slice(0, 3).map(t => ({
+                        id: t._id,
+                        name: t.name,
+                        'has top-level fontStylesList': !!t.fontStylesList,
+                        'has adminData': !!t.adminData,
+                        'has adminData.fontStylesList': !!t.adminData?.fontStylesList,
+                        'adminData keys': t.adminData ? Object.keys(t.adminData) : 'no adminData',
+                        'top-level keys': Object.keys(t).slice(0, 10) // First 10 keys
+                    })));
+                }
+
+                // Debug: Check ALL templates for font styles
+                const templatesWithFontStyles = templates.filter(t => t.fontStylesList?.length > 0 || t.adminData?.fontStylesList?.length > 0);
+                console.log(`🎨 📊 FONT STYLES SUMMARY: Found ${templatesWithFontStyles.length} templates with font styles out of ${templates.length} total templates`);
+                templatesWithFontStyles.forEach((t, index) => {
+                    console.log(`🎨 📋 Template ${index + 1} with font styles:`, {
+                        id: t._id,
+                        name: t.name,
+                        'top-level count': t.fontStylesList?.length || 0,
+                        'adminData count': t.adminData?.fontStylesList?.length || 0
+                    });
+                });
+
+                document.getElementById('loading-container').classList.add('d-none');
+
+                if (!templates || templates.length === 0) {
+                    document.getElementById('empty-state').classList.remove('d-none');
+                    return;
+                }
+
+                document.getElementById('empty-state').classList.add('d-none');
+                updateCategoryCounts(templates);
+                updateGalleryView(); // Set initial view state
+                filterAndDisplayTemplates();
+                document.getElementById('inspiration-gallery').classList.remove('d-none');
+
+            } catch (error) {
+                console.error('Error loading templates:', error);
+                showToast('Failed to load templates', 'error');
+                document.getElementById('loading-container').classList.add('d-none');
+                document.getElementById('empty-state').classList.remove('d-none');
+            }
+        }
+
+        function updateCategoryCounts(templates) {
+            const counts = {
+                all: templates.length,
+                text: templates.filter(t => hasTextElements(t) && !hasImageElements(t)).length,
+                image: templates.filter(t => hasImageElements(t) && !hasTextElements(t)).length,
+                mixed: templates.filter(t => hasTextElements(t) && hasImageElements(t)).length
+            };
+
+            Object.entries(counts).forEach(([category, count]) => {
+                const countElement = document.getElementById(`count-${category}`);
+                if (countElement) {
+                    countElement.textContent = `${count} template${count !== 1 ? 's' : ''}`;
+                }
+            });
+        }
+
+        function hasTextElements(template) {
+            return template.canvasObjects?.some(obj => obj.type === 'text') || false;
+        }
+
+        function hasImageElements(template) {
+            return template.canvasObjects?.some(obj => obj.type === 'image') || false;
+        }
+
+        async function filterAndDisplayTemplates() {
+            let filteredTemplates = allTemplates;
+
+            if (selectedCategory !== 'all') {
+                filteredTemplates = allTemplates.filter(template => {
+                    switch (selectedCategory) {
+                        case 'text':
+                            return hasTextElements(template) && !hasImageElements(template);
+                        case 'image':
+                            return hasImageElements(template) && !hasTextElements(template);
+                        case 'mixed':
+                            return hasTextElements(template) && hasImageElements(template);
+                        default:
+                            return true;
+                    }
+                });
+            }
+
+            await displayTemplates(filteredTemplates);
+        }
+
+        function updateGalleryView() {
+            const gallery = document.getElementById('inspiration-gallery');
+            if (currentView === 'list') {
+                gallery.classList.add('list-view');
+                gallery.style.gridTemplateColumns = '1fr';
+                gallery.style.gap = '1rem';
+            } else {
+                gallery.classList.remove('list-view');
+                gallery.style.gridTemplateColumns = 'repeat(auto-fill, minmax(250px, 1fr))';
+                gallery.style.gap = '1.5rem';
+            }
+        }
+
+        function switchToView(newView) {
+            currentView = newView;
+            updateGalleryView();
+
+            // Re-render templates to apply the correct view
+            if (allTemplates.length > 0) {
+                displayTemplates(allTemplates);
+            }
+        }
+        
+        async function fetchTemplates(page = 1, limit = 100) { // Renamed function with pagination
+            try {
+                // Fetch from the route that now returns Design Templates with pagination
+                const response = await fetch(`/api/inspirations?page=${page}&limit=${limit}`);
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch templates'); // Updated message
+                }
+
+                const data = await response.json();
+
+                // Handle both old format (array) and new format (object with templates array)
+                if (Array.isArray(data)) {
+                    return data; // Old format for backward compatibility
+                } else {
+                    return data.templates || []; // New paginated format
+                }
+            } catch (error) {
+                console.error('Error fetching templates:', error); // Updated message
+                return [];
+            }
+        }
+        
+        // Admin check function might not be needed here anymore
+        // async function checkIfAdmin() { ... } 
+        
+        // Background color extraction function
+        async function extractBackgroundColorFromImage(imageUrl) {
+            return new Promise((resolve) => {
+                const img = new Image();
+
+                // Use proxy for external images to avoid CORS issues
+                let proxyUrl = imageUrl;
+                if (imageUrl.includes('backblazeb2.com') || imageUrl.includes('http')) {
+                    proxyUrl = `/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
+                }
+
+                img.onload = function() {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+
+                        // Use a small canvas for performance
+                        canvas.width = 100;
+                        canvas.height = 100;
+
+                        // Draw the image
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                        // Sample corners and edges to find background color
+                        const samples = [
+                            ctx.getImageData(5, 5, 1, 1).data,           // Top-left corner
+                            ctx.getImageData(95, 5, 1, 1).data,          // Top-right corner
+                            ctx.getImageData(5, 95, 1, 1).data,          // Bottom-left corner
+                            ctx.getImageData(95, 95, 1, 1).data,         // Bottom-right corner
+                            ctx.getImageData(50, 5, 1, 1).data,          // Top center
+                            ctx.getImageData(50, 95, 1, 1).data,         // Bottom center
+                            ctx.getImageData(5, 50, 1, 1).data,          // Left center
+                            ctx.getImageData(95, 50, 1, 1).data,         // Right center
+                        ];
+
+                        // Find the most common color among samples
+                        const colorCounts = {};
+                        samples.forEach(sample => {
+                            const [r, g, b] = sample;
+                            const color = `rgb(${r}, ${g}, ${b})`;
+                            colorCounts[color] = (colorCounts[color] || 0) + 1;
+                        });
+
+                        // Get the most frequent color
+                        const dominantColor = Object.keys(colorCounts).reduce((a, b) =>
+                            colorCounts[a] > colorCounts[b] ? a : b
+                        );
+
+                        // Convert to hex
+                        const rgbMatch = dominantColor.match(/rgb\((\d+), (\d+), (\d+)\)/);
+                        if (rgbMatch) {
+                            const [, r, g, b] = rgbMatch;
+                            const hex = '#' + [r, g, b].map(x => {
+                                const hex = parseInt(x).toString(16);
+                                return hex.length === 1 ? '0' + hex : hex;
+                            }).join('');
+
+                            console.log(`🎨 [Background Extraction] Extracted color: ${hex} from ${imageUrl}`);
+                            resolve(hex);
+                        } else {
+                            resolve('#f9fafb'); // Fallback
+                        }
+                    } catch (error) {
+                        console.error('Error extracting background color:', error);
+                        resolve('#f9fafb'); // Fallback
+                    }
+                };
+
+                img.onerror = function() {
+                    console.error('Failed to load image for color extraction:', imageUrl);
+                    resolve('#f9fafb'); // Fallback
+                };
+
+                img.src = proxyUrl;
+            });
+        }
+
+        async function displayTemplates(templates) {
+            const gallery = document.getElementById('inspiration-gallery');
+            gallery.innerHTML = '';
+
+            for (let index = 0; index < templates.length; index++) {
+                const template = templates[index];
+                const imageNumber = String(index + 1).padStart(3, '0');
+                const card = await createTemplateCard(template, imageNumber);
+                gallery.appendChild(card);
+            }
+        }
+
+        async function createTemplateCard(template, imageNumber) {
+            const card = document.createElement('div');
+            const isListView = document.getElementById('inspiration-gallery').classList.contains('list-view');
+
+            if (isListView) {
+                return await createListViewCard(template, imageNumber);
+            } else {
+                return await createGridViewCard(template, imageNumber);
+            }
+        }
+
+        async function createGridViewCard(template, imageNumber) {
+            const card = document.createElement('div');
+            card.className = 'inspiration-card';
+
+            // Template Preview Container with canvas background color
+            const previewContainer = document.createElement('div');
+            previewContainer.className = 'template-preview';
+
+            // Use the canvas background color from editorState, or extract from image
+            let canvasBackgroundColor = template.editorState?.canvasBackgroundColor;
+
+            if (!canvasBackgroundColor || canvasBackgroundColor === '#f9fafb') {
+                // Try to extract background color from preview image
+                canvasBackgroundColor = await extractBackgroundColorFromImage(template.previewImageUrl);
+            }
+
+            previewContainer.style.backgroundColor = canvasBackgroundColor;
+
+            console.log(`[Template ${imageNumber}] Using background color: ${canvasBackgroundColor}`);
+
+            const img = document.createElement('img');
+            img.src = template.previewImageUrl || '/images/placeholder.png';
+            img.alt = template.name || 'Design Template Preview';
+            img.loading = 'lazy';
+            img.style.cursor = 'pointer';
+            img.onclick = (e) => {
+                e.stopPropagation();
+                openImageModal(template.previewImageUrl, canvasBackgroundColor);
+            };
+            img.onerror = () => {
+                img.style.display = 'none';
+                previewContainer.innerHTML = `<i class="fas fa-image" style="font-size: 1.5rem; color: #9ca3af;"></i>`;
+            };
+            previewContainer.appendChild(img);
+
+            // Number overlay
+            const numberOverlay = document.createElement('div');
+            numberOverlay.style.position = 'absolute';
+            numberOverlay.style.top = '10px';
+            numberOverlay.style.right = '10px';
+            numberOverlay.style.background = 'rgba(59, 130, 246, 0.9)';
+            numberOverlay.style.color = 'white';
+            numberOverlay.style.padding = '4px 8px';
+            numberOverlay.style.borderRadius = '4px';
+            numberOverlay.style.fontWeight = 'bold';
+            numberOverlay.style.fontSize = '0.75rem';
+            numberOverlay.textContent = imageNumber;
+            previewContainer.appendChild(numberOverlay);
+
+            card.appendChild(previewContainer);
+
+            // Card Body
+            const body = document.createElement('div');
+            body.className = 'card-body';
+
+            // Only show title, prompt, and model info for admin users
+            if (isAdmin) {
+                const title = document.createElement('h3');
+                title.className = 'card-title';
+                title.textContent = template.name || 'Untitled Template';
+                body.appendChild(title);
+
+                // Description from adminData.prompt
+                const promptText = document.createElement('p');
+                promptText.className = 'card-text';
+                promptText.textContent = template.adminData?.prompt || 'No description available.';
+                body.appendChild(promptText);
+
+                // Model info
+                const modelText = document.createElement('p');
+                modelText.className = 'model-text';
+                modelText.textContent = template.adminData?.model ? `Model: ${template.adminData.model}` : 'Model: Not specified';
+                body.appendChild(modelText);
+            }
+
+            // Action buttons
+            const actionsContainer = document.createElement('div');
+            actionsContainer.className = 'template-actions';
+
+            const useBtn = document.createElement('button');
+            useBtn.className = 'template-btn use';
+            useBtn.innerHTML = '<i class="fas fa-magic"></i> Use Design';
+            useBtn.onclick = (e) => {
+                e.stopPropagation();
+                expandCardForGeneration(template, card);
+            };
+            actionsContainer.appendChild(useBtn);
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'template-btn edit';
+            editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+            editBtn.onclick = () => {
+                const editorUrl = new URL('/design-editor.html', window.location.origin);
+                editorUrl.searchParams.set('templateId', template._id);
+                window.location.href = editorUrl.toString();
+            };
+            actionsContainer.appendChild(editBtn);
+
+            body.appendChild(actionsContainer);
+            card.appendChild(body);
+
+            // Add inline generation interface (initially hidden)
+            const inlineInterface = createInlineGenerationInterface(template);
+            card.appendChild(inlineInterface);
+
+            return card;
+        }
+
+        async function createListViewCard(template, imageNumber) {
+            const card = document.createElement('div');
+            card.className = 'inspiration-card list-item';
+
+            // Small thumbnail with canvas background color
+            const previewContainer = document.createElement('div');
+            previewContainer.className = 'template-preview';
+
+            let canvasBackgroundColor = template.editorState?.canvasBackgroundColor;
+
+            if (!canvasBackgroundColor || canvasBackgroundColor === '#f9fafb') {
+                // Try to extract background color from preview image
+                canvasBackgroundColor = await extractBackgroundColorFromImage(template.previewImageUrl);
+            }
+
+            previewContainer.style.backgroundColor = canvasBackgroundColor;
+
+            const img = document.createElement('img');
+            img.src = template.previewImageUrl || '/images/placeholder.png';
+            img.alt = template.name || 'Design Template Preview';
+            img.loading = 'lazy';
+            img.style.cursor = 'pointer';
+            img.onclick = (e) => {
+                e.stopPropagation();
+                openImageModal(template.previewImageUrl, canvasBackgroundColor);
+            };
+            img.onerror = () => {
+                img.style.display = 'none';
+                previewContainer.innerHTML = `<i class="fas fa-image" style="font-size: 1.2rem; color: #9ca3af;"></i>`;
+            };
+            previewContainer.appendChild(img);
+
+            // Number badge (smaller for list view)
+            const numberBadge = document.createElement('span');
+            numberBadge.style.position = 'absolute';
+            numberBadge.style.top = '2px';
+            numberBadge.style.right = '2px';
+            numberBadge.style.background = 'rgba(59, 130, 246, 0.9)';
+            numberBadge.style.color = 'white';
+            numberBadge.style.padding = '2px 4px';
+            numberBadge.style.borderRadius = '3px';
+            numberBadge.style.fontWeight = 'bold';
+            numberBadge.style.fontSize = '0.65rem';
+            numberBadge.style.lineHeight = '1';
+            numberBadge.textContent = imageNumber;
+            previewContainer.appendChild(numberBadge);
+
+            card.appendChild(previewContainer);
+
+            // Content container
+            const contentContainer = document.createElement('div');
+            contentContainer.className = 'list-content';
+
+            // Template info
+            const infoContainer = document.createElement('div');
+            infoContainer.className = 'list-info';
+
+            const title = document.createElement('h3');
+            title.textContent = template.name || 'Untitled Template';
+            infoContainer.appendChild(title);
+
+            const date = document.createElement('p');
+            date.className = 'template-date';
+            date.textContent = `Updated ${new Date(template.createdAt).toLocaleDateString()}`;
+            infoContainer.appendChild(date);
+
+            contentContainer.appendChild(infoContainer);
+
+            // Action buttons
+            const actionsContainer = document.createElement('div');
+            actionsContainer.className = 'list-actions';
+
+            const useButton = document.createElement('button');
+            useButton.className = 'btn btn-primary';
+            useButton.innerHTML = '<i class="fas fa-magic"></i> Use Design';
+            useButton.onclick = (e) => {
+                e.stopPropagation();
+                expandCardForGeneration(template, card);
+            };
+            actionsContainer.appendChild(useButton);
+
+            const editButton = document.createElement('button');
+            editButton.className = 'btn btn-secondary';
+            editButton.innerHTML = '<i class="fas fa-edit"></i> Edit';
+            editButton.onclick = (e) => {
+                e.stopPropagation();
+                const editorUrl = new URL('/design-editor.html', window.location.origin);
+                editorUrl.searchParams.set('templateId', template._id);
+                window.location.href = editorUrl.toString();
+            };
+            actionsContainer.appendChild(editButton);
+
+            contentContainer.appendChild(actionsContainer);
+            card.appendChild(contentContainer);
+
+            // Make entire card clickable (but not when clicking buttons)
+            card.onclick = (e) => {
+                if (!e.target.closest('button')) {
+                    expandCardForGeneration(template, card);
+                }
+            };
+
+            return card;
+        }
+
+        // Inline Generation Interface Functions
+        function createInlineGenerationInterface(template) {
+            const interfaceContainer = document.createElement('div');
+            interfaceContainer.className = 'inline-generation-interface';
+            interfaceContainer.id = `interface-${template._id}`;
+
+            interfaceContainer.innerHTML = `
+                <div class="generation-header">
+                    <button class="close-generation" onclick="closeInlineGeneration('${template._id}')">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </div>
+
+                <div class="generation-content">
+                    <div class="template-preview-section">
+                        <img src="${template.previewImageUrl}" alt="Template preview"
+                             style="--template-canvas-color: ${template.editorState?.canvasBackgroundColor || '#f9fafb'}">
+                        <div class="template-info">
+                            <p><strong>Template:</strong> ${template.name || 'Untitled'}</p>
+                            <div id="template-analysis-${template._id}"></div>
+                        </div>
+                    </div>
+
+                    <div class="generation-form">
+                        <form id="generation-form-${template._id}">
+                            <div class="form-section">
+                                <h3><i class="fas fa-image"></i> Image</h3>
+                                <div class="form-group">
+                                    <label>Add object/subject for the image feature</label>
+                                    <div class="object-input-container">
+                                        <input type="text" id="object-input-${template._id}"
+                                               placeholder="e.g., a funny cow"
+                                               class="object-input-field">
+                                        <select id="tone-select-${template._id}" class="tone-dropdown">
+                                            <option value="Generic">Generic</option>
+                                            <option value="Funny">Funny</option>
+                                            <option value="Sarcastic">Sarcastic</option>
+                                            <option value="Cute">Cute</option>
+                                            <option value="For Kids">For Kids</option>
+                                            <option value="Horror">Horror</option>
+                                            <option value="Apocalyptic">Apocalyptic</option>
+                                            <option value="Romantic - Love">Romantic - Love</option>
+                                            <option value="Nostalgic">Nostalgic</option>
+                                            <option value="Cool - Edgy">Cool - Edgy</option>
+                                            <option value="Dark Humor">Dark Humor</option>
+                                            <option value="Inspirational - Motivational">Inspirational - Motivational</option>
+                                            <option value="Minimalist">Minimalist</option>
+                                            <option value="Psychedelic">Psychedelic</option>
+                                            <option value="Aesthetic - Artsy">Aesthetic - Artsy</option>
+                                            <option value="Gothic">Gothic</option>
+                                            <option value="Fantasy">Fantasy</option>
+                                            <option value="Sci-Fi - Futuristic">Sci-Fi - Futuristic</option>
+                                            <option value="Patriotic">Patriotic</option>
+                                            <option value="Sporty - Active">Sporty - Active</option>
+                                            <option value="Pop Culture - Meme">Pop Culture - Meme</option>
+                                        </select>
+                                        <button type="button" class="enhance-object-btn" onclick="enhanceObjectForTemplate('${template._id}')"
+                                                title="Enhance object description with AI">
+                                            <i class="fas fa-magic"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section" id="text-section-${template._id}">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                    <h3><i class="fas fa-font"></i> Texts</h3>
+                                    <div style="display: flex; gap: 8px; align-items: center;">
+                                        <button type="button" class="generate-texts-btn" onclick="generateTextsForTemplate('${template._id}')"
+                                                style="background: #ffffff; color: #393939; border: 4px; padding: 6px 14px; border-radius: 4px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;box-shadow: 0 4px 8px rgba(196, 196, 196, 0.3);">
+                                            <i class="fas fa-magic"></i> Generate Texts
+                                        </button>
+                                        <button type="button" class="regenerate-texts-btn" onclick="generateTextsForTemplate('${template._id}')"
+                                                style="background: #6c757d; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; display: none; align-items: center; gap: 4px;"
+                                                title="Generate different variations">
+                                            <i class="fas fa-redo"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="text-inputs-${template._id}">
+                                    <!-- Text inputs will be generated here -->
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h3><i class="fas fa-palette"></i> Colors</h3>
+                                <div class="color-palette-section">
+                                    <div class="original-palette-info"
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Choose Color Palette</label>
+                                        <div id="color-palette-${template._id}">
+                                            <color-palette-selector></color-palette-selector>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="generate-button" id="generate-btn-${template._id}">
+                                <i class="fas fa-magic"></i>
+                                Generate Design
+                            </button>
+                        </form>
+
+                        <div class="loading-state" id="loading-${template._id}">
+                            <div class="loading-spinner-inline"></div>
+                            <p>Generating your design...</p>
+                        </div>
+
+                        <div class="error-state" id="error-${template._id}">
+                            <p id="error-message-${template._id}"></p>
+                        </div>
+
+                        <div class="generation-result" id="result-${template._id}">
+                            <img class="result-image" id="result-image-${template._id}" src="" alt="Generated design">
+                            <div class="result-actions">
+                                <button class="result-btn primary" onclick="downloadGeneratedImage('${template._id}')">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                                <button class="result-btn primary" onclick="addToCollection('${template._id}')">
+                                    <i class="fas fa-folder-plus"></i> Add to Collection
+                                </button>
+                                <button class="result-btn secondary" onclick="regenerateDesign('${template._id}')">
+                                    <i class="fas fa-redo"></i> Try Again
+                                </button>
+                                <button class="result-btn primary" onclick="sendToEditor('${template._id}')">
+                                    <i class="fas fa-edit"></i> Send to Editor
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return interfaceContainer;
+        }
+
+        async function expandCardForGeneration(template, cardElement) {
+            // Close any currently expanded card
+            if (expandedCardId && expandedCardId !== template._id) {
+                closeInlineGeneration(expandedCardId);
+            }
+
+            expandedCardId = template._id;
+            cardElement.classList.add('expanded');
+
+            const interfaceElement = cardElement.querySelector('.inline-generation-interface');
+            interfaceElement.classList.add('active');
+
+            // Fetch full template data if canvas objects are missing
+            let fullTemplate = template;
+            if (!template.canvasObjects && !template.textObjects && !template.texts) {
+                console.log('🔄 Template missing canvas objects, fetching full data...');
+                try {
+                    const response = await fetch(`/api/design-templates/${template._id}`, { credentials: 'include' });
+                    if (response.ok) {
+                        fullTemplate = await response.json();
+                        console.log('✅ Fetched full template data:', fullTemplate);
+                    } else {
+                        console.warn('⚠️ Failed to fetch full template data, using original');
+                    }
+                } catch (error) {
+                    console.error('❌ Error fetching full template data:', error);
+                }
+            }
+
+            // Store full template data globally for later use
+            window[`fullTemplate_${template._id}`] = fullTemplate;
+            console.log('🎯 [TEMPLATE STORAGE] Stored full template data for:', template._id, 'with canvasObjects:', !!fullTemplate.canvasObjects);
+
+            // Initialize the interface with full template data
+            await initializeInlineInterface(fullTemplate);
+
+            // Scroll to the expanded card
+            cardElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function closeInlineGeneration(templateId) {
+            const card = document.querySelector(`#interface-${templateId}`).closest('.inspiration-card');
+            if (card) {
+                card.classList.remove('expanded');
+                const interfaceElement = card.querySelector('.inline-generation-interface');
+                interfaceElement.classList.remove('active');
+            }
+            expandedCardId = null;
+        }
+
+        async function initializeInlineInterface(template) {
+            try {
+                // DEBUG: Log template structure to understand the data format
+                console.log('🔍 [DEBUG] Template structure:', {
+                    id: template._id,
+                    name: template.name,
+                    hasCanvasObjects: !!template.canvasObjects,
+                    canvasObjectsLength: template.canvasObjects?.length,
+                    hasTextObjects: !!template.textObjects,
+                    textObjectsLength: template.textObjects?.length,
+                    hasTexts: !!template.texts,
+                    textsLength: template.texts?.length,
+                    allKeys: Object.keys(template)
+                });
+
+                // Load persistent parameters for all objects in the template
+                await loadPersistentParametersForTemplate(template);
+
+                // Analyze template for replaceable elements
+                const templateAnalysis = generateTemplateInputs(template);
+
+                // Update template analysis display
+                const analysisElement = document.getElementById(`template-analysis-${template._id}`);
+                const canvasObjects = template.canvasObjects || template.textObjects || template.texts || [];
+                const textElementsCount = canvasObjects.filter(obj => obj.type === 'text').length || 0;
+                const replaceableTextCount = templateAnalysis.replaceableElements.texts.length;
+                const replaceableImageCount = templateAnalysis.replaceableElements.images.length;
+
+                analysisElement.innerHTML = `
+                    <small>
+                        📝 ${textElementsCount} text elements (${replaceableTextCount} replaceable)
+                        ${replaceableImageCount > 0 ? `<br>🖼️ ${replaceableImageCount} replaceable images` : ''}
+                    </small>
+                `;
+
+                // Generate text inputs
+                const textInputsContainer = document.getElementById(`text-inputs-${template._id}`);
+                textInputsContainer.innerHTML = templateAnalysis.textInputs || generateTextInputs(textElementsCount);
+
+                // Initialize color palette selector
+                const paletteContainer = document.getElementById(`color-palette-${template._id}`);
+                const paletteSelector = paletteContainer.querySelector('color-palette-selector');
+                if (paletteSelector) {
+                    // Set the original palette description from template data
+                    const originalPaletteDescription = template.originalPalette || template.adminData?.palette || '';
+                    if (originalPaletteDescription) {
+                        paletteSelector.setOriginalPaletteDescription(originalPaletteDescription);
+                    }
+
+                    setTimeout(() => {
+                        paletteSelector.selectedPaletteId = 'original';
+                    }, 100);
+                }
+
+                // Add form submit handler
+                const form = document.getElementById(`generation-form-${template._id}`);
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    generateFromTemplate(template);
+                });
+
+                // Store template analysis globally for this template
+                window[`templateAnalysis_${template._id}`] = templateAnalysis;
+
+            } catch (error) {
+                console.error('Error initializing inline interface:', error);
+                showToast('Failed to initialize generation interface', 'error');
+            }
+        }
+
+        // Template Analysis Functions (from generate-from-inspiration.html)
+        async function loadPersistentParametersForTemplate(template) {
+            console.log('💾 Loading persistent parameters for template objects...');
+
+            // Check for canvas objects in different possible fields
+            const canvasObjects = template.canvasObjects || template.textObjects || template.texts || [];
+
+            if (!template || !canvasObjects || canvasObjects.length === 0) {
+                console.log('💾 No template or canvas objects found');
+                console.log('💾 Available template fields:', Object.keys(template || {}));
+                return;
+            }
+
+            console.log('💾 Found', canvasObjects.length, 'objects to load parameters for');
+            const loadPromises = canvasObjects.map(async (obj) => {
+                try {
+                    console.log(`💾 Loading persistent parameters for object ${obj.id}`);
+
+                    const response = await fetch(`/api/persistent-parameters/${obj.id}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            console.log(`💾 No persistent parameters found for object ${obj.id}`);
+                            return;
+                        }
+                        throw new Error(`Failed to load persistent parameters: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    console.log(`💾 Loaded persistent parameters for object ${obj.id}:`, result.data);
+
+                    // Apply the persistent parameters to the object
+                    if (result.data.newColorIntensity) {
+                        obj.newColorIntensity = result.data.newColorIntensity.value;
+                        console.log(`💾 Applied newColorIntensity: ${obj.newColorIntensity} to object ${obj.id}`);
+                    }
+
+                    if (result.data.newTemplateId) {
+                        obj.newTemplateId = result.data.newTemplateId.value;
+                        console.log(`💾 Applied newTemplateId: ${obj.newTemplateId} to object ${obj.id}`);
+                    }
+
+                } catch (error) {
+                    console.error(`💾 Error loading persistent parameters for object ${obj.id}:`, error);
+                    // Don't throw - just log the error and continue
+                }
+            });
+
+            await Promise.all(loadPromises);
+            console.log('💾 Finished loading persistent parameters for all template objects');
+        }
+
+        function generateTemplateInputs(template) {
+            console.log('🎭 [Template Analysis] Starting enhanced template analysis for masked image detection');
+
+            // Check for canvas objects in different possible fields
+            const canvasObjects = template.canvasObjects || template.textObjects || template.texts || [];
+
+            if (!template || !canvasObjects || canvasObjects.length === 0) {
+                console.log('🎭 [Template Analysis] No template or canvas objects found');
+                console.log('🎭 [Template Analysis] Available template fields:', Object.keys(template || {}));
+                return { textInputs: '', imageInputs: '', replaceableElements: { texts: [], images: [] } };
+            }
+            console.log('🎭 [Template Analysis] Found', canvasObjects.length, 'canvas objects to analyze');
+
+            const replaceableTexts = [];
+            const replaceableImages = [];
+            const maskShapes = [];
+            let textInputs = '';
+            let imageInputs = '';
+
+            // First pass: Identify all mask shapes for reference
+            canvasObjects.forEach((obj, index) => {
+                if (obj.type === 'image' && obj.isMaskShape === true) {
+                    maskShapes.push({
+                        id: obj.id,
+                        imageUrl: obj.imageUrl,
+                        index: index,
+                        isVisible: obj.isVisible
+                    });
+                    console.log(`🎭 [Template Analysis] Found mask shape:`, {
+                        id: obj.id,
+                        imageUrl: obj.imageUrl,
+                        isVisible: obj.isVisible,
+                        index: index
+                    });
+                }
+            });
+
+            // Second pass: Analyze canvas objects for replaceable elements (t01-t05, i01-i05)
+            // Using template ID system (check both templateId and newTemplateId for compatibility)
+            canvasObjects.forEach((obj, index) => {
+                const textTemplateId = obj.templateId || obj.newTemplateId;
+                const imageTemplateId = obj.templateId || obj.newTemplateId;
+
+                if (obj.type === 'text' && textTemplateId && textTemplateId.match(/^t0[1-5]$/)) {
+                    replaceableTexts.push({
+                        id: textTemplateId,
+                        originalText: obj.text,
+                        index: index
+                    });
+                    console.log(`📝 [Template Analysis] Found replaceable text: ${textTemplateId} = "${obj.text}"`);
+                } else if (obj.type === 'image' && imageTemplateId && imageTemplateId.match(/^i0[1-5]$/)) {
+                    // Enhanced image analysis with mask validation
+                    const imageData = {
+                        id: imageTemplateId,
+                        originalUrl: obj.imageUrl,
+                        index: index,
+                        isMasked: obj.isMasked || false,
+                        maskShapeId: obj.maskShapeId || null,
+                        maskShape: null // Will be populated if mask is found
+                    };
+
+                    // If image is masked, validate mask relationship
+                    if (obj.isMasked && obj.maskShapeId) {
+                        const maskShape = maskShapes.find(mask => mask.id === obj.maskShapeId);
+                        if (maskShape) {
+                            imageData.maskShape = maskShape;
+                            console.log(`🎭 [Template Analysis] ✅ Validated masked image ${imageTemplateId}:`, {
+                                imageUrl: obj.imageUrl,
+                                isMasked: obj.isMasked,
+                                maskShapeId: obj.maskShapeId,
+                                maskShapeUrl: maskShape.imageUrl,
+                                maskVisible: maskShape.isVisible,
+                                index: index
+                            });
+                        } else {
+                            console.warn(`🎭 [Template Analysis] ⚠️ Broken mask relationship for image ${imageTemplateId}:`, {
+                                imageUrl: obj.imageUrl,
+                                maskShapeId: obj.maskShapeId,
+                                availableMasks: maskShapes.map(m => m.id)
+                            });
+                            // Reset masking properties for broken relationships
+                            imageData.isMasked = false;
+                            imageData.maskShapeId = null;
+                        }
+                    }
+
+                    replaceableImages.push(imageData);
+                }
+            });
+
+            // Sort texts by ID (t01, t02, t03, t04, t05)
+            replaceableTexts.sort((a, b) => a.id.localeCompare(b.id));
+
+            // Generate text input fields (max 5)
+            if (replaceableTexts.length > 0) {
+                replaceableTexts.forEach((textObj, i) => {
+                    const textNumber = textObj.id.replace('t0', '');
+                    textInputs += `
+                        <div class="form-group">
+                            <label>
+                                Text ${textNumber}
+                                <span class="text-replacement-hint">(Replaces: "${textObj.originalText}")</span>
+                            </label>
+                            <input type="text" class="text-input"
+                                   id="textInput_${textObj.id}"
+                                   data-template-id="${textObj.id}"
+                                   placeholder="Enter text">
+                        </div>
+                    `;
+                });
+            }
+
+            // Show enhanced image replacement info (always show if there are replaceable images)
+            if (replaceableImages.length > 0) {
+                const hasMainImage = replaceableImages.some(img => img.id === 'i01');
+                const mainImage = replaceableImages.find(img => img.id === 'i01');
+                const isMaskedMainImage = mainImage && mainImage.isMasked;
+                const maskValidated = mainImage && mainImage.isMasked && mainImage.maskShape;
+
+                let replacementText = hasMainImage ? 'The generated image will replace the main image (i01)' : 'Generated image will replace the first available image';
+
+                // Enhanced feedback for masked images
+                if (isMaskedMainImage) {
+                    if (maskValidated) {
+                        replacementText += ' - Image is masked and mask relationship is validated';
+                    } else {
+                        replacementText += ' - Image has masking properties but mask validation failed';
+                    }
+                }
+
+                // Count masked images for summary
+                const maskedImagesCount = replaceableImages.filter(img => img.isMasked).length;
+                const validatedMasksCount = replaceableImages.filter(img => img.isMasked && img.maskShape).length;
+
+                imageInputs = `
+                    <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; font-size: 0.85rem;">
+                        <h4 style="color: #0ea5e9; margin: 0 0 0.5rem 0; font-size: 0.9rem;">🖼️ Image Replacement:</h4>
+                        <p style="margin: 0 0 0.5rem 0;">${replacementText}</p>
+                        <small style="display: block; color: #6b7280;">Total replaceable images: ${replaceableImages.length}</small>
+                        ${maskedImagesCount > 0 ? `<small style="display: block; margin-top: 4px; color: #6b7280;">Masked images found: ${maskedImagesCount}</small>` : ''}
+                        ${isMaskedMainImage && maskValidated ? '<small style="color: #10b981; display: block; margin-top: 4px;">✅ Main image mask validated - will be preserved</small>' : ''}
+                        ${isMaskedMainImage && !maskValidated ? '<small style="color: #f59e0b; display: block; margin-top: 4px;">⚠️ Main image mask validation failed - may not preserve masking</small>' : ''}
+                        ${validatedMasksCount !== maskedImagesCount && maskedImagesCount > 0 ? `<small style="color: #ef4444; display: block; margin-top: 4px;">⚠️ ${maskedImagesCount - validatedMasksCount} mask relationship(s) broken</small>` : ''}
+                    </div>
+                `;
+            }
+
+            console.log('🎭 [Template Analysis] Enhanced analysis complete:', {
+                totalTexts: replaceableTexts.length,
+                totalImages: replaceableImages.length,
+                totalMaskShapes: maskShapes.length,
+                maskedImages: replaceableImages.filter(img => img.isMasked).length,
+                hasMainImage: !!replaceableImages.find(img => img.id === 'i01')
+            });
+
+            return {
+                textInputs,
+                imageInputs,
+                replaceableElements: {
+                    texts: replaceableTexts,
+                    images: replaceableImages
+                }
+            };
+        }
+
+        function generateTextInputs(count) {
+            let inputs = '';
+            for (let i = 1; i <= Math.min(count, 5); i++) {
+                inputs += `
+                    <div class="form-group">
+                        <label>Text ${i}</label>
+                        <input type="text" class="text-input"
+                               placeholder="Enter text for element ${i}">
+                    </div>
+                `;
+            }
+            return inputs;
+        }
+
+        async function generateFromTemplate(template) {
+            const templateId = template._id;
+
+            try {
+                // Show loading state
+                document.getElementById(`loading-${templateId}`).classList.add('active');
+                document.getElementById(`error-${templateId}`).classList.remove('active');
+                document.getElementById(`result-${templateId}`).classList.remove('active');
+
+                // Get form data
+                const objectInput = document.getElementById(`object-input-${templateId}`).value.trim();
+                if (!objectInput) {
+                    throw new Error('Please enter an object/subject.');
+                }
+
+                // Get text values - support both template ID-based and legacy numbered inputs
+                const textInputs = document.querySelectorAll(`#text-inputs-${templateId} .text-input`);
+                const userTexts = [];
+                const templateTextReplacements = {};
+
+                // Check if we have template analysis data
+                const templateAnalysis = window[`templateAnalysis_${templateId}`];
+                if (templateAnalysis && templateAnalysis.replaceableElements.texts.length > 0) {
+                    // New template ID-based system
+                    templateAnalysis.replaceableElements.texts.forEach(textObj => {
+                        const input = document.getElementById(`textInput_${textObj.id}`);
+                        if (input) {
+                            const value = input.value.trim();
+                            templateTextReplacements[textObj.id] = value;
+                            userTexts.push(value); // Also add to legacy array for backward compatibility
+                        }
+                    });
+                    console.log('Template-based text replacements:', templateTextReplacements);
+                } else {
+                    // Legacy numbered system
+                    userTexts.push(...Array.from(textInputs).map(input => input.value.trim()));
+                }
+
+                // Get selected color palette
+                const paletteSelector = document.querySelector(`#color-palette-${templateId} color-palette-selector`);
+                const selectedPaletteId = paletteSelector?.selectedPaletteId || 'original';
+
+                // Debug: Check what palette data we have
+                console.log('🎨 Palette Debug Info:', {
+                    templateId: templateId,
+                    selectedPaletteId: selectedPaletteId,
+                    'template.originalPalette': template.originalPalette,
+                    'template.adminData?.palette': template.adminData?.palette,
+                    'template object keys': Object.keys(template)
+                });
+
+                // Use originalPalette field first, then fall back to adminData.palette for backward compatibility
+                let finalPaletteDescription = template.originalPalette || template.adminData?.palette || 'default colors';
+                if (selectedPaletteId !== 'original' && paletteSelector?.selectedPalette) {
+                    finalPaletteDescription = paletteSelector.selectedPalette.description;
+                }
+
+                console.log('🎨 Final palette description being used:', finalPaletteDescription);
+
+                // Prepare the prompt using the *original* template prompt
+                let promptToSend = template.adminData?.prompt || '';
+                promptToSend = promptToSend.replace(/\[input-object\]/gi, objectInput);
+                promptToSend = promptToSend.replace(/\[palette\]/gi, finalPaletteDescription);
+                console.log('Prompt being sent to AI:', promptToSend);
+
+                // Get the model name from the template
+                const modelName = template.adminData?.model;
+                if (!modelName) {
+                    throw new Error('Original model name not found in the template data.');
+                }
+
+                console.log('Generating with data:', {
+                    prompt: promptToSend,
+                    model: modelName,
+                    userTexts: userTexts,
+                    templateTextReplacements: templateTextReplacements
+                });
+
+                // Call the standard generate endpoint
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        prompt: promptToSend,
+                        model: modelName
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Generation failed');
+                }
+
+                const result = await response.json();
+                console.log('AI Generation successful:', result);
+
+                const newImageUrl = result.imageUrl;
+                const generationId = result.generationId;
+
+                if (!newImageUrl) {
+                    throw new Error('API did not return a valid image URL.');
+                }
+
+                // Store result data for background removal and editor
+                // IMPORTANT: Store the USER'S inputs, not the template's original data
+                window[`generationResult_${templateId}`] = {
+                    imageUrl: newImageUrl,
+                    generationId: generationId,
+                    templateId: templateId,
+                    userTexts: userTexts,
+                    templateTextReplacements: templateTextReplacements,
+                    templateAnalysis: templateAnalysis,
+                    // Store the USER'S inputs for regeneration
+                    userInputObject: objectInput,  // The object the user typed (e.g., "a dog jumping")
+                    userSelectedPalette: finalPaletteDescription,  // The palette the user selected (e.g., "brown colors")
+                    userSelectedPaletteId: selectedPaletteId  // The palette ID the user selected (e.g., "brown" or "original")
+                };
+
+                showToast('Design generated successfully! Processing...', 'success');
+
+                // --- Try background removal with extended timeout for Replicate processing ---
+                console.log('🚨 [BG REMOVAL] Attempting background removal with extended timeout...');
+                try {
+                    // Set a 60-second timeout for background removal (Replicate can take 30-45 seconds)
+                    const timeoutPromise = new Promise((_, reject) =>
+                        setTimeout(() => reject(new Error('Background removal timeout after 60 seconds')), 60000)
+                    );
+
+                    await Promise.race([
+                        handleBackgroundRemoval(templateId),
+                        timeoutPromise
+                    ]);
+                    console.log('🚨 [BG REMOVAL] Background removal completed successfully');
+                } catch (error) {
+                    console.warn('🚨 [BG REMOVAL] Background removal failed or timed out after 60 seconds, continuing with original image:', error.message);
+                    // Continue to editor even if background removal fails
+                    await handleSendToEditor(templateId);
+                }
+
+            } catch (error) {
+                console.error('Generation error:', error);
+
+                // Hide loading state
+                document.getElementById(`loading-${templateId}`).classList.remove('active');
+
+                // Show error
+                document.getElementById(`error-message-${templateId}`).textContent = error.message;
+                document.getElementById(`error-${templateId}`).classList.add('active');
+
+                showToast('Failed to generate design: ' + error.message, 'error');
+            }
+        }
+
+        // Background Removal and Editor Flow
+        async function handleBackgroundRemoval(templateId) {
+            const result = window[`generationResult_${templateId}`];
+            if (!result?.imageUrl || !result?.generationId) {
+                console.error('Missing image URL or Generation ID for background removal.');
+                showToast('Error: Missing generation data', 'error');
+                return;
+            }
+
+            try {
+                console.log('Starting background removal for:', result.imageUrl);
+
+                // Update loading message with progress indicator
+                const loadingElement = document.getElementById(`loading-${templateId}`);
+                if (loadingElement) {
+                    loadingElement.querySelector('p').textContent = 'Removing background... (this may take 30-60 seconds)';
+                    loadingElement.classList.add('active');
+                }
+
+                // Call background removal API
+                console.log('🚨 [BG REMOVAL DEBUG] Making fetch request to /api/images/bgremove...');
+                console.log('🚨 [BG REMOVAL DEBUG] Request body:', {
+                    imageUrl: result.imageUrl,
+                    generationId: result.generationId
+                });
+
+                const response = await fetch('/api/images/bgremove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        imageUrl: result.imageUrl,
+                        generationId: result.generationId
+                    })
+                });
+
+                console.log('🚨 [BG REMOVAL DEBUG] Response received, status:', response.status);
+                console.log('🚨 [BG REMOVAL DEBUG] Response ok:', response.ok);
+
+                console.log('🚨 [BG REMOVAL DEBUG] Response received, parsing JSON...');
+                const data = await response.json();
+                console.log('🚨 [BG REMOVAL DEBUG] JSON parsed successfully:', data);
+
+                if (!response.ok) {
+                    console.error('🚨 [BG REMOVAL DEBUG] Response not OK:', response.status, data);
+                    throw new Error(data.error || data.details || 'Background removal failed');
+                }
+
+                // Check if we have a valid background-removed image URL
+                const newImageUrl = data.imageUrl; // URL of the BG-removed image
+                if (!newImageUrl) {
+                    console.error('🚨 [BG REMOVAL DEBUG] No imageUrl in response:', data);
+                    throw new Error('Background removal completed but no image URL returned');
+                }
+
+                console.log('🚨 [BG REMOVAL DEBUG] Background removed successfully. New URL:', newImageUrl);
+                console.log('🚨 [BG REMOVAL DEBUG] Original URL was:', result.imageUrl);
+
+                // Update the stored result with the background-removed image URL
+                // Keep original URL for reference and store the new one as bgRemovedImageUrl
+                window[`generationResult_${templateId}`].bgRemovedImageUrl = newImageUrl;
+                console.log('🚨 [BG REMOVAL DEBUG] Stored bgRemovedImageUrl:', newImageUrl);
+                console.log('🚨 [BG REMOVAL DEBUG] Original imageUrl preserved:', window[`generationResult_${templateId}`].imageUrl);
+
+                showToast('Background removed! Opening in editor...', 'success');
+
+                // --- Automatically send to editor after successful BG removal ---
+                console.log('🚨 [BG REMOVAL DEBUG] Background removal successful, automatically sending to editor...');
+                console.log('🚨 [BG REMOVAL DEBUG] Calling handleSendToEditor with templateId:', templateId);
+                await handleSendToEditor(templateId);
+                console.log('🚨 [BG REMOVAL DEBUG] handleSendToEditor completed successfully');
+
+            } catch (error) {
+                console.error('🚨 [BG REMOVAL DEBUG] Error removing background:', error);
+                console.error('🚨 [BG REMOVAL DEBUG] Error stack:', error.stack);
+                console.error('🚨 [BG REMOVAL DEBUG] Error message:', error.message);
+
+                // Hide loading state
+                document.getElementById(`loading-${templateId}`).classList.remove('active');
+
+                // Show error
+                document.getElementById(`error-message-${templateId}`).textContent = `Background removal failed: ${error.message}`;
+                document.getElementById(`error-${templateId}`).classList.add('active');
+
+                showToast('Background removal failed: ' + error.message, 'error');
+
+                // CRITICAL FIX: Continue to editor even if background removal fails
+                console.log('🚨 [BG REMOVAL DEBUG] Continuing to editor despite background removal failure...');
+                try {
+                    await handleSendToEditor(templateId);
+                    console.log('🚨 [BG REMOVAL DEBUG] Successfully opened editor despite background removal failure');
+                } catch (editorError) {
+                    console.error('🚨 [BG REMOVAL DEBUG] Failed to open editor after background removal failure:', editorError);
+                }
+            }
+        }
+
+        async function handleSendToEditor(templateId) {
+            const result = window[`generationResult_${templateId}`];
+            if (!result) {
+                showToast('No generation data available', 'error');
+                return;
+            }
+
+            console.log('🚨 [CRITICAL FIX] handleSendToEditor called with result:', result);
+
+            try {
+                // Get selected palette for smart text colors
+                const paletteSelector = document.querySelector(`#color-palette-${templateId} color-palette-selector`);
+                const selectedPaletteId = paletteSelector?.selectedPaletteId || 'original';
+
+                console.log('🎨 Applying smart text colors before sending to editor:', {
+                    selectedPaletteId
+                });
+
+                // Get the original template and apply smart text colors
+                // CRITICAL FIX: Use the stored full template data with canvas objects
+                let template = window[`fullTemplate_${templateId}`] || allTemplates.find(t => t._id === templateId);
+                if (!template) {
+                    throw new Error('Template not found');
+                }
+
+                console.log('🎯 [TEMPLATE USAGE] Using template source:', {
+                    templateId,
+                    hasStoredFullTemplate: !!window[`fullTemplate_${templateId}`],
+                    hasCanvasObjects: !!template.canvasObjects,
+                    canvasObjectsCount: template.canvasObjects?.length || 0,
+                    templateSource: window[`fullTemplate_${templateId}`] ? 'stored full template' : 'allTemplates array'
+                });
+
+                // Debug: Check if this template has font styles
+                console.log('🎨 📝 TEMPLATE SELECTION - Template being used for generation:', {
+                    id: template._id,
+                    name: template.name,
+                    'top-level fontStylesList': template.fontStylesList,
+                    'adminData.fontStylesList': template.adminData?.fontStylesList,
+                    'top-level fontStylesList exists': !!template.fontStylesList,
+                    'adminData.fontStylesList exists': !!template.adminData?.fontStylesList,
+                    'top-level fontStylesList count': template.fontStylesList?.length || 0,
+                    'adminData.fontStylesList count': template.adminData?.fontStylesList?.length || 0,
+                    'complete template keys': Object.keys(template),
+                    'complete adminData keys': template.adminData ? Object.keys(template.adminData) : 'no adminData'
+                });
+
+                console.log('🚨 [CRITICAL DEBUG] Template modification process STARTED!');
+                console.log('🚨 [CRITICAL DEBUG] Original template has canvasObjects:', !!template.canvasObjects);
+                console.log('🚨 [CRITICAL DEBUG] Original template canvasObjects count:', template.canvasObjects?.length);
+
+                // CRITICAL FIX: Ensure we have an image URL (use original if background removal failed)
+                const finalImageUrl = result.bgRemovedImageUrl || result.imageUrl;
+                console.log('🚨 [CRITICAL DEBUG] Using image URL:', finalImageUrl);
+                console.log('🚨 [CRITICAL DEBUG] Background removed URL:', result.bgRemovedImageUrl);
+                console.log('🚨 [CRITICAL DEBUG] Original URL:', result.imageUrl);
+
+                // CRITICAL FIX: Ensure template has artboard data (older templates may not have it)
+                if (!template.artboard) {
+                    console.log('🔧 [ARTBOARD FIX] Original template missing artboard, creating default');
+                    template.artboard = {
+                        x: 0,
+                        y: 0,
+                        width: 2048,
+                        height: 2048,
+                        isSelected: true
+                    };
+                } else {
+                    console.log('🔧 [ARTBOARD FIX] Original template has artboard:', template.artboard);
+                }
+
+                // Load persistent parameters and apply smart text colors
+                let modifiedTemplate = JSON.parse(JSON.stringify(template)); // Deep copy
+                console.log('🎯 [ARTBOARD DEBUG] Original template artboard:', template.artboard);
+                console.log('🎯 [ARTBOARD DEBUG] Deep copy artboard:', modifiedTemplate.artboard);
+
+                await loadPersistentParameters(modifiedTemplate);
+                console.log('🎯 [ARTBOARD DEBUG] After loadPersistentParameters:', modifiedTemplate.artboard);
+
+                modifiedTemplate = applySmartTextColors(modifiedTemplate, selectedPaletteId);
+                console.log('🎯 [ARTBOARD DEBUG] After applySmartTextColors:', modifiedTemplate.artboard);
+
+                // CRITICAL FIX: Ensure artboard data is preserved and validated
+                if (!modifiedTemplate.artboard && template.artboard) {
+                    console.log('🎯 [ARTBOARD FIX] Restoring missing artboard data from original template');
+                    modifiedTemplate.artboard = JSON.parse(JSON.stringify(template.artboard)); // Deep copy
+                } else if (modifiedTemplate.artboard) {
+                    console.log('🎯 [ARTBOARD FIX] Artboard data already present in modified template');
+                    // Validate artboard data to prevent zoom issues
+                    if (!modifiedTemplate.artboard.width || !modifiedTemplate.artboard.height) {
+                        console.warn('🎯 [ARTBOARD FIX] Invalid artboard dimensions, using original template artboard');
+                        modifiedTemplate.artboard = JSON.parse(JSON.stringify(template.artboard));
+                    }
+                } else {
+                    console.warn('🎯 [ARTBOARD FIX] No artboard data found in either template - creating default to prevent zoom issues');
+                    // Create a reasonable default artboard instead of the huge 2048x2048
+                    modifiedTemplate.artboard = {
+                        x: 100,
+                        y: 100,
+                        width: 600,
+                        height: 600,
+                        isSelected: true
+                    };
+                }
+
+                console.log('🎯 [ARTBOARD DEBUG] Final artboard data:', modifiedTemplate.artboard);
+
+                // IMPORTANT: Update the template's adminData with the USER'S inputs for regeneration
+                if (!modifiedTemplate.adminData) {
+                    modifiedTemplate.adminData = {};
+                }
+                // Store the USER'S inputs, not the template's original data
+                modifiedTemplate.adminData.object = result.userInputObject;  // User's object input (e.g., "a dog jumping")
+                modifiedTemplate.adminData.palette = result.userSelectedPalette;  // User's selected palette (e.g., "brown colors")
+
+                // Preserve font styles list from original template (check both locations)
+                const originalFontStyles = template.fontStylesList || template.adminData?.fontStylesList;
+                if (originalFontStyles && Array.isArray(originalFontStyles)) {
+                    // Ensure both locations have the font styles
+                    modifiedTemplate.fontStylesList = originalFontStyles;
+                    if (!modifiedTemplate.adminData) modifiedTemplate.adminData = {};
+                    modifiedTemplate.adminData.fontStylesList = originalFontStyles;
+                    console.log('🎯 ✅ PRESERVED font styles in modified template:', {
+                        'source': template.fontStylesList ? 'top-level' : 'adminData',
+                        'styles count': originalFontStyles.length,
+                        'stored in top-level': !!modifiedTemplate.fontStylesList,
+                        'stored in adminData': !!modifiedTemplate.adminData?.fontStylesList,
+                        'data preview': originalFontStyles[0] ? `First style has ${originalFontStyles[0].length} text configs` : 'no styles'
+                    });
+                } else {
+                    console.log('🎯 ❌ NO font styles found in original template to preserve:', {
+                        'template.fontStylesList': template.fontStylesList,
+                        'template.adminData?.fontStylesList': template.adminData?.fontStylesList
+                    });
+                }
+
+                console.log('🎯 Updated template adminData with USER inputs:', {
+                    'adminData.object': modifiedTemplate.adminData.object,
+                    'adminData.palette': modifiedTemplate.adminData.palette,
+                    'adminData.fontStylesList': modifiedTemplate.adminData.fontStylesList?.length || 0,
+                    'top-level fontStylesList': modifiedTemplate.fontStylesList?.length || 0,
+                    'original template object': template.adminData?.object,
+                    'original template palette': template.adminData?.palette
+                });
+
+                // CRITICAL FIX: Ensure canvas objects are preserved in modified template
+                if (!modifiedTemplate.canvasObjects && template.canvasObjects) {
+                    console.log('🔧 [CANVAS OBJECTS FIX] Restoring missing canvas objects from original template');
+                    modifiedTemplate.canvasObjects = template.canvasObjects;
+                } else if (modifiedTemplate.canvasObjects) {
+                    console.log('🔧 [CANVAS OBJECTS FIX] Canvas objects already present in modified template');
+                } else {
+                    console.warn('🔧 [CANVAS OBJECTS FIX] No canvas objects found in either template');
+                    console.log('🔧 [CANVAS OBJECTS FIX] Attempting to fetch full template from database...');
+
+                    // REAL FIX: Fetch complete template from database
+                    try {
+                        const templateResponse = await fetch(`/api/templates/${template._id}`);
+                        if (templateResponse.ok) {
+                            const fullTemplate = await templateResponse.json();
+                            console.log('🔧 [CANVAS OBJECTS FIX] Fetched full template from database:', fullTemplate);
+                            console.log('🔧 [CANVAS OBJECTS FIX] Full template has canvasObjects:', !!fullTemplate.canvasObjects);
+                            console.log('🔧 [CANVAS OBJECTS FIX] Full template canvasObjects count:', fullTemplate.canvasObjects?.length);
+
+                            if (fullTemplate.canvasObjects && Array.isArray(fullTemplate.canvasObjects)) {
+                                console.log('🔧 [CANVAS OBJECTS FIX] Using canvas objects from database');
+                                modifiedTemplate.canvasObjects = fullTemplate.canvasObjects;
+                            } else {
+                                console.warn('🔧 [CANVAS OBJECTS FIX] Database template also has no canvas objects');
+                            }
+                        } else {
+                            console.error('🔧 [CANVAS OBJECTS FIX] Failed to fetch template from database:', templateResponse.status);
+                        }
+                    } catch (fetchError) {
+                        console.error('🔧 [CANVAS OBJECTS FIX] Error fetching template from database:', fetchError);
+                    }
+                }
+
+                // Debug: Final check before storing in sessionStorage
+                console.log('🎯 📦 FINAL MODIFIED TEMPLATE before sessionStorage:', {
+                    'template keys': Object.keys(modifiedTemplate),
+                    'adminData keys': modifiedTemplate.adminData ? Object.keys(modifiedTemplate.adminData) : 'no adminData',
+                    'canvasObjects exists': !!modifiedTemplate.canvasObjects,
+                    'canvasObjects count': modifiedTemplate.canvasObjects?.length || 0,
+                    'artboard exists': !!modifiedTemplate.artboard,
+                    'top-level fontStylesList exists': !!modifiedTemplate.fontStylesList,
+                    'adminData.fontStylesList exists': !!modifiedTemplate.adminData?.fontStylesList,
+                    'top-level fontStylesList count': modifiedTemplate.fontStylesList?.length || 0,
+                    'adminData.fontStylesList count': modifiedTemplate.adminData?.fontStylesList?.length || 0,
+                    'fontStylesList data': modifiedTemplate.fontStylesList || modifiedTemplate.adminData?.fontStylesList
+                });
+
+                // Store necessary data in sessionStorage for the editor
+                sessionStorage.setItem('generatedImageUrl', finalImageUrl); // Use final URL (background removed or original)
+                sessionStorage.setItem('userTexts', JSON.stringify(result.userTexts));
+                sessionStorage.setItem('originalTemplateId', result.templateId);
+                sessionStorage.setItem('generationId', result.generationId);
+                console.log('🚨 [CRITICAL DEBUG] Stored in sessionStorage - generatedImageUrl:', finalImageUrl);
+
+                console.log('🎯 [ARTBOARD DEBUG] Final modified template artboard before storage:', modifiedTemplate.artboard);
+                sessionStorage.setItem('modifiedTemplate', JSON.stringify(modifiedTemplate)); // Store the modified template with USER inputs
+
+                // Debug: Verify what was actually stored in sessionStorage
+                const storedTemplate = JSON.parse(sessionStorage.getItem('modifiedTemplate'));
+                console.log('🎯 📋 VERIFICATION - What was stored in sessionStorage:', {
+                    'stored template keys': Object.keys(storedTemplate),
+                    'stored adminData keys': storedTemplate.adminData ? Object.keys(storedTemplate.adminData) : 'no adminData',
+                    'stored canvasObjects exists': !!storedTemplate.canvasObjects,
+                    'stored canvasObjects count': storedTemplate.canvasObjects?.length || 0,
+                    'stored artboard exists': !!storedTemplate.artboard,
+                    'stored top-level fontStylesList exists': !!storedTemplate.fontStylesList,
+                    'stored adminData.fontStylesList exists': !!storedTemplate.adminData?.fontStylesList,
+                    'stored top-level fontStylesList count': storedTemplate.fontStylesList?.length || 0,
+                    'stored adminData.fontStylesList count': storedTemplate.adminData?.fontStylesList?.length || 0
+                });
+
+                // Store template replacement data for the new ID-based system
+                if (result.templateTextReplacements && Object.keys(result.templateTextReplacements).length > 0) {
+                    sessionStorage.setItem('templateTextReplacements', JSON.stringify(result.templateTextReplacements));
+                }
+                if (result.templateAnalysis) {
+                    sessionStorage.setItem('templateAnalysis', JSON.stringify(result.templateAnalysis));
+                }
+
+                console.log('Sending to editor with data:', {
+                    generatedImageUrl: result.imageUrl,
+                    userTexts: result.userTexts,
+                    originalTemplateId: result.templateId,
+                    generationId: result.generationId,
+                    modifiedTemplate: modifiedTemplate
+                });
+
+                // Navigate to the editor in NEW TAB to preserve generation logs
+                const editorUrl = new URL('/design-editor.html', window.location.origin);
+                editorUrl.searchParams.set('source', 'generation');
+                editorUrl.searchParams.set('templateId', result.templateId);
+                console.log('🚨 [DEBUG] Opening editor in new tab to preserve logs:', editorUrl.toString());
+
+                // Try to open in new tab, with fallback to same tab if blocked
+                const newTab = window.open(editorUrl.toString(), '_blank');
+                if (!newTab || newTab.closed || typeof newTab.closed == 'undefined') {
+                    console.warn('🚨 [DEBUG] New tab blocked by browser, opening in same tab...');
+                    window.location.href = editorUrl.toString();
+                } else {
+                    console.log('🚨 [DEBUG] Successfully opened editor in new tab');
+                }
+
+            } catch (error) {
+                console.error('Error sending to editor:', error);
+                showToast('Failed to open editor: ' + error.message, 'error');
+            }
+        }
+
+        // Load persistent parameters for template objects
+        async function loadPersistentParameters(template) {
+            if (!template?.canvasObjects) return;
+
+            console.log('💾 Loading persistent parameters for template objects...');
+
+            // PERFORMANCE FIX: Process objects in parallel and handle 404s gracefully
+            const promises = template.canvasObjects.map(async (obj) => {
+                if (obj.type === 'text' || (obj.type === 'image' && obj.imageUrl && obj.imageUrl.toLowerCase().endsWith('.svg'))) {
+                    try {
+                        const response = await fetch(`/api/admin/persistent-parameters/${obj.id}`, {
+                            method: 'GET',
+                            credentials: 'include'
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            console.log(`💾 Loaded persistent parameters for object ${obj.id}:`, result.data);
+                            return { obj, data: result.data };
+                        } else if (response.status === 404) {
+                            // 404 is expected for objects without persistent parameters - don't log as error
+                            return { obj, data: null };
+                        } else {
+                            console.warn(`🔧 [PERFORMANCE] Unexpected response ${response.status} for object ${obj.id}`);
+                            return { obj, data: null };
+                        }
+                    } catch (error) {
+                        console.warn(`🔧 [PERFORMANCE] Failed to load parameters for object ${obj.id}:`, error.message);
+                        return { obj, data: null };
+                    }
+                }
+                return { obj, data: null };
+            });
+
+            const results = await Promise.all(promises);
+
+            // Apply the loaded parameters
+            for (const { obj, data } of results) {
+                if (data) {
+                    // Apply the persistent parameters to the object
+                    if (data.newColorIntensity) {
+                        obj.newColorIntensity = data.newColorIntensity.value;
+                        console.log(`💾 Applied newColorIntensity: ${obj.newColorIntensity} to object ${obj.id}`);
+                    }
+
+                    if (data.newTemplateId) {
+                        obj.newTemplateId = data.newTemplateId.value;
+                        console.log(`💾 Applied newTemplateId: ${obj.newTemplateId} to object ${obj.id}`);
+                    }
+                } else {
+                    console.log(`💾 No persistent parameters found for object ${obj.id}`);
+                }
+            }
+
+            console.log('💾 Finished loading persistent parameters for all template objects');
+        }
+
+        // Function to apply smart text colors to template based on palette and color intensity settings
+        function applySmartTextColors(template, paletteId) {
+            console.log('🎨 Applying smart text colors:', { paletteId });
+
+            if (!template || !template.canvasObjects || !paletteId) {
+                console.log('🎨 Missing template data or palette ID, skipping smart colors');
+                return template;
+            }
+
+            // Apply colors based on each object's persistent color intensity setting
+            template.canvasObjects.forEach(obj => {
+                if (obj.type === 'text' || (obj.type === 'image' && obj.imageUrl && obj.imageUrl.toLowerCase().endsWith('.svg'))) {
+                    // Get the persistent color intensity setting for this object (NEW SYSTEM)
+                    const colorIntensity = obj.newColorIntensity;
+
+                    // If no color intensity is set, set to N/A, or set to no-change, skip this object
+                    if (!colorIntensity || colorIntensity === 'N/A' || colorIntensity === 'no-change') {
+                        console.log(`🎨 Object "${obj.text || obj.id}" has no persistent color intensity (${colorIntensity}), keeping original color`);
+                        return; // Skip this object
+                    }
+
+                    // Get the appropriate color for this palette and intensity
+                    const newColor = getTextColorForPalette(paletteId, colorIntensity);
+
+                    if (newColor) {
+                        const oldColor = obj.color || obj.svgColor;
+                        if (obj.type === 'text') {
+                            obj.color = newColor;
+                        } else if (obj.type === 'image') {
+                            obj.svgColor = newColor;
+                        }
+                        console.log(`🎨 Updated ${obj.type} "${obj.text || obj.id}" color using persistent intensity (${colorIntensity}): ${oldColor} → ${newColor}`);
+                    }
+                }
+            });
+
+            // Store the palette in admin data for the editor
+            if (!template.adminData) {
+                template.adminData = {};
+            }
+            template.adminData.appliedPalette = paletteId;
+
+            console.log('🎨 Smart text colors applied successfully');
+            return template;
+        }
+
+        // Result Action Functions
+        function downloadGeneratedImage(templateId) {
+            const result = window[`generationResult_${templateId}`];
+            if (result?.imageUrl) {
+                const link = document.createElement('a');
+                link.href = result.imageUrl;
+                link.download = `generated-design-${Date.now()}.png`;
+                link.click();
+            }
+        }
+
+        async function addToCollection(templateId) {
+            const result = window[`generationResult_${templateId}`];
+            if (!result?.generationId) {
+                showToast('No generation data available', 'error');
+                return;
+            }
+
+            try {
+                // Implementation would depend on your collection system
+                showToast('Add to collection functionality would be implemented here', 'info');
+            } catch (error) {
+                console.error('Error adding to collection:', error);
+                showToast('Failed to add to collection', 'error');
+            }
+        }
+
+        function regenerateDesign(templateId) {
+            const template = allTemplates.find(t => t._id === templateId);
+            if (template) {
+                console.log('🔄 Regenerating design with template:', {
+                    templateId: templateId,
+                    templateName: template.name,
+                    'adminData.object': template.adminData?.object,
+                    'adminData.palette': template.adminData?.palette,
+                    'originalPalette': template.originalPalette
+                });
+                generateFromTemplate(template);
+            }
+        }
+
+        function sendToEditor(templateId) {
+            // Redirect to the new handleSendToEditor function
+            handleSendToEditor(templateId);
+        }
+
+        // Image Modal Functions
+        function openImageModal(imageUrl, backgroundColor = '#f9fafb') {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalContent = document.querySelector('.image-modal-content');
+
+            modalImage.src = imageUrl;
+            modalContent.style.backgroundColor = backgroundColor;
+            modal.classList.add('show');
+
+            // Close modal when clicking outside the image
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeImageModal();
+                }
+            });
+
+            // Close modal with Escape key
+            document.addEventListener('keydown', handleEscapeKey);
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('show');
+
+            // Remove event listeners
+            document.removeEventListener('keydown', handleEscapeKey);
+        }
+
+        function handleEscapeKey(e) {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
+        }
+
+        // Store previous answers per template to avoid repetition
+        window.previousTextAnswers = window.previousTextAnswers || {};
+
+        // Generate Texts Function
+        async function generateTextsForTemplate(templateId) {
+            console.log('🎯 Generate texts called for template:', templateId);
+            const template = allTemplates.find(t => t._id === templateId);
+            if (!template) {
+                showToast('Template not found', 'error');
+                return;
+            }
+
+            // Get the object/subject input
+            const objectInput = document.getElementById(`object-input-${templateId}`)?.value?.trim();
+            if (!objectInput) {
+                showToast('Please enter an object/subject first', 'error');
+                return;
+            }
+
+            // Get text inputs to determine character counts
+            const textInputs = document.querySelectorAll(`#text-inputs-${templateId} .text-input`);
+            if (textInputs.length === 0) {
+                showToast('No text fields found', 'error');
+                return;
+            }
+
+            // Disable the button and show loading
+            const generateBtn = document.querySelector(`button[onclick="generateTextsForTemplate('${templateId}')"]`);
+            if (generateBtn) {
+                generateBtn.disabled = true;
+                generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            }
+
+            try {
+                // Analyze text fields to get character recommendations
+                const textAnalysis = [];
+                textInputs.forEach((input, index) => {
+                    const placeholder = input.getAttribute('placeholder') || '';
+                    const replaces = input.getAttribute('data-replaces') || '';
+
+                    // Estimate character count based on placeholder or replaced text
+                    let estimatedChars = 12; // default
+                    if (replaces) {
+                        estimatedChars = replaces.length;
+                    } else if (placeholder && placeholder.includes('Enter text')) {
+                        // Use some heuristics based on field position
+                        if (index === 0) estimatedChars = 12; // Main title
+                        else if (index === 1) estimatedChars = 40; // Subtitle
+                        else estimatedChars = 20; // Other texts
+                    }
+
+                    textAnalysis.push({
+                        index: index + 1,
+                        estimatedChars: Math.max(8, Math.min(50, estimatedChars)), // Clamp between 8-50
+                        replaces: replaces
+                    });
+                });
+
+                // Add randomness for variety
+                const styles = ['bold and catchy', 'playful and fun', 'clever and witty', 'inspiring and motivational', 'humorous and quirky'];
+                const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+                const randomSeed = Math.floor(Math.random() * 1000);
+
+                // Get previous answers for this template + object combination
+                const cacheKey = `${templateId}_${objectInput.toLowerCase().trim()}`;
+                const previousAnswers = window.previousTextAnswers[cacheKey] || [];
+
+                // Build the prompt with simpler format
+                let prompt = `Create ${randomStyle} texts for a T-shirt design about "${objectInput}" (variation #${randomSeed}):\n\n`;
+
+                textAnalysis.forEach(text => {
+                    if (text.index === 1) {
+                        prompt += `1. Main title (${text.estimatedChars} characters max, Title Case)\n`;
+                    } else if (text.index === 2) {
+                        prompt += `2. Subtitle (${text.estimatedChars} characters max, Title Case)\n`;
+                    } else {
+                        prompt += `3. Short phrase (${text.estimatedChars} characters max, Title Case)\n`;
+                    }
+                });
+
+                // Add exclusions if we have previous answers
+                if (previousAnswers.length > 0) {
+                    prompt += '\nIMPORTANT: Do NOT use any of these previous answers:\n';
+                    previousAnswers.forEach((answerSet, index) => {
+                        prompt += `Previous attempt ${index + 1}:\n`;
+                        answerSet.forEach((text, textIndex) => {
+                            prompt += `- "${text}"\n`;
+                        });
+                    });
+                    prompt += '\nCreate completely different and original texts.\n';
+                }
+
+                prompt += '\nRespond with the Main title in the first line,  the Subtitle in a second line and the Short phrase in a last line, no labels or numbers:';
+
+                console.log('🤖 Sending text generation prompt:', prompt);
+
+                // Call the text generation API
+                const response = await fetch('/api/generate-texts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        objectInput: objectInput,
+                        textCount: textAnalysis.length
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to generate texts');
+                }
+
+                const result = await response.json();
+                console.log('🤖 Text generation result:', result);
+
+                // Parse the generated texts and fill the inputs
+                if (result.texts && Array.isArray(result.texts)) {
+                    console.log('🎯 Filling text inputs:', result.texts);
+                    console.log('🎯 Available text inputs:', textInputs.length);
+
+                    result.texts.forEach((text, index) => {
+                        const input = textInputs[index];
+                        if (input && text) {
+                            console.log(`🎯 Filling input ${index + 1} with: "${text}"`);
+                            input.value = text;
+                            // Trigger input event to update any listeners
+                            input.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                    });
+
+                    showToast(`Generated ${result.texts.length} texts successfully!`, 'success');
+
+                    // Save the generated texts to prevent repetition
+                    const cacheKey = `${templateId}_${objectInput.toLowerCase().trim()}`;
+                    if (!window.previousTextAnswers[cacheKey]) {
+                        window.previousTextAnswers[cacheKey] = [];
+                    }
+                    window.previousTextAnswers[cacheKey].push([...result.texts]);
+
+                    // Keep only the last 3 attempts to avoid overly long prompts
+                    if (window.previousTextAnswers[cacheKey].length > 3) {
+                        window.previousTextAnswers[cacheKey] = window.previousTextAnswers[cacheKey].slice(-3);
+                    }
+
+                    console.log('💾 Saved answers for', cacheKey, ':', window.previousTextAnswers[cacheKey]);
+
+                    // Show the regenerate button after first successful generation
+                    const templateContainer = document.querySelector(`#text-section-${templateId}`);
+                    if (templateContainer) {
+                        const regenerateBtn = templateContainer.querySelector('.regenerate-texts-btn');
+                        if (regenerateBtn) {
+                            regenerateBtn.style.display = 'flex';
+                            console.log('✅ Regenerate button shown for template:', templateId);
+                        } else {
+                            console.log('❌ Regenerate button not found for template:', templateId);
+                        }
+                    }
+                } else {
+                    throw new Error('Invalid response format from text generation');
+                }
+
+            } catch (error) {
+                console.error('Error generating texts:', error);
+                showToast('Failed to generate texts: ' + error.message, 'error');
+            } finally {
+                // Re-enable the button
+                if (generateBtn) {
+                    generateBtn.disabled = false;
+                    generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Texts';
+                }
+            }
+        }
+
+        // Store previous object enhancement answers to avoid repetition
+        window.previousObjectAnswers = window.previousObjectAnswers || {};
+
+        // Enhance Object Function
+        async function enhanceObjectForTemplate(templateId) {
+            console.log('🎯 Enhance object called for template:', templateId);
+
+            // Get the object input and tone selection
+            const objectInput = document.getElementById(`object-input-${templateId}`)?.value?.trim();
+            const toneSelect = document.getElementById(`tone-select-${templateId}`);
+            const selectedTone = toneSelect?.value || 'Generic';
+
+            if (!objectInput) {
+                showToast('Please enter an object/subject first', 'error');
+                return;
+            }
+
+            // Get the enhance button and update its state
+            const enhanceBtn = document.querySelector(`button[onclick="enhanceObjectForTemplate('${templateId}')"]`);
+            if (enhanceBtn) {
+                enhanceBtn.disabled = true;
+                enhanceBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            }
+
+            try {
+                // Store the original user input for regeneration
+                if (!enhanceBtn.dataset.originalInput) {
+                    enhanceBtn.dataset.originalInput = objectInput;
+                }
+                const originalInput = enhanceBtn.dataset.originalInput;
+
+                // Get previous answers for this original input + tone combination
+                const cacheKey = `${originalInput.toLowerCase().trim()}_${selectedTone.toLowerCase()}`;
+                const previousAnswers = window.previousObjectAnswers[cacheKey] || [];
+
+                // Build the prompt using the template from logs3.txt (adapted for any object)
+                let prompt = `Give a simple, expressive idea for a t-shirt image: ${originalInput} with a ${selectedTone} tone. Just describe the subject, no text. Max 20 characters but can be less, or a lot less.`;
+
+                // Add exclusions if we have previous answers
+                if (previousAnswers.length > 0) {
+                    prompt += '\n\nIMPORTANT: Do NOT use any of these previous suggestions:\n';
+                    previousAnswers.forEach((answer, index) => {
+                        prompt += `- "${answer}"\n`;
+                    });
+                    prompt += '\nCreate a completely different and original description.';
+                }
+
+                console.log('🤖 Sending object enhancement prompt:', prompt);
+
+                // Call the text generation API (reusing the same endpoint)
+                const response = await fetch('/api/generate-texts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        objectInput: originalInput,
+                        textCount: 1 // We only want one enhanced description
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to enhance object description');
+                }
+
+                const result = await response.json();
+                console.log('🤖 Object enhancement result:', result);
+
+                // Parse the generated description and update the input
+                if (result.texts && Array.isArray(result.texts) && result.texts[0]) {
+                    const enhancedDescription = result.texts[0].trim();
+                    console.log('🎯 Enhanced description:', enhancedDescription);
+
+                    // Update the input field
+                    const objectInputField = document.getElementById(`object-input-${templateId}`);
+                    if (objectInputField) {
+                        objectInputField.value = enhancedDescription;
+                        // Trigger input event to update any listeners
+                        objectInputField.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+
+                    showToast('Object description enhanced successfully!', 'success');
+
+                    // Save the generated description to prevent repetition
+                    if (!window.previousObjectAnswers[cacheKey]) {
+                        window.previousObjectAnswers[cacheKey] = [];
+                    }
+                    window.previousObjectAnswers[cacheKey].push(enhancedDescription);
+
+                    // Keep only the last 5 attempts to avoid overly long prompts
+                    if (window.previousObjectAnswers[cacheKey].length > 5) {
+                        window.previousObjectAnswers[cacheKey] = window.previousObjectAnswers[cacheKey].slice(-5);
+                    }
+
+                    console.log('💾 Saved object answers for', cacheKey, ':', window.previousObjectAnswers[cacheKey]);
+
+                    // Change button to regenerate mode
+                    if (enhanceBtn) {
+                        enhanceBtn.classList.add('regenerate-mode');
+                        enhanceBtn.title = 'Generate different variation';
+                    }
+
+                } else {
+                    throw new Error('Invalid response format from object enhancement');
+                }
+
+            } catch (error) {
+                console.error('Error enhancing object:', error);
+                showToast('Failed to enhance object: ' + error.message, 'error');
+            } finally {
+                // Re-enable the button
+                if (enhanceBtn) {
+                    enhanceBtn.disabled = false;
+                    enhanceBtn.innerHTML = '<i class="fas fa-redo"></i>';
+                }
+            }
+        }
+
+        // Make functions globally accessible
+        window.closeInlineGeneration = closeInlineGeneration;
+        window.downloadGeneratedImage = downloadGeneratedImage;
+        window.addToCollection = addToCollection;
+        window.regenerateDesign = regenerateDesign;
+        window.sendToEditor = sendToEditor;
+        window.openImageModal = openImageModal;
+        window.closeImageModal = closeImageModal;
+        window.generateTextsForTemplate = generateTextsForTemplate;
+        window.enhanceObjectForTemplate = enhanceObjectForTemplate;
+
+    </script>
+
+    <!-- Image Modal -->
+    <div class="image-modal" id="imageModal">
+        <div class="image-modal-content">
+            <button class="image-modal-close" onclick="closeImageModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <img id="modalImage" src="" alt="Template Preview">
+        </div>
+    </div>
+</body>
+</html>

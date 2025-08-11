@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Text Effects - With Curved Text</title>
+    <style>
+        body { font-family: sans-serif; }
+        canvas { border: 1px solid #eee; display: block; margin-bottom: 10px; background-color: #f9f9f9; }
+        label { display: inline-block; width: 130px; text-align: right; margin-right: 5px; font-size: 12px; }
+        input[type="range"] { vertical-align: middle; width: 150px; }
+        input[type="text"] { vertical-align: middle; }
+        input[type="checkbox"] { vertical-align: middle; }
+        span { display:inline-block; width:35px; text-align:left; font:12px sans-serif; vertical-align: middle; margin-left: 5px;}
+        div { margin-bottom: 5px; display: flex; align-items: center; }
+
+        /* Parameter visibility classes - Default hide all specific params */
+        .parameter-control { display: none; }
+
+        /* Show only appropriate params for each mode */
+        .normal .normal-param,
+        .warp .warp-param,
+        .skew .skew-param,
+        .circle .circle-param,
+        .curve .curve-param,
+        .horizontalLines .horizontal-lines-param,
+        .colorCut .color-cut-param,
+        .obliqueLines .oblique-lines-param,
+        .stroke-enabled .stroke-param,
+        .shadow .shadow-param, /* Added for standard shadow controls */
+        .block-shadow .block-shadow-param, /* Added for block shadow */
+        .detailed-3d .detailed-3d-param /* Added for detailed 3D */
+         { display: flex; flex-direction: column; } /* Changed to column */
+
+        /* Special cases for horizontal/vertical skew visibility */
+        .warp .horizontal-skew { display: flex; flex-direction: row; } /* Keep row for skew */
+        .skew .horizontal-skew, .skew .vertical-skew { display: flex; flex-direction: row; } /* Keep row for skew */
+
+        /* General styling for control groups within effects */
+        .parameter-control h3 { margin-top: 10px; margin-bottom: 5px; font-size: 1em; }
+        .parameter-control .effect-control > div,
+        .parameter-control .control-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            flex-direction: row; /* Default to row layout for individual controls */
+        }
+        .parameter-control .effect-control > div label,
+        .parameter-control .control-group label {
+             width: 150px; /* Adjust label width */
+             text-align: right;
+             margin-right: 10px;
+             font-size: 12px;
+        }
+        .parameter-control .slider-container { flex-grow: 1; display: flex; align-items: center; }
+        .parameter-control input[type="range"] { width: 150px; }
+        .parameter-control .slider-value { width: 40px; text-align: left; }
+        .parameter-control .simplified-color-picker { display: flex; align-items: center; flex-grow: 1; }
+        .parameter-control input[type="color"] { height: 25px; width: 50px; margin-left: 5px;}
+        .parameter-control .radio-group { display: flex; flex-direction: column; align-items: flex-start; margin-left: 10px;}
+        .parameter-control .radio-container { display: flex; align-items: center; margin-bottom: 2px;}
+        .parameter-control .radio-container label { width: auto; text-align: left; margin-right: 0;}
+        .parameter-control .radio-container span { width: auto; margin-left: 5px;}
+
+    </style>
+</head>
+<body class="normal">
+    <!-- Skew parameters -->
+    <div class="parameter-control horizontal-skew" id="horizontalSkewControl">
+        <label>Horizontal Skew:</label>
+        <input type="range" id="skewSlider" min="-50" max="50" value="0" step="1">
+        <span id="vSkew">0</span>
+    </div>
+    <div class="parameter-control vertical-skew" id="verticalSkewControl">
+        <label>Vertical Skew:</label>
+        <input type="range" id="skewYSlider" min="-50" max="50" value="0" step="1">
+        <span id="vSkewY">0</span>
+    </div>
+
+    <!-- Canvas for displaying all effects -->
+    <canvas id="demo" width="500" height="200"></canvas>
+
+    <!-- Font size control (shared across all modes) -->
+    <div class="parameter-control normal-param warp-param skew-param circle-param curve-param">
+        <label>Font Size:</label>
+        <input id="iFontSize" type="range" min="20" max="120" value="70" step="1">
+        <span id="vFontSize">70</span>
+    </div>
+
+    <!-- Warp Effect Parameters -->
+    <div class="parameter-control warp-param">
+        <label>Curve Amount:</label>
+        <input id="iCurve" type="range" min=0 max=200 value=110>
+        <span id="vCurve">110</span>
+    </div>
+    <div class="parameter-control warp-param">
+        <label>Source Offset Y:</label>
+        <input id="iOffset" type="range" min=0 max=100 value=10>
+        <span id="vOffset">10</span>
+    </div>
+    <div class="parameter-control warp-param">
+        <label>Source Sample Height:</label>
+        <input id="iHeight" type="range" min=1 max=100 value=64>
+        <span id="vHeight">64</span>
+    </div>
+    <div class="parameter-control warp-param">
+        <label>Warp Bottom Position:</label>
+        <input id="iBottom" type="range" min=0 max=200 value=150>
+        <span id="vBottom">150</span>
+    </div>
+    <div class="parameter-control warp-param">
+        <label>Triangle Warp:</label>
+        <input id="iTriangle" type="checkbox">
+    </div>
+
+    <!-- Circle Text Parameters -->
+    <div class="parameter-control circle-param">
+        <label>Diameter:</label>
+        <input id="iDiameter" type="range" min=100 max=400 value=200 step=1>
+        <span id="vDiameter">200</span>
+    </div>
+    <div class="parameter-control circle-param">
+        <label>Kerning:</label>
+        <input id="iKerning" type="range" min=-10 max=30 value="0" step=1>
+        <span id="vKerning">0</span>
+    </div>
+    <div class="parameter-control circle-param">
+        <label>Flip Text:</label>
+        <input id="iFlip" type="checkbox">
+    </div>
+
+    <!-- New Curve Text Parameters (completely separate from Warp) -->
+    <div class="parameter-control curve-param">
+        <label>Curve Amount:</label>
+        <input id="iCurveAmount" type="range" min=0 max=200 value=80 step=1>
+        <span id="vCurveAmount">80</span>
+    </div>
+    <div class="parameter-control curve-param">
+        <label>Diameter:</label>
+        <input id="iCurveDiameter" type="range" min=100 max=400 value=200 step=1>
+        <span id="vCurveDiameter">200</span>
+    </div>
+    <div class="parameter-control curve-param">
+        <label>Letter Spacing:</label>
+        <input id="iCurveKerning" type="range" min=-10 max=30 value=0 step=1>
+        <span id="vCurveKerning">0</span>
+    </div>
+    <div class="parameter-control curve-param">
+        <label>Flip Direction:</label>
+        <input id="iCurveFlip" type="checkbox">
+    </div>
+
+    <!-- Text and Effect Mode Selectors -->
+    <div class="parameter-control normal-param warp-param skew-param circle-param curve-param">
+        <label>Text:</label>
+        <input id="iText" type="text" value="STYLED TEXT">
+    </div>
+
+    <div class="parameter-control normal-param warp-param skew-param circle-param curve-param">
+        <label>Effect Mode:</label>
+        <select id="effectMode">
+            <option value="normal">Normal</option>
+            <option value="warp">Warp</option>
+            <option value="skew">Skew Only</option>
+            <option value="circle">Circular</option>
+            <option value="curve">Curved</option>
+        </select>
+    </div>
+     <!-- Lines Decoration Selector -->
+    <div class="parameter-control normal-param warp-param skew-param circle-param curve-param">
+        <label>Decoration:</label>
+        <select id="linesDecoration">
+            <option value="noDecoration">No Decoration</option>
+            <option value="diagonalLines">Diagonal Lines</option>
+            <option value="horizontalLines">Horizontal Lines</option>
+            <option value="colorCut">Color Cut</option>
+            <option value="obliqueLines">Oblique Lines</option>
+        </select>
+    </div>
+
+    <!-- Stroke Toggle Dropdown -->
+    <div class="parameter-control normal-param warp-param skew-param circle-param curve-param">
+        <label for="strokeToggle">Stroke:</label>
+        <select id="strokeToggle">
+            <option value="noStroke" selected>No Stroke</option>
+            <option value="stroke">Stroke</option>
+        </select>
+    </div>
+
+    <!-- Stroke Controls (Initially Hidden) -->
+    <div class="parameter-control stroke-param">
+        <h3>Stroke Settings</h3>
+        <div class="effect-control">
+            <div class="slider-container">
+                <label for="strokeWidth">Stroke Width:</label>
+                <input type="range" id="strokeWidth" min="0" max="20" value="3">
+                <span class="slider-value" id="vStrokeWidth">3</span>
+            </div>
+            <div class="simplified-color-picker">
+                <label for="strokeColor">Stroke Color:</label>
+                <input type="color" id="strokeColor" value="#000000">
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Horizontal Lines Decoration Parameters -->
+    <div class="parameter-control horizontal-lines-param">
+        <h3>Horizontal Lines Settings</h3>
+        <div class="effect-control">
+            <div class="slider-container">
+                <label for="hWeight">Weight:</label>
+                <input type="range" id="hWeight" min="1" max="20" value="3">
+                <span class="slider-value" id="vHWeight">3</span>
+            </div>
+            <div class="slider-container">
+                <label for="hDistance">Distance:</label>
+                <input type="range" id="hDistance" min="1" max="50" value="7">
+                <span class="slider-value" id="vHDistance">7</span>
+            </div>
+            <div class="simplified-color-picker">
+                <label for="hColor">Line Color:</label>
+                <input type="color" id="hColor" value="#0000FF">
+            </div>
+        </div>
+    </div>
+
+    <!-- Color Cut Decoration Parameters -->
+    <div class="parameter-control color-cut-param">
+        <h3>Color Cut Settings</h3>
+        <div class="effect-control">
+            <div class="slider-container">
+                <label for="ccDistance">Distance:</label>
+                <input type="range" id="ccDistance" min="1" max="100" value="21">
+                <span class="slider-value" id="vCcDistance">21</span>
+            </div>
+            <div class="fill-direction">
+                <label>Fill Direction:</label>
+                <div class="radio-group" style="display: flex; flex-direction: column; align-items: flex-start;">
+                    <label class="radio-container" style="width: auto; text-align: left;">
+                        <input type="radio" name="ccFillDirection" id="ccFillTop" value="top" checked style="vertical-align: middle; margin-right: 5px;">
+                        <span style="width: auto; vertical-align: middle;">Top to Bottom</span>
+                    </label>
+                    <label class="radio-container" style="width: auto; text-align: left;">
+                        <input type="radio" name="ccFillDirection" id="ccFillBottom" value="bottom" style="vertical-align: middle; margin-right: 5px;">
+                        <span style="width: auto; vertical-align: middle;">Bottom to Top</span>
+                    </label>
+                </div>
+            </div>
+            <div class="simplified-color-picker">
+                <label for="ccColor">Fill Color:</label>
+                <input type="color" id="ccColor" value="#0000FF">
+            </div>
+        </div>
+    </div>
+
+    <!-- Oblique Lines Decoration Parameters -->
+    <div class="parameter-control oblique-lines-param">
+        <h3>Oblique Lines Settings</h3>
+        <div class="effect-control">
+            <div class="slider-container">
+                <label for="oWeight">Weight:</label>
+                <input type="range" id="oWeight" min="1" max="20" value="4">
+                <span class="slider-value" id="vOWeight">4</span>
+            </div>
+            <div class="slider-container">
+                <label for="oDistance">Distance:</label>
+                <input type="range" id="oDistance" min="1" max="50" value="3">
+                <span class="slider-value" id="vODistance">3</span>
+            </div>
+            <div class="simplified-color-picker">
+                <label for="oColor">Line Color:</label>
+                <input type="color" id="oColor" value="#0000FF">
+            </div>
+        </div>
+    </div>
+
+    <!-- Shadow Selector -->
+    <div class="parameter-control normal-param warp-param skew-param circle-param curve-param">
+        <label>Shadow:</label>
+        <select id="shadow">
+            <option value="noShadow" selected>No Shadow</option>
+            <option value="shadow">Standard Shadow</option>
+            <option value="blockShadow">Block Shadow</option>
+            <option value="detailed3D">Detailed 3D</option>
+        </select>
+    </div>
+
+    <!-- Standard Shadow Parameters (Initially Hidden) -->
+    <div class="parameter-control shadow-param">
+        <h3>Standard Shadow Settings</h3>
+        <div class="control-group">
+            <label for="shadowColor">Shadow Color:</label>
+            <div class="simplified-color-picker">
+                <input type="color" id="shadowColor" value="#000000">
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="shadowOffsetX">Offset X:</label>
+            <div class="slider-container">
+                <input type="range" id="shadowOffsetX" class="slider" min="-20" max="20" value="5" step="1">
+                <span class="slider-value" id="vShadowOffsetX">5</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="shadowOffsetY">Offset Y:</label>
+            <div class="slider-container">
+                <input type="range" id="shadowOffsetY" class="slider" min="-20" max="20" value="5" step="1">
+                <span class="slider-value" id="vShadowOffsetY">5</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="shadowBlur">Blur:</label>
+            <div class="slider-container">
+                <input type="range" id="shadowBlur" class="slider" min="0" max="50" value="10" step="1">
+                <span class="slider-value" id="vShadowBlur">10</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Block Shadow Parameters (Initially Hidden) -->
+    <div class="parameter-control block-shadow-param">
+        <h3>Block Shadow Settings</h3>
+        <!-- Content from block-shadow-controls.html -->
+        <div class="control-group">
+            <label for="blockShadowColor">Shadow Color:</label>
+            <div class="simplified-color-picker">
+                <input type="color" id="blockShadowColor" value="#000000">
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="blockShadowOpacity">Opacity:</label>
+            <div class="slider-container">
+                <input type="range" id="blockShadowOpacity" class="slider" min="0" max="100" value="100" step="1">
+                <span class="slider-value" id="vBlockShadowOpacity">100%</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="blockShadowOffset">Extrude Distance:</label>
+            <div class="slider-container">
+                <input type="range" id="blockShadowOffset" class="slider" min="0" max="100" value="40" step="1">
+                <span class="slider-value" id="vBlockShadowOffset">40</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="blockShadowAngle">Angle:</label>
+            <div class="slider-container">
+                <input type="range" id="blockShadowAngle" class="slider" min="-180" max="180" value="-58" step="1">
+                <span class="slider-value" id="vBlockShadowAngle">-58°</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="blockShadowBlur">Blur:</label>
+            <div class="slider-container">
+                <input type="range" id="blockShadowBlur" class="slider" min="0" max="50" value="5" step="1">
+                <span class="slider-value" id="vBlockShadowBlur">5</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="blockShadowOutlineWidth">Outline Width:</label>
+            <div class="slider-container">
+                <input type="range" id="blockShadowOutlineWidth" class="slider" min="0" max="50" value="18" step="1">
+                <span class="slider-value" id="vBlockShadowOutlineWidth">18</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed 3D Parameters (Initially Hidden) -->
+    <div class="parameter-control detailed-3d-param">
+         <h3>Detailed 3D Settings</h3>
+         <!-- Content from detailed-3d-controls.html -->
+        <div class="control-group">
+            <label for="detailed3DPrimaryColor">Primary Shadow Color:</label>
+            <div class="simplified-color-picker">
+                <input type="color" id="detailed3DPrimaryColor" value="#000000">
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="detailed3DPrimaryOpacity">Primary Opacity:</label>
+            <div class="slider-container">
+                <input type="range" id="detailed3DPrimaryOpacity" class="slider" min="0" max="100" value="100" step="1">
+                <span class="slider-value" id="vDetailed3DPrimaryOpacity">100%</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="detailed3DOffset">Extrude Distance:</label>
+            <div class="slider-container">
+                <input type="range" id="detailed3DOffset" class="slider" min="0" max="100" value="36" step="1">
+                <span class="slider-value" id="vDetailed3DOffset">36</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="detailed3DAngle">Angle:</label>
+            <div class="slider-container">
+                <input type="range" id="detailed3DAngle" class="slider" min="-180" max="180" value="-63" step="1">
+                <span class="slider-value" id="vDetailed3DAngle">-63°</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="detailed3DBlur">Blur:</label>
+            <div class="slider-container">
+                <input type="range" id="detailed3DBlur" class="slider" min="0" max="50" value="5" step="1">
+                <span class="slider-value" id="vDetailed3DBlur">5</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="detailed3DOutlineWidth">Primary Outline Width:</label>
+            <div class="slider-container">
+                <input type="range" id="detailed3DOutlineWidth" class="slider" min="0" max="50" value="16" step="1">
+                <span class="slider-value" id="vDetailed3DOutlineWidth">16</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="detailed3DSecondaryColor">Secondary Outline Color:</label>
+            <div class="simplified-color-picker">
+                <input type="color" id="detailed3DSecondaryColor" value="#00FF66">
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="detailed3DSecondaryOpacity">Secondary Opacity:</label>
+            <div class="slider-container">
+                <input type="range" id="detailed3DSecondaryOpacity" class="slider" min="0" max="100" value="100" step="1">
+                <span class="slider-value" id="vDetailed3DSecondaryOpacity">100%</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="detailed3DSecondaryWidth">Secondary Outline Width:</label>
+            <div class="slider-container">
+                <input type="range" id="detailed3DSecondaryWidth" class="slider" min="1" max="20" value="4" step="1">
+                <span class="slider-value" id="vDetailed3DSecondaryWidth">4</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="detailed3DSecondaryOffset">Secondary Outline Offset:</label>
+            <div class="slider-container">
+                <input type="range" id="detailed3DSecondaryOffset" class="slider" min="0" max="50" value="10" step="1">
+                <span class="slider-value" id="vDetailed3DSecondaryOffset">10</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Canvas Setup ---
+        const canvas = document.getElementById("demo");
+        const ctx = canvas.getContext("2d");
+        const os = document.createElement("canvas"); // Offscreen canvas
+        const octx = os.getContext("2d");
+
+        // --- Control Elements ---
+        // Skew controls
+        const skewSlider = document.getElementById("skewSlider");
+        const skewYSlider = document.getElementById("skewYSlider");
+
+        // Font size
+        const iFontSize = document.getElementById("iFontSize");
+
+        // Warp controls
+        const iCurve = document.getElementById("iCurve");
+        const iOffset = document.getElementById("iOffset");
+        const iHeight = document.getElementById("iHeight");
+        const iBottom = document.getElementById("iBottom");
+        const iTriangle = document.getElementById("iTriangle");
+
+        // Circle text controls
+        const iDiameter = document.getElementById("iDiameter");
+        const iKerning = document.getElementById("iKerning");
+        const iFlip = document.getElementById("iFlip");
+
+        // New Curve text controls
+        const iCurveAmount = document.getElementById("iCurveAmount");
+        const iCurveDiameter = document.getElementById("iCurveDiameter");
+        const iCurveKerning = document.getElementById("iCurveKerning");
+        const iCurveFlip = document.getElementById("iCurveFlip");
+
+        // Text input and effect mode selection
+        const iText = document.getElementById("iText");
+        const effectModeSelect = document.getElementById("effectMode");
+        const linesDecorationSelect = document.getElementById("linesDecoration");
+        const shadowSelect = document.getElementById("shadow"); // Shadow type dropdown
+
+        // Standard Shadow controls
+        const shadowColorPicker = document.getElementById("shadowColor");
+        const shadowOffsetXSlider = document.getElementById("shadowOffsetX");
+        const shadowOffsetYSlider = document.getElementById("shadowOffsetY");
+        const shadowBlurSlider = document.getElementById("shadowBlur");
+
+        // Block Shadow controls
+        const blockShadowColorPicker = document.getElementById("blockShadowColor");
+        const blockShadowOpacitySlider = document.getElementById("blockShadowOpacity");
+        const blockShadowOffsetSlider = document.getElementById("blockShadowOffset");
+        const blockShadowAngleSlider = document.getElementById("blockShadowAngle");
+        const blockShadowBlurSlider = document.getElementById("blockShadowBlur");
+        const blockShadowOutlineWidthSlider = document.getElementById("blockShadowOutlineWidth");
+
+        // Detailed 3D controls
+        const detailed3DPrimaryColorPicker = document.getElementById("detailed3DPrimaryColor");
+        const detailed3DPrimaryOpacitySlider = document.getElementById("detailed3DPrimaryOpacity");
+        const detailed3DOffsetSlider = document.getElementById("detailed3DOffset");
+        const detailed3DAngleSlider = document.getElementById("detailed3DAngle");
+        const detailed3DBlurSlider = document.getElementById("detailed3DBlur");
+        const detailed3DOutlineWidthSlider = document.getElementById("detailed3DOutlineWidth");
+        const detailed3DSecondaryColorPicker = document.getElementById("detailed3DSecondaryColor");
+        const detailed3DSecondaryOpacitySlider = document.getElementById("detailed3DSecondaryOpacity");
+        const detailed3DSecondaryWidthSlider = document.getElementById("detailed3DSecondaryWidth");
+        const detailed3DSecondaryOffsetSlider = document.getElementById("detailed3DSecondaryOffset");
+
+
+        // Horizontal Lines controls
+        const hWeight = document.getElementById("hWeight");
+        const hDistance = document.getElementById("hDistance");
+        const hColor = document.getElementById("hColor");
+
+        // Color Cut controls
+        const ccDistance = document.getElementById("ccDistance");
+        const ccColor = document.getElementById("ccColor");
+        const ccFillTop = document.getElementById("ccFillTop");
+        const ccFillBottom = document.getElementById("ccFillBottom");
+
+        // Oblique Lines controls
+        const oWeight = document.getElementById("oWeight");
+        const oDistance = document.getElementById("oDistance");
+        const oColor = document.getElementById("oColor");
+
+        // Stroke controls
+        const strokeToggle = document.getElementById("strokeToggle");
+        const strokeWidthSlider = document.getElementById("strokeWidth");
+        const strokeColorPicker = document.getElementById("strokeColor");
+
+
+        // --- Value Display Spans ---
+        const vSkew = document.getElementById("vSkew");
+        const vSkewY = document.getElementById("vSkewY");
+        const vFontSize = document.getElementById("vFontSize");
+        const vCurve = document.getElementById("vCurve");
+        const vOffset = document.getElementById("vOffset");
+        const vHeight = document.getElementById("vHeight");
+        const vBottom = document.getElementById("vBottom");
+
+        // Circle value displays
+        const vDiameter = document.getElementById("vDiameter");
+        const vKerning = document.getElementById("vKerning");
+
+        // Curve value displays
+        const vCurveAmount = document.getElementById("vCurveAmount");
+        const vCurveDiameter = document.getElementById("vCurveDiameter");
+        const vCurveKerning = document.getElementById("vCurveKerning");
+
+        // Standard Shadow value displays
+        const vShadowOffsetX = document.getElementById("vShadowOffsetX");
+        const vShadowOffsetY = document.getElementById("vShadowOffsetY");
+        const vShadowBlur = document.getElementById("vShadowBlur");
+
+        // Block Shadow value displays
+        const vBlockShadowOpacity = document.getElementById("vBlockShadowOpacity");
+        const vBlockShadowOffset = document.getElementById("vBlockShadowOffset");
+        const vBlockShadowAngle = document.getElementById("vBlockShadowAngle");
+        const vBlockShadowBlur = document.getElementById("vBlockShadowBlur");
+        const vBlockShadowOutlineWidth = document.getElementById("vBlockShadowOutlineWidth");
+
+        // Detailed 3D value displays
+        const vDetailed3DPrimaryOpacity = document.getElementById("vDetailed3DPrimaryOpacity");
+        const vDetailed3DOffset = document.getElementById("vDetailed3DOffset");
+        const vDetailed3DAngle = document.getElementById("vDetailed3DAngle");
+        const vDetailed3DBlur = document.getElementById("vDetailed3DBlur");
+        const vDetailed3DOutlineWidth = document.getElementById("vDetailed3DOutlineWidth");
+        const vDetailed3DSecondaryOpacity = document.getElementById("vDetailed3DSecondaryOpacity");
+        const vDetailed3DSecondaryWidth = document.getElementById("vDetailed3DSecondaryWidth");
+        const vDetailed3DSecondaryOffset = document.getElementById("vDetailed3DSecondaryOffset");
+
+
+        const vHWeight = document.getElementById("vHWeight");
+        const vHDistance = document.getElementById("vHDistance");
+        const vCcDistance = document.getElementById("vCcDistance");
+        const vOWeight = document.getElementById("vOWeight");
+        const vODistance = document.getElementById("vODistance");
+        const vStrokeWidth = document.getElementById("vStrokeWidth");
+
+        // --- Constants and Variables ---
+        let font = "bold 70px Arial"; // Base font size for offscreen canvas
+        let w = canvas.width;
+        let h = canvas.height;
+        os.width = w;
+        os.height = h; // Size of offscreen canvas
+
+        // Configure offscreen context
+        octx.font = font;
+        octx.textBaseline = "top"; // Use top baseline for consistency
+        octx.textAlign = "center";
+
+        // --- Function to update font size ---
+        function updateFont() {
+            const fontSize = parseInt(iFontSize.value, 10);
+            font = `bold ${fontSize}px Arial`;
+            octx.font = font; // Update font on offscreen context
+        }
+
+        // --- Function to draw a SINGLE styled letter onto OFFSCREEN canvas ---
+        function drawSingleStyledLetterOffscreen(letter) {
+            updateFont(); // Ensure font size is current
+            octx.clearRect(0, 0, w, h); // Clear offscreen canvas for the single letter
+            octx.save(); // Save context state before changing baseline/align
+
+            octx.textBaseline = "top"; // Use top baseline for drawing
+            octx.textAlign = "center";    // Ensure centered
+
+            const baseTextColor = "#d3e7e7";
+            const xPos = w * 0.5; // Center horizontally
+            const yPos = 50;      // Base Y position (consistent top baseline)
+
+            const shadowMode = shadowSelect.value;
+
+            // --- Create Decoration Pattern/Gradient ---
+            let fillStyle = baseTextColor; // Default fill
+            const decorationMode = linesDecorationSelect.value;
+            const fontSize = parseInt(iFontSize.value, 10); // Needed for gradient/pattern calc
+
+            if (decorationMode === "diagonalLines") {
+                const patternCanvas = document.createElement("canvas");
+                patternCanvas.width = 10; patternCanvas.height = 10;
+                const pCtx = patternCanvas.getContext("2d");
+                pCtx.fillStyle = baseTextColor; pCtx.fillRect(0, 0, 10, 10);
+                pCtx.strokeStyle = "red"; pCtx.lineWidth = 2;
+                pCtx.beginPath(); pCtx.moveTo(0, 0); pCtx.lineTo(10, 10); pCtx.stroke();
+                fillStyle = octx.createPattern(patternCanvas, "repeat");
+            } else if (decorationMode === "horizontalLines") {
+                const patternCanvas = document.createElement("canvas");
+                const weight = parseInt(hWeight.value, 10);
+                const distance = parseInt(hDistance.value, 10);
+                const color = hColor.value;
+                const totalHeight = weight + distance;
+                patternCanvas.width = 10; patternCanvas.height = totalHeight;
+                const pCtx = patternCanvas.getContext("2d");
+                pCtx.fillStyle = baseTextColor; pCtx.fillRect(0, 0, patternCanvas.width, patternCanvas.height);
+                pCtx.fillStyle = color; pCtx.fillRect(0, 0, patternCanvas.width, weight);
+                fillStyle = octx.createPattern(patternCanvas, "repeat");
+            } else if (decorationMode === "colorCut") {
+                const distancePercent = parseInt(ccDistance.value, 10) / 100;
+                const color = ccColor.value;
+                const fillDirection = ccFillTop.checked ? 'top' : 'bottom';
+                const metrics = octx.measureText(letter); // Measure the single letter
+                const approxTextHeight = (metrics.actualBoundingBoxAscent || fontSize) + (metrics.actualBoundingBoxDescent || fontSize * 0.2);
+                const textY = yPos; // Top Y based on top baseline
+                let gradient;
+                if (fillDirection === 'top') {
+                    gradient = octx.createLinearGradient(0, textY, 0, textY + approxTextHeight);
+                    gradient.addColorStop(0, color);
+                    gradient.addColorStop(distancePercent, color);
+                    gradient.addColorStop(distancePercent + 0.001, baseTextColor);
+                    gradient.addColorStop(1, baseTextColor);
+                } else { // bottom
+                     gradient = octx.createLinearGradient(0, textY, 0, textY + approxTextHeight);
+                    gradient.addColorStop(0, baseTextColor);
+                    gradient.addColorStop(1 - distancePercent - 0.001, baseTextColor);
+                    gradient.addColorStop(1 - distancePercent, color);
+                    gradient.addColorStop(1, color);
+                }
+                fillStyle = gradient;
+            } else if (decorationMode === "obliqueLines") {
+                const patternCanvas = document.createElement("canvas");
+                const weight = parseInt(oWeight.value, 10);
+                const distance = parseInt(oDistance.value, 10);
+                const color = oColor.value;
+                const size = weight + distance;
+                patternCanvas.width = size; patternCanvas.height = size;
+                const pCtx = patternCanvas.getContext("2d");
+                pCtx.fillStyle = baseTextColor; pCtx.fillRect(0, 0, size, size);
+                pCtx.strokeStyle = color; pCtx.lineWidth = weight;
+                pCtx.beginPath();
+                for (let i = -size; i < size * 2; i += (weight + distance)) {
+                    pCtx.moveTo(i - distance, -distance); pCtx.lineTo(i + size + distance, size + distance);
+                }
+                pCtx.stroke();
+                fillStyle = octx.createPattern(patternCanvas, "repeat");
+                fillStyle = octx.createPattern(patternCanvas, "repeat");
+            }
+
+
+            // --- Draw Shadow Effects FIRST (if enabled) ---
+            // Standard shadow is handled differently (applied to fill/stroke later)
+            if (shadowMode === "blockShadow") {
+                applyBlockShadow(octx, letter, xPos, yPos);
+            } else if (shadowMode === "detailed3D") {
+                applyDetailed3D(octx, letter, xPos, yPos); // Call the corrected function
+            }
+
+
+            // --- Draw Main Fill SECOND ---
+            // Apply standard shadow settings just before drawing fill if applicable
+            let standardShadowAppliedToFill = false;
+             if (shadowMode === "shadow") {
+                 octx.save();
+                 octx.shadowColor = shadowColorPicker.value;
+                 octx.shadowOffsetX = parseInt(shadowOffsetXSlider.value, 10);
+                 octx.shadowOffsetY = parseInt(shadowOffsetYSlider.value, 10);
+                 octx.shadowBlur = parseInt(shadowBlurSlider.value, 10);
+                 standardShadowAppliedToFill = true;
+             }
+            octx.fillStyle = fillStyle;
+            octx.fillText(letter, xPos, yPos); // Draw fill after shadows
+            // Restore from standard shadow settings if they were applied for fill
+            if (standardShadowAppliedToFill) {
+                octx.restore();
+            }
+
+
+            // --- Draw Primary Outline for Block/3D Shadows THIRD ---
+            if (shadowMode === "blockShadow") {
+                const outlineWidth = parseInt(blockShadowOutlineWidthSlider.value, 10); // Declare here
+                 if (outlineWidth > 0) { // Corrected block shadow outline logic
+                    octx.strokeStyle = hexToRgba(blockShadowColorPicker.value, parseInt(blockShadowOpacitySlider.value, 10) / 100);
+                    octx.lineWidth = outlineWidth;
+                    octx.strokeText(letter, xPos, yPos);
+                 }
+            } else if (shadowMode === "detailed3D") { // Add back the primary outline drawing here
+                 const primaryOutlineWidth = parseInt(detailed3DOutlineWidthSlider.value, 10);
+                 if (primaryOutlineWidth > 0) {
+                    octx.strokeStyle = hexToRgba(detailed3DPrimaryColorPicker.value, parseInt(detailed3DPrimaryOpacitySlider.value, 10) / 100);
+                    octx.lineWidth = primaryOutlineWidth;
+                    octx.strokeText(letter, xPos, yPos);
+                 }
+            }
+
+            // --- Draw Standard Stroke LAST (Conditional) ---
+            let standardShadowAppliedToStroke = false; // Use a different variable name
+            if (strokeToggle.value === 'stroke') {
+                // Apply standard shadow here if needed for stroke ONLY
+                if (shadowMode === "shadow") {
+                     octx.save();
+                     octx.shadowColor = shadowColorPicker.value;
+                     octx.shadowOffsetX = parseInt(shadowOffsetXSlider.value, 10);
+                     octx.shadowOffsetY = parseInt(shadowOffsetYSlider.value, 10);
+                     octx.shadowBlur = parseInt(shadowBlurSlider.value, 10);
+                     standardShadowAppliedToStroke = true;
+                }
+                octx.strokeStyle = strokeColorPicker.value;
+                octx.lineWidth = parseInt(strokeWidthSlider.value, 10);
+                octx.strokeText(letter, xPos, yPos); // Draw stroke over everything else
+            }
+
+            // Restore from standard shadow settings if they were applied for stroke
+            if (standardShadowAppliedToStroke) {
+                octx.restore();
+            }
+
+            octx.restore(); // Restore original baseline/align
+        }
+
+        // --- Function to draw styled text onto OFFSCREEN canvas (for non-circular/curved) ---
+        function drawStyledTextOffscreen_Full() {
+            updateFont();
+            octx.clearRect(0, 0, w, h);
+            octx.save(); // Save context state
+            octx.textBaseline = "top"; // Ensure top baseline for full text drawing
+            octx.textAlign = "center";
+
+            const baseTextColor = "#d3e7e7";
+            const text = iText.value.toUpperCase();
+            const xPos = w * 0.5;
+            const yPos = 50; // Keep original yPos for full text rendering
+
+            const shadowMode = shadowSelect.value;
+
+            // --- Create Decoration Pattern/Gradient ---
+            let fillStyle = baseTextColor;
+            const decorationMode = linesDecorationSelect.value;
+            const fontSize = parseInt(iFontSize.value, 10);
+
+            if (decorationMode === "diagonalLines") { /* ... pattern logic ... */
+                const patternCanvas = document.createElement("canvas");
+                patternCanvas.width = 10; patternCanvas.height = 10;
+                const pCtx = patternCanvas.getContext("2d");
+                pCtx.fillStyle = baseTextColor; pCtx.fillRect(0, 0, 10, 10);
+                pCtx.strokeStyle = "red"; pCtx.lineWidth = 2;
+                pCtx.beginPath(); pCtx.moveTo(0, 0); pCtx.lineTo(10, 10); pCtx.stroke();
+                fillStyle = octx.createPattern(patternCanvas, "repeat");
+            } else if (decorationMode === "horizontalLines") { /* ... pattern logic ... */
+                const patternCanvas = document.createElement("canvas");
+                const weight = parseInt(hWeight.value, 10);
+                const distance = parseInt(hDistance.value, 10);
+                const color = hColor.value;
+                const totalHeight = weight + distance;
+                patternCanvas.width = 10; patternCanvas.height = totalHeight;
+                const pCtx = patternCanvas.getContext("2d");
+                pCtx.fillStyle = baseTextColor; pCtx.fillRect(0, 0, patternCanvas.width, patternCanvas.height);
+                pCtx.fillStyle = color; pCtx.fillRect(0, 0, patternCanvas.width, weight);
+                fillStyle = octx.createPattern(patternCanvas, "repeat");
+            } else if (decorationMode === "colorCut") { /* ... gradient logic ... */
+                const distancePercent = parseInt(ccDistance.value, 10) / 100;
+                const color = ccColor.value;
+                const fillDirection = ccFillTop.checked ? 'top' : 'bottom';
+                const approxTextHeight = fontSize;
+                const textY = yPos;
+                let gradient;
+                if (fillDirection === 'top') {
+                    gradient = octx.createLinearGradient(0, textY, 0, textY + approxTextHeight);
+                    gradient.addColorStop(0, color); gradient.addColorStop(distancePercent, color);
+                    gradient.addColorStop(distancePercent + 0.001, baseTextColor); gradient.addColorStop(1, baseTextColor);
+                } else {
+                     gradient = octx.createLinearGradient(0, textY, 0, textY + approxTextHeight);
+                    gradient.addColorStop(0, baseTextColor); gradient.addColorStop(1 - distancePercent - 0.001, baseTextColor);
+                    gradient.addColorStop(1 - distancePercent, color); gradient.addColorStop(1, color);
+                }
+                fillStyle = gradient;
+            } else if (decorationMode === "obliqueLines") { /* ... pattern logic ... */
+                 const patternCanvas = document.createElement("canvas");
+                const weight = parseInt(oWeight.value, 10);
+                const distance = parseInt(oDistance.value, 10);
+                const color = oColor.value;
+                const size = weight + distance;
+                patternCanvas.width = size; patternCanvas.height = size;
+                const pCtx = patternCanvas.getContext("2d");
+                pCtx.fillStyle = baseTextColor; pCtx.fillRect(0, 0, size, size);
+                pCtx.strokeStyle = color; pCtx.lineWidth = weight;
+                pCtx.beginPath();
+                for (let i = -size; i < size * 2; i += (weight + distance)) {
+                    pCtx.moveTo(i - distance, -distance); pCtx.lineTo(i + size + distance, size + distance);
+                }
+                pCtx.stroke();
+                fillStyle = octx.createPattern(patternCanvas, "repeat");
+                fillStyle = octx.createPattern(patternCanvas, "repeat");
+            }
+
+
+            // --- Draw Shadow Effects FIRST (if enabled) ---
+             // Standard shadow is handled differently (applied to fill/stroke later)
+            if (shadowMode === "blockShadow") {
+                applyBlockShadow(octx, text, xPos, yPos);
+            } else if (shadowMode === "detailed3D") {
+                 applyDetailed3D(octx, text, xPos, yPos); // Call the corrected function
+            }
+
+
+            // --- Draw Main Fill SECOND ---
+             // Apply standard shadow settings just before drawing fill if applicable
+             let standardShadowAppliedToFill = false;
+             if (shadowMode === "shadow") {
+                 octx.save();
+                 octx.shadowColor = shadowColorPicker.value;
+                 octx.shadowOffsetX = parseInt(shadowOffsetXSlider.value, 10);
+                 octx.shadowOffsetY = parseInt(shadowOffsetYSlider.value, 10);
+                 octx.shadowBlur = parseInt(shadowBlurSlider.value, 10);
+                 standardShadowAppliedToFill = true;
+             }
+            octx.fillStyle = fillStyle;
+            octx.fillText(text, xPos, yPos); // Draw fill after shadows
+            // Restore from standard shadow settings if they were applied for fill
+            if (standardShadowAppliedToFill) {
+                octx.restore();
+            }
+
+
+            // --- Draw Primary Outline for Block/3D Shadows THIRD ---
+             if (shadowMode === "blockShadow") {
+                const outlineWidth = parseInt(blockShadowOutlineWidthSlider.value, 10); // Declare here
+                 if (outlineWidth > 0) { // Corrected block shadow outline logic
+                    octx.strokeStyle = hexToRgba(blockShadowColorPicker.value, parseInt(blockShadowOpacitySlider.value, 10) / 100);
+                    octx.lineWidth = outlineWidth;
+                    octx.strokeText(text, xPos, yPos);
+                 }
+            } else if (shadowMode === "detailed3D") { // Add back the primary outline drawing here
+                 const primaryOutlineWidth = parseInt(detailed3DOutlineWidthSlider.value, 10);
+                 if (primaryOutlineWidth > 0) {
+                    octx.strokeStyle = hexToRgba(detailed3DPrimaryColorPicker.value, parseInt(detailed3DPrimaryOpacitySlider.value, 10) / 100);
+                    octx.lineWidth = primaryOutlineWidth;
+                    octx.strokeText(text, xPos, yPos);
+                 }
+            }
+
+            // --- Draw Standard Stroke LAST (Conditional) ---
+            let standardShadowAppliedToStroke = false; // Use a different variable name
+            if (strokeToggle.value === 'stroke') {
+                 // Apply standard shadow here if needed for stroke ONLY
+                if (shadowMode === "shadow") {
+                     octx.save();
+                     octx.shadowColor = shadowColorPicker.value;
+                     octx.shadowOffsetX = parseInt(shadowOffsetXSlider.value, 10);
+                     octx.shadowOffsetY = parseInt(shadowOffsetYSlider.value, 10);
+                     octx.shadowBlur = parseInt(shadowBlurSlider.value, 10);
+                     standardShadowAppliedToStroke = true;
+                }
+                octx.strokeStyle = strokeColorPicker.value;
+                octx.lineWidth = parseInt(strokeWidthSlider.value, 10);
+                octx.strokeText(text, xPos, yPos); // Draw stroke over everything else
+            }
+
+            // Restore from standard shadow settings if they were applied for stroke
+            if (standardShadowAppliedToStroke) {
+                octx.restore();
+            }
+
+            octx.restore(); // Restore original baseline/align
+        }
+
+
+        // --- Function to render warped text onto MAIN canvas ---
+        function renderWarpedText(skewX = 0) {
+            drawStyledTextOffscreen_Full(); // Draw full text first
+            let curve = parseInt(iCurve.value, 10);
+            let sourceOffsetY = parseInt(iOffset.value, 10);
+            let sourceSampleHeight = parseInt(iHeight.value, 10);
+            let bottom = parseInt(iBottom.value, 10);
+            let isTri = iTriangle.checked;
+
+            ctx.clearRect(0, 0, w, h);
+            ctx.save();
+            ctx.setTransform(1, 0, skewX / 100, 1, -skewX * h / 200, 0);
+
+            const angleSteps = Math.PI / w;
+
+            for (let i = 0; i < w; i++) {
+                let destHeight;
+                if (isTri) {
+                    const peak = w * 0.5;
+                    const distFromPeak = Math.abs(i - peak);
+                    destHeight = bottom - (curve * (distFromPeak / peak));
+                } else {
+                    destHeight = bottom - curve * Math.sin(i * angleSteps);
+                }
+                destHeight = Math.max(1, destHeight);
+                const destY = h * 0.5 - destHeight / 2;
+                try {
+                    // Use yPos (50) as the base source Y, adjusted by sourceOffsetY
+                    const sy = 50 + sourceOffsetY;
+                    ctx.drawImage(os, i, sy, 1, sourceSampleHeight, i, destY, 1, destHeight);
+                } catch (e) {}
+            }
+            ctx.restore();
+        }
+
+        function renderNormalText() {
+            drawStyledTextOffscreen_Full(); // Draw full text first
+            ctx.clearRect(0, 0, w, h);
+            ctx.drawImage(os, 0, 0);
+        }
+
+        function renderSkewOnlyText(skewX = 0, skewY = 0) {
+            drawStyledTextOffscreen_Full(); // Draw full text first
+            ctx.clearRect(0, 0, w, h);
+            ctx.save();
+            ctx.setTransform(1, skewY / 100, skewX / 100, 1, -skewX * h / 200, -skewY * w / 200);
+            ctx.drawImage(os, 0, 0);
+            ctx.restore();
+        }
+
+        // --- Function to render circular text ---
+        function renderCircularText() {
+            const diameter = parseInt(iDiameter.value, 10);
+            const kerning = parseInt(iKerning.value, 10);
+            const flipped = iFlip.checked;
+            const text = iText.value.toUpperCase();
+            const fontSize = parseInt(iFontSize.value, 10);
+            const yPosOffscreen = 50; // Base Y position used in drawSingleStyledLetterOffscreen
+
+            ctx.clearRect(0, 0, w, h);
+            const centerX = w / 2;
+            const centerY = h / 2;
+            const radius = diameter / 2;
+
+            ctx.font = `bold ${fontSize}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const contentArr = text.split('');
+            const letterAngles = [];
+            let totalAngle = 0;
+
+            // Measure letters and calculate angles
+            contentArr.forEach((letter) => {
+                const letterWidth = ctx.measureText(letter).width + kerning; // Width used for angle calculation
+                const letterAngle = (letterWidth / radius) * (180 / Math.PI);
+                letterAngles.push(letterAngle);
+                totalAngle += letterAngle;
+            });
+
+            let startAngle = (-totalAngle / 2) * Math.PI / 180;
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+
+            for (let i = 0; i < contentArr.length; i++) {
+                const letter = contentArr[i];
+                // Draw this single letter to the offscreen canvas
+                drawSingleStyledLetterOffscreen(letter);
+
+                // Measure the letter on the main context for positioning angle
+                const letterWidthForAngle = ctx.measureText(letter).width + kerning;
+                const letterWidthMain = ctx.measureText(letter).width; // Width without kerning for drawing
+                const halfAngle = (letterAngles[i] / 2) * Math.PI / 180;
+
+                startAngle += halfAngle;
+
+                let angle = flipped ? startAngle + Math.PI : startAngle;
+                const x = radius * Math.cos(angle);
+                const y = radius * Math.sin(angle);
+
+                ctx.save();
+                ctx.translate(x, y);
+                let rotation = angle + Math.PI / 2;
+                if (flipped) { rotation += Math.PI; }
+                ctx.rotate(rotation);
+
+                // Draw the styled letter from the offscreen canvas
+                try {
+                    // Measure the letter on the offscreen canvas to get source dimensions
+                    octx.font = `bold ${fontSize}px Arial`; // Ensure font is set
+                    octx.textAlign = 'center'; // Match single letter draw
+                    octx.textBaseline = 'top'; // Match single letter draw
+                    const metrics = octx.measureText(letter);
+                    const sWidth = metrics.width; // Actual width of the letter pixels
+                    const ascent = metrics.actualBoundingBoxAscent || fontSize;
+                    const descent = metrics.actualBoundingBoxDescent || fontSize * 0.2;
+                    const sHeight = ascent + descent; // Use exact measured height
+                    const sx = (w - sWidth) / 2; // Centered X on offscreen
+                    const sy = yPosOffscreen - ascent; // Top Y based on top baseline and ascent
+
+                    const drawY = -sHeight / 2; // Center vertically based on source height
+
+                    // Draw using the letter's actual width (sWidth) for both source and destination
+                    ctx.drawImage(os, sx, sy, sWidth, sHeight, -sWidth / 2, drawY, sWidth, sHeight);
+                } catch(e) { console.error("Error drawing circular slice:", e); }
+
+                ctx.restore();
+
+                startAngle += halfAngle;
+            }
+
+            ctx.restore();
+        }
+
+
+        // --- NEW Function to render curved text (separate from warp effect) ---
+        function renderCurvedText() {
+            const curveAmount = parseInt(iCurveAmount.value, 10);
+            const diameter = parseInt(iCurveDiameter.value, 10);
+            const kerning = parseInt(iCurveKerning.value, 10);
+            const flip = iCurveFlip.checked;
+            const text = iText.value.toUpperCase();
+            const fontSize = parseInt(iFontSize.value, 10);
+            const yPosOffscreen = 50; // Base Y position used in drawSingleStyledLetterOffscreen
+
+            ctx.clearRect(0, 0, w, h);
+
+            ctx.font = `bold ${fontSize}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const direction = flip ? -1 : 1;
+            const curveRadius = (w * 2) / (curveAmount / 50 * Math.PI) ;
+            const curveStrength = curveAmount / 100;
+
+            ctx.save();
+            const chars = text.split('');
+            let totalWidth = 0;
+            const charWidths = chars.map(char => {
+                const width = ctx.measureText(char).width + kerning; // Width including kerning for total width calc
+                totalWidth += width;
+                return width;
+            });
+
+            let currentX = (w - totalWidth) / 2; // Starting X on main canvas
+            const baselineY = h / 2 + fontSize / 4;
+
+            for (let i = 0; i < chars.length; i++) {
+                const letter = chars[i];
+                const displayWidth = charWidths[i]; // Width including kerning for positioning
+
+                // Draw this single letter to the offscreen canvas
+                drawSingleStyledLetterOffscreen(letter);
+
+                // Measure the letter on the offscreen canvas to get source dimensions
+                octx.font = `bold ${fontSize}px Arial`; // Ensure font is set
+                octx.textAlign = 'center'; // Match single letter draw
+                octx.textBaseline = 'top'; // Match single letter draw
+                const metrics = octx.measureText(letter);
+                const sWidth = metrics.width; // Actual width of the letter pixels
+                const ascent = metrics.actualBoundingBoxAscent || fontSize;
+                const descent = metrics.actualBoundingBoxDescent || fontSize * 0.2;
+                const sHeight = ascent + descent; // Use exact measured height
+                const sx = (w - sWidth) / 2; // Centered X on offscreen
+                const sy = yPosOffscreen - ascent; // Approx top Y based on top baseline
+
+                const percentAlongWidth = totalWidth > 0 ? (currentX - (w - totalWidth) / 2 + displayWidth / 2) / totalWidth : 0;
+                const angleOffset = (percentAlongWidth - 0.5) * Math.PI * curveStrength;
+
+                const xPos = currentX + displayWidth / 2;
+                let yOffset = -direction * curveRadius * (1 - Math.cos(angleOffset));
+
+                const rotation = direction * angleOffset * 0.8;
+
+                ctx.save();
+                ctx.translate(xPos, baselineY + yOffset);
+                ctx.rotate(rotation);
+
+                 try {
+                    const drawY = -sHeight / 2; // Center vertically
+                    // Draw using the letter's actual width (sWidth) for both source and destination
+                    ctx.drawImage(
+                        os,
+                        sx,
+                        sy,
+                        sWidth,
+                        sHeight,
+                        -sWidth / 2, // Center destination based on sWidth
+                        drawY,
+                        sWidth, // Draw with sWidth
+                        sHeight
+                    );
+                } catch(e) { console.error("Error drawing curved slice:", e); }
+
+                ctx.restore();
+
+                currentX += displayWidth; // Advance by width including kerning
+            }
+
+            ctx.restore();
+        }
+
+
+        // --- Main Update Function ---
+        function update() {
+            // Update value displays
+            vSkew.textContent = skewSlider.value;
+            vSkewY.textContent = skewYSlider.value;
+            vFontSize.textContent = iFontSize.value;
+            vCurve.textContent = iCurve.value;
+            vOffset.textContent = iOffset.value;
+            vHeight.textContent = iHeight.value;
+            vBottom.textContent = iBottom.value;
+            vDiameter.textContent = iDiameter.value;
+            vKerning.textContent = iKerning.value;
+            vCurveAmount.textContent = iCurveAmount.value;
+            vCurveDiameter.textContent = iCurveDiameter.value;
+            vCurveKerning.textContent = iCurveKerning.value;
+            vHWeight.textContent = hWeight.value;
+            vHDistance.textContent = hDistance.value;
+            vCcDistance.textContent = ccDistance.value;
+            vOWeight.textContent = oWeight.value;
+            vODistance.textContent = oDistance.value;
+            vStrokeWidth.textContent = strokeWidthSlider.value;
+
+            // Update shadow value displays
+            vShadowOffsetX.textContent = shadowOffsetXSlider.value;
+            vShadowOffsetY.textContent = shadowOffsetYSlider.value;
+            vShadowBlur.textContent = shadowBlurSlider.value;
+            vBlockShadowOpacity.textContent = blockShadowOpacitySlider.value + '%';
+            vBlockShadowOffset.textContent = blockShadowOffsetSlider.value;
+            vBlockShadowAngle.textContent = blockShadowAngleSlider.value + '°';
+            vBlockShadowBlur.textContent = blockShadowBlurSlider.value;
+            vBlockShadowOutlineWidth.textContent = blockShadowOutlineWidthSlider.value;
+            vDetailed3DPrimaryOpacity.textContent = detailed3DPrimaryOpacitySlider.value + '%';
+            vDetailed3DOffset.textContent = detailed3DOffsetSlider.value;
+            vDetailed3DAngle.textContent = detailed3DAngleSlider.value + '°';
+            vDetailed3DBlur.textContent = detailed3DBlurSlider.value;
+            vDetailed3DOutlineWidth.textContent = detailed3DOutlineWidthSlider.value;
+            vDetailed3DSecondaryOpacity.textContent = detailed3DSecondaryOpacitySlider.value + '%';
+            vDetailed3DSecondaryWidth.textContent = detailed3DSecondaryWidthSlider.value;
+            vDetailed3DSecondaryOffset.textContent = detailed3DSecondaryOffsetSlider.value;
+
+
+            // Get current mode, decoration, and shadow
+            const effectMode = effectModeSelect.value;
+            const decorationMode = linesDecorationSelect.value;
+            const shadowMode = shadowSelect.value;
+
+            // Update the body class to control visibility of parameters
+            let bodyClass = effectMode; // Start with effect mode class
+            // Add decoration class
+            if (decorationMode === 'horizontalLines') bodyClass += ' horizontalLines';
+            else if (decorationMode === 'colorCut') bodyClass += ' colorCut';
+            else if (decorationMode === 'obliqueLines') bodyClass += ' obliqueLines';
+            // Add stroke class
+            if (strokeToggle.value === 'stroke') bodyClass += ' stroke-enabled';
+            // Add shadow class
+            if (shadowMode === 'shadow') bodyClass += ' shadow';
+            else if (shadowMode === 'blockShadow') bodyClass += ' block-shadow';
+            else if (shadowMode === 'detailed3D') bodyClass += ' detailed-3d';
+
+            document.body.className = bodyClass.trim();
+
+            // 1. Draw the styled text onto the hidden offscreen canvas FIRST
+            //    Only needed for non-circular/non-curved effects now
+            //    For circle/curve, individual letters are drawn just-in-time
+            if (effectMode !== "circle" && effectMode !== "curve") {
+                 drawStyledTextOffscreen_Full(); // Use the full text draw function
+            }
+
+            // 2. Render the text with selected effect using the offscreen canvas
+            if (effectMode === "warp") {
+                renderWarpedText(parseInt(skewSlider.value, 10));
+            } else if (effectMode === "normal") {
+                renderNormalText();
+            } else if (effectMode === "skew") {
+                renderSkewOnlyText(parseInt(skewSlider.value, 10), parseInt(skewYSlider.value, 10));
+            } else if (effectMode === "circle") {
+                renderCircularText(); // Now draws letters individually
+            } else if (effectMode === "curve") {
+                renderCurvedText(); // Now draws letters individually
+            }
+        }
+
+        // --- Attach Event Listeners ---
+        // Skew controls
+        skewSlider.oninput = update;
+        skewYSlider.oninput = update;
+
+        // Font size
+        iFontSize.oninput = update;
+
+        // Warp controls
+        iCurve.oninput = update;
+        iOffset.oninput = update;
+        iHeight.oninput = update;
+        iBottom.oninput = update;
+        iTriangle.onchange = update;
+
+        // Circle text controls
+        iDiameter.oninput = update;
+        iKerning.oninput = update;
+        iFlip.onchange = update;
+
+        // Curve text controls
+        iCurveAmount.oninput = update;
+        iCurveDiameter.oninput = update;
+        iCurveKerning.oninput = update;
+        iCurveFlip.onchange = update;
+
+        // Text and mode controls
+        iText.oninput = update;
+        effectModeSelect.onchange = update;
+
+        // New controls
+        linesDecorationSelect.onchange = update;
+        shadowSelect.onchange = update;
+        hWeight.oninput = update;
+        hDistance.oninput = update;
+        hColor.oninput = update;
+        ccDistance.oninput = update;
+        ccColor.oninput = update;
+        ccFillTop.onchange = update;
+        ccFillBottom.onchange = update;
+        oWeight.oninput = update;
+        oDistance.oninput = update;
+        oColor.oninput = update;
+        strokeToggle.onchange = update;
+        strokeWidthSlider.oninput = update;
+        strokeColorPicker.oninput = update;
+
+        // Shadow controls listeners
+        shadowColorPicker.oninput = update;
+        shadowOffsetXSlider.oninput = update;
+        shadowOffsetYSlider.oninput = update;
+        shadowBlurSlider.oninput = update;
+        blockShadowColorPicker.oninput = update;
+        blockShadowOpacitySlider.oninput = update;
+        blockShadowOffsetSlider.oninput = update;
+        blockShadowAngleSlider.oninput = update;
+        blockShadowBlurSlider.oninput = update;
+        blockShadowOutlineWidthSlider.oninput = update;
+        detailed3DPrimaryColorPicker.oninput = update;
+        detailed3DPrimaryOpacitySlider.oninput = update;
+        detailed3DOffsetSlider.oninput = update;
+        detailed3DAngleSlider.oninput = update;
+        detailed3DBlurSlider.oninput = update;
+        detailed3DOutlineWidthSlider.oninput = update;
+        detailed3DSecondaryColorPicker.oninput = update;
+        detailed3DSecondaryOpacitySlider.oninput = update;
+        detailed3DSecondaryWidthSlider.oninput = update;
+        detailed3DSecondaryOffsetSlider.oninput = update;
+
+
+        // --- Helper Functions for Shadows ---
+
+        function hexToRgba(hex, opacity = 1) {
+            let r = 0, g = 0, b = 0;
+            if (hex.length == 4) {
+                r = parseInt(hex[1] + hex[1], 16);
+                g = parseInt(hex[2] + hex[2], 16);
+                b = parseInt(hex[3] + hex[3], 16);
+            } else if (hex.length == 7) {
+                r = parseInt(hex[1] + hex[2], 16);
+                g = parseInt(hex[3] + hex[4], 16);
+                b = parseInt(hex[5] + hex[6], 16);
+            }
+            return `rgba(${r},${g},${b},${opacity})`;
+        }
+
+        // Draws only the shadow/extrusion part for Block Shadow
+        function applyBlockShadow(targetCtx, textContent, x, y) {
+            const color = blockShadowColorPicker.value;
+            const opacity = parseInt(blockShadowOpacitySlider.value, 10) / 100;
+            const offset = parseInt(blockShadowOffsetSlider.value, 10);
+            const angle = parseInt(blockShadowAngleSlider.value, 10) * Math.PI / 180;
+            const blur = parseInt(blockShadowBlurSlider.value, 10);
+            const outlineWidth = parseInt(blockShadowOutlineWidthSlider.value, 10);
+
+            const offsetX = Math.cos(angle) * offset;
+            const offsetY = Math.sin(angle) * offset;
+
+            targetCtx.save();
+            targetCtx.lineJoin = 'round';
+
+            // Draw Shadow Extrusion (based on outline)
+            targetCtx.lineWidth = outlineWidth > 0 ? outlineWidth : 1;
+            targetCtx.strokeStyle = hexToRgba(color, opacity);
+            targetCtx.fillStyle = hexToRgba(color, opacity); // Fill inside the stroke for solid extrusion
+            targetCtx.shadowColor = hexToRgba(color, opacity * 0.5);
+            targetCtx.shadowBlur = blur;
+            targetCtx.shadowOffsetX = offsetX / 5;
+            targetCtx.shadowOffsetY = offsetY / 5;
+
+            const steps = Math.max(1, Math.floor(offset / 2));
+            for (let i = 1; i <= steps; i++) {
+                const currentOffsetX = x + (offsetX * i / steps);
+                const currentOffsetY = y + (offsetY * i / steps);
+                if (outlineWidth > 0) {
+                    targetCtx.strokeText(textContent, currentOffsetX, currentOffsetY);
+                }
+                 // Fill inside the stroke only if outline exists, otherwise just fill
+                if (outlineWidth > 0) {
+                    targetCtx.fillText(textContent, currentOffsetX, currentOffsetY);
+                } else {
+                     targetCtx.fillText(textContent, currentOffsetX, currentOffsetY);
+                 }
+            }
+            targetCtx.restore(); // Restore after drawing extrusion
+        }
+
+        // Draws the shadow/extrusion parts for Detailed 3D
+        function applyDetailed3D(targetCtx, textContent, x, y) {
+            const primaryColor = detailed3DPrimaryColorPicker.value;
+            const primaryOpacity = parseInt(detailed3DPrimaryOpacitySlider.value, 10) / 100;
+            const offset = parseInt(detailed3DOffsetSlider.value, 10);
+            const angle = parseInt(detailed3DAngleSlider.value, 10) * Math.PI / 180;
+            const blur = parseInt(detailed3DBlurSlider.value, 10);
+            const primaryOutlineWidth = parseInt(detailed3DOutlineWidthSlider.value, 10);
+
+            const secondaryColor = detailed3DSecondaryColorPicker.value;
+            const secondaryOpacity = parseInt(detailed3DSecondaryOpacitySlider.value, 10) / 100;
+            const secondaryWidth = parseInt(detailed3DSecondaryWidthSlider.value, 10);
+            const secondaryOffset = parseInt(detailed3DSecondaryOffsetSlider.value, 10);
+
+            const primaryOffsetX = Math.cos(angle) * offset;
+            const primaryOffsetY = Math.sin(angle) * offset;
+
+            // Calculate secondary offset based on the OPPOSITE angle
+            const oppositeAngle = angle + Math.PI; // Add 180 degrees (PI radians)
+            const secondaryOffsetX = Math.cos(oppositeAngle) * secondaryOffset;
+            const secondaryOffsetY = Math.sin(oppositeAngle) * secondaryOffset;
+
+
+            targetCtx.save();
+            targetCtx.lineJoin = 'round';
+
+            // --- Draw Secondary Outline FIRST ---
+            if (secondaryWidth > 0) {
+                targetCtx.save();
+                // Clear any fill style
+                targetCtx.fillStyle = 'rgba(0,0,0,0)';
+                // Apply secondary outline settings
+                targetCtx.strokeStyle = hexToRgba(secondaryColor, secondaryOpacity);
+                targetCtx.lineWidth = secondaryWidth;
+                // Draw only outline with transparent fill
+                targetCtx.strokeText(textContent, x, y);
+                targetCtx.restore();
+            }
+            // --- End Secondary Outline ---
+
+            // --- Draw Primary Shadow/Extrusion SECOND (mimicking reference code logic) ---
+            const steps = Math.max(50, Math.floor(offset)); // Use more steps like reference
+
+            // Draw from back to front
+            for (let i = steps; i >= 1; i--) {
+                const progress = i / steps;
+                const currentOffsetX = x + (primaryOffsetX * progress); // Use progress calculation
+                const currentOffsetY = y + (primaryOffsetY * progress);
+
+                // Set fill and stroke for this step
+                targetCtx.fillStyle = hexToRgba(primaryColor, primaryOpacity);
+                targetCtx.strokeStyle = hexToRgba(primaryColor, primaryOpacity);
+                targetCtx.lineWidth = primaryOutlineWidth > 0 ? primaryOutlineWidth : 1;
+
+                // Apply outline to EACH shadow step if it exists
+                if (primaryOutlineWidth > 0) {
+                    targetCtx.strokeText(textContent, currentOffsetX, currentOffsetY);
+                }
+                // Fill the text for this shadow step
+                targetCtx.fillText(textContent, currentOffsetX, currentOffsetY);
+            }
+
+             // Add blur effect to the primary shadow if specified (similar to reference)
+            if (blur > 0) {
+                // Temporarily apply shadow properties for the blur effect
+                targetCtx.save(); // Save before applying blur shadow
+                targetCtx.shadowColor = hexToRgba(primaryColor, primaryOpacity);
+                targetCtx.shadowBlur = blur;
+                targetCtx.shadowOffsetX = 0; // Blur centered on the final extrusion layer
+                targetCtx.shadowOffsetY = 0;
+
+                // Draw a final shadow layer at the maximum offset to apply the blur
+                targetCtx.fillStyle = hexToRgba(primaryColor, primaryOpacity); // Need fill for shadow to show
+                targetCtx.fillText(textContent, x + primaryOffsetX, y + primaryOffsetY);
+                if (primaryOutlineWidth > 0) { // Also blur the outline if it exists
+                     targetCtx.strokeStyle = hexToRgba(primaryColor, primaryOpacity);
+                     targetCtx.lineWidth = primaryOutlineWidth;
+                     targetCtx.strokeText(textContent, x + primaryOffsetX, y + primaryOffsetY);
+                }
+                targetCtx.restore(); // Restore after applying blur shadow
+            }
+            // --- End Primary Shadow/Extrusion ---
+
+            // REMOVED: The primary outline on the main text (x, y) is now drawn
+            // in the drawSingleStyledLetterOffscreen / drawStyledTextOffscreen_Full functions
+            // after the main fill, to ensure correct layering.
+
+
+            targetCtx.restore(); // Restore after drawing all layers
+        }
+
+
+        // --- Initial Draw ---
+        update();
+    </script>
+</body>
+</html>

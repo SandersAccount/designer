@@ -1,0 +1,11 @@
+{
+  "test-template.html": [
+    "sticker-maker",
+    "flux-dreamscape",
+    "upscale",
+    "background-remover",
+    "face-to-sticker",
+    "flux-ico"
+  ],
+  "prompt-tshirt.html": []
+}

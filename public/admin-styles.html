@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manage Styles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .styles-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            background: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .styles-table th,
+        .styles-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .styles-table th {
+            background: #2a2a2a;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .style-image {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 4px;
+            padding: 0;
+            margin: 0;
+            display: block;
+        }
+
+        .styles-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #333;
+            vertical-align: middle;
+        }
+
+        .styles-table td:first-child {
+            width: 90px;
+            padding: 0.5rem;
+        }
+
+        .add-style-form {
+            background: #1a1a1a;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #2a2a2a;
+            color: #fff;
+            font-family: inherit;
+            font-size: 25px;
+        }
+
+        .form-group input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-label {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #2a2a2a;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .file-name {
+            margin-left: 1rem;
+            color: #999;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-edit,
+        .btn-delete {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .btn-edit {
+            background: #4a4a4a;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            overflow-y: auto;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .modal.show {
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            margin: 5vh auto;
+            padding: 0;
+            width: 90%;
+            max-width: 1200px;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #2a2a2a;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .modal-title {
+            margin: 0;
+            color: #fff;
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            line-height: 1;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .close-modal:hover {
+            opacity: 1;
+        }
+
+        #editStyleForm {
+            padding: 1.5rem;
+            background: transparent;
+            margin: 0;
+        }
+
+        #editStyleForm .form-group:last-child {
+            margin-bottom: 1rem;
+        }
+
+        #editStyleForm .btn-primary {
+            width: 100%;
+            padding: 0.75rem;
+            background: #4CAF50;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #editStyleForm .btn-primary:hover {
+            background: #45a049;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Hide any duplicate forms that might exist */
+        #editStyleForm ~ #editStyleForm {
+            display: none !important;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .reorder-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .btn-reorder {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+
+        .btn-reorder:hover {
+            color: white;
+        }
+
+        .btn-reorder:disabled {
+            color: #444;
+            cursor: not-allowed;
+        }
+
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .sortable:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .sortable::after {
+            content: '↕️';
+            margin-left: 5px;
+            opacity: 0.3;
+        }
+        
+        .sortable.asc::after {
+            content: '↑';
+            opacity: 1;
+        }
+        
+        .sortable.desc::after {
+            content: '↓';
+            opacity: 1;
+        }
+
+        /* Add styles for the save order button */
+        .order-actions {
+            margin: 20px 0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-save-order {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-save-order:hover {
+            background-color: #45a049;
+        }
+
+        .btn-save-order:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .btn-save-order i {
+            font-size: 16px;
+        }
+
+        .settings-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 8px;
+        }
+
+        .settings-form {
+            margin-top: 20px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #2a2a2a;
+            color: #fff;
+            font-family: inherit;
+        }
+
+        .help-text {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: #999;
+        }
+
+        textarea {
+            font-family: inherit;
+            line-height: 1.5;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-actions h1 {
+            margin: 0;
+        }
+
+        .header-actions .btn-primary {
+            text-decoration: none;
+        }
+
+        /* Image preview styling */
+        .image-preview {
+            margin-top: 10px;
+            max-width: 300px;
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .image-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* File upload styling */
+        .file-upload-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: background 0.3s;
+        }
+
+        .file-upload-label:hover {
+            background: #45a049;
+        }
+
+        .file-name {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* Style card image */
+        .style-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .style-card img {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin: 10px 0;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+
+        /* Hide empty images */
+        .style-card img:not([src]), 
+        .style-card img[src=""], 
+        .image-preview img:not([src]), 
+        .image-preview img[src=""] {
+            display: none;
+        }
+        
+        /* Add message styles */
+        .message {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            z-index: 1000;
+        }
+        
+        .message.info {
+            background-color: #2196f3;
+            color: white;
+        }
+        
+        .message.success {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .message.error {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="topbar"></div>
+    
+    <div class="container">
+        <div class="header-actions">
+            <h1>Manage Styles</h1>
+            <a href="/admin-themes" class="btn-primary">Manage Themes</a>
+        </div>
+        
+        <!-- Add Settings Section -->
+        <div class="settings-section">
+            <h2>App Settings</h2>
+            <form id="settingsForm" class="settings-form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="appName">Top Bar Text/Logo:</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="text" id="appName" name="appName" class="form-control" style="flex: 1;">
+                        <div style="display: flex; align-items: center;">
+                            <input type="checkbox" id="useLogoInstead" name="useLogoInstead">
+                            <label for="useLogoInstead" style="margin-left: 5px;">Use Logo Instead</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="logoUploadGroup" style="display: none;">
+                    <label for="logoFile">Upload Logo:</label>
+                    <input type="file" id="logoFile" name="logo" accept="image/*" class="form-control">
+                    <img id="logoPreview" src="" alt="" style="max-height: 50px; margin-top: 10px; display: none;">
+                </div>
+
+                <div class="form-group">
+                    <label for="mainTitle">Main Title Text:</label>
+                    <input type="text" id="mainTitle" name="mainTitle" class="form-control">
+                </div>
+
+                <button type="submit" class="btn-primary">Save Settings</button>
+            </form>
+        </div>
+
+        <div class="order-actions">
+            <button id="saveOrderButton" onclick="saveOrder()" class="btn-primary" style="display: none;">Save Order</button>
+        </div>
+
+        <form id="addStyleForm" class="add-style-form" onsubmit="handleStyleSubmit(event)">
+            <div class="form-group">
+                <label for="styleName">Style Name</label>
+                <input type="text" id="styleName" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="stylePrompt">Prompt Template</label>
+                <textarea id="stylePrompt" name="prompt" rows="3" required>Inside a [bg] shape bold vintage typography [fontstyle] create a design with the phrase [text] very big in the center, include a Vintage [object] and Vintage [elements-theme]
+with a Background [bg] backdrop with subtle texture,
+with Texture slightly distressed for a rugged, lived-in appeal,
+that uses a Style [art], and Vintage [art-theme]
+with Vintage bold shadows and highlights [feel] with a Vintage Color Palette black, red, gray, and white for a high-impact, energetic feel</textarea>
+                <div class="help-text">
+                    Style variables: [art], [elements], [fontstyle], [feel]<br>
+                    Theme variables: [art-theme], [elements-theme], [font], [look]<br>
+                    Basic variables: [object], [text], [bg]
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="styleElements">Style Elements</label>
+                <textarea id="styleElements" name="elements" rows="3" placeholder="Enter comma-separated elements, e.g.: biker helmet, goggles, crossed engine pistons, fire"></textarea>
+                <small class="help-text">Enter comma-separated elements that will be used in the [elements] variable.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="styleArtStyles">Art Styles</label>
+                <textarea id="styleArtStyles" name="artStyles" rows="2" placeholder="Enter comma-separated art styles, e.g.: vector flat, realistic, cartoon, 3d, illustration"></textarea>
+                <small class="help-text">Enter comma-separated art styles. All styles will be used in the [art] variable.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="styleFont">Font Style (Optional)</label>
+                <input type="text" id="styleFont" name="fontstyle" placeholder="e.g.: aggressive condensed serif">
+                <small class="help-text">Describe the font style that will be used in the [fontstyle] variable.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="styleLook">Look & Feel (Optional)</label>
+                <input type="text" id="styleLook" name="feel" placeholder="e.g.: Fast energetic sentiment of velocity">
+                <small class="help-text">Describe the overall look and feel that will be used in the [feel] variable.</small>
+            </div>
+            
+            <div class="form-group">
+                <label class="file-upload-label" for="styleImage">
+                    <i class="fas fa-upload"></i> Upload Image
+                </label>
+                <input type="file" id="styleImage" name="image" accept="image/*">
+                <span class="file-name"></span>
+                <div class="image-preview">
+                    <img id="imagePreview" alt="Preview">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-primary">Add Style</button>
+        </form>
+
+        <table class="styles-table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th class="sortable" data-sort="name">Name</th>
+                    <th>Prompt</th>
+                    <th>Actions</th>
+                    <th>Order</th>
+                </tr>
+            </thead>
+            <tbody id="stylesTableBody">
+                <!-- Styles will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Style</h2>
+                <button type="button" class="close-modal" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="editStyleForm" data-style-id="" onsubmit="updateStyle(event)">
+                <div class="form-group">
+                    <label for="editStyleName">Style Name</label>
+                    <input type="text" id="editStyleName" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editStylePrompt">Prompt Template</label>
+                    <textarea id="editStylePrompt" name="prompt" rows="3" required>Inside a [bg] shape bold vintage typography [fontstyle] create a design with the phrase [text] very big in the center, include a Vintage [object] and Vintage [elements-theme]
+with a Background [bg] backdrop with subtle texture,
+with Texture slightly distressed for a rugged, lived-in appeal,
+that uses a Style [art], and Vintage [art-theme]
+with Vintage bold shadows and highlights [feel] with a Vintage Color Palette black, red, gray, and white for a high-impact, energetic feel</textarea>
+                    <div class="help-text">
+                        Style variables: [art], [elements], [fontstyle], [feel]<br>
+                        Theme variables: [art-theme], [elements-theme], [font], [look]<br>
+                        Basic variables: [object], [text], [bg]
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editStyleElements">Style Elements</label>
+                    <textarea id="editStyleElements" name="elements" rows="3" placeholder="Enter comma-separated elements, e.g.: biker helmet, goggles, crossed engine pistons, fire"></textarea>
+                    <small class="help-text">Enter comma-separated elements that will be used in the [elements] variable.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="editStyleArtStyles">Art Styles</label>
+                    <textarea id="editStyleArtStyles" name="artStyles" rows="2" placeholder="Enter comma-separated art styles, e.g.: vector flat, realistic, cartoon, 3d, illustration"></textarea>
+                    <small class="help-text">Enter comma-separated art styles. All styles will be used in the [art] variable.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="editStyleFont">Font Style (Optional)</label>
+                    <input type="text" id="editStyleFont" name="fontstyle" placeholder="e.g.: aggressive condensed serif">
+                    <small class="help-text">Describe the font style that will be used in the [fontstyle] variable.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="editStyleLook">Look & Feel (Optional)</label>
+                    <input type="text" id="editStyleLook" name="feel" placeholder="e.g.: Fast energetic sentiment of velocity">
+                    <small class="help-text">Describe the overall look and feel that will be used in the [feel] variable.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Style Image (Optional)</label>
+                    <label class="file-upload-label" for="editStyleImage">
+                        <i class="fas fa-upload"></i> Upload New Image
+                    </label>
+                    <input type="file" id="editStyleImage" name="image" accept="image/*">
+                    <span class="file-name"></span>
+                    <div class="image-preview">
+                        <img id="editImagePreview" alt="Preview">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createTopbar } from '/js/components/Topbar.js';
+
+        // Initialize topbar
+        createTopbar();
+
+        let currentSort = { field: 'order', order: 'asc' };
+        let hasOrderChanged = false;
+        
+        // Common function to handle file selection for both create and edit forms
+        function handleFileSelect(event, previewId) {
+            const file = event.target.files[0];
+            const fileGroup = event.target.closest('.form-group');
+            const fileName = fileGroup.querySelector('.file-name');
+            const preview = document.getElementById(previewId);
+            
+            if (file) {
+                fileName.textContent = file.name;
+                
+                // Create preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.removeProperty('display');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                fileName.textContent = '';
+                preview.style.setProperty('display', 'none');
+            }
+        }
+
+        // Function to populate edit form
+        async function populateEditForm(style) {
+            try {
+                const form = document.getElementById('editStyleForm');
+                form.setAttribute('data-style-id', style._id);
+                
+                // Update form fields
+                form.querySelector('[name="name"]').value = style.name || '';
+                form.querySelector('[name="prompt"]').value = style.prompt || '';
+                form.querySelector('[name="elements"]').value = style.elements || '';
+                form.querySelector('[name="artStyles"]').value = style.artStyles || '';
+                form.querySelector('[name="fontstyle"]').value = style.fontstyle || '';
+                form.querySelector('[name="feel"]').value = style.feel || '';
+                
+                // Handle image preview
+                const imagePreview = document.getElementById('editImagePreview');
+                const fileName = form.querySelector('.file-name');
+                
+                if (style.imageUrl) {
+                    imagePreview.src = style.imageUrl;
+                    imagePreview.style.display = 'block';
+                    fileName.textContent = style.imageUrl.split('/').pop();
+                } else {
+                    imagePreview.src = '';
+                    imagePreview.style.display = 'none';
+                    fileName.textContent = '';
+                }
+            } catch (error) {
+                console.error('Error populating form:', error);
+                showMessage('Error loading style data', 'error');
+            }
+        }
+
+        // Make updateStyle available globally
+        window.updateStyle = async function(event) {
+            event.preventDefault();
+            
+            try {
+                const form = event.target;
+                const styleId = form.getAttribute('data-style-id');
+                const formData = new FormData();
+
+                // Add form fields to FormData
+                formData.append('name', form.querySelector('[name="name"]').value);
+                formData.append('prompt', form.querySelector('[name="prompt"]').value);
+                formData.append('elements', form.querySelector('[name="elements"]').value || '');
+                formData.append('artStyles', form.querySelector('[name="artStyles"]').value || '');
+                formData.append('fontstyle', form.querySelector('[name="fontstyle"]').value || '');
+                formData.append('feel', form.querySelector('[name="feel"]').value || '');
+
+                // Add image if present
+                const fileInput = form.querySelector('input[type="file"]');
+                if (fileInput && fileInput.files[0]) {
+                    formData.append('image', fileInput.files[0]);
+                }
+
+                formData.append('userId', 'user-675f365a9f4fa90f4b5fcea9');
+
+                const submitButton = form.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Saving...';
+
+                const response = await fetch(`/api/styles/${styleId}`, {
+                    method: 'PUT',
+                    credentials: 'include',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to update style');
+                }
+
+                const updatedStyle = await response.json();
+                console.log('Style updated successfully:', updatedStyle);
+
+                // Close the modal
+                closeEditModal();
+                
+                // Refresh the styles list
+                loadStyles();
+                
+                // Show success message
+                showMessage('Style updated successfully', 'success');
+            } catch (error) {
+                console.error('Error updating style:', error);
+                showMessage(error.message || 'Failed to update style', 'error');
+            } finally {
+                const submitButton = event.target.querySelector('button[type="submit"]');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Save Changes';
+            }
+        };
+
+        // Add event listener to edit form
+        document.getElementById('editStyleForm').addEventListener('submit', updateStyle);
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get form elements
+            const addForm = document.getElementById('addStyleForm');
+            const addStyleImage = document.getElementById('styleImage');
+            const editStyleImage = document.getElementById('editStyleImage');
+
+            // Add form submit handlers
+            if (addForm) addForm.addEventListener('submit', handleStyleSubmit);
+            
+            // Add file input listeners
+            if (addStyleImage) {
+                addStyleImage.addEventListener('change', (e) => handleFileSelect(e, 'imagePreview'));
+            }
+            if (editStyleImage) {
+                editStyleImage.addEventListener('change', (e) => handleFileSelect(e, 'editImagePreview'));
+            }
+
+            // Load initial data
+            loadStyles();
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        });
+
+        // Function to add a new style
+        async function handleStyleSubmit(event) {
+            event.preventDefault();
+            
+            try {
+                const form = event.target;
+                const formData = new FormData();
+
+                // Validate required fields
+                const name = form.querySelector('[name="name"]').value.trim();
+                const prompt = form.querySelector('[name="prompt"]').value.trim();
+                
+                if (!name) {
+                    throw new Error('Style Name is required');
+                }
+                if (!prompt) {
+                    throw new Error('Prompt Template is required');
+                }
+
+                // Debug logging
+                console.log('Form submission values:', {
+                    name,
+                    prompt,
+                    elements: form.querySelector('[name="elements"]').value.trim(),
+                    artStyles: form.querySelector('[name="artStyles"]').value.trim(),
+                    fontstyle: form.querySelector('[name="fontstyle"]').value.trim(),
+                    feel: form.querySelector('[name="feel"]').value.trim(),
+                    image: form.querySelector('[name="image"]').files[0]
+                });
+
+                // Add form fields to FormData
+                formData.append('name', name);
+                formData.append('prompt', prompt);
+                formData.append('elements', form.querySelector('[name="elements"]').value.trim() || '');
+                formData.append('artStyles', form.querySelector('[name="artStyles"]').value.trim() || '');
+                formData.append('fontstyle', form.querySelector('[name="fontstyle"]').value.trim() || '');
+                formData.append('feel', form.querySelector('[name="feel"]').value.trim() || '');
+
+                // Add image if present
+                const fileInput = form.querySelector('[name="image"]');
+                if (fileInput && fileInput.files[0]) {
+                    formData.append('image', fileInput.files[0]);
+                }
+
+                formData.append('userId', 'user-675f365a9f4fa90f4b5fcea9');
+
+                const submitButton = form.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Adding...';
+
+                const response = await fetch('/api/styles', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || result.error || 'Failed to create style');
+                }
+
+                console.log('Created style:', result);
+
+                // Reset form
+                form.reset();
+                const preview = document.getElementById('imagePreview');
+                if (preview) {
+                    preview.style.setProperty('display', 'none');
+                    preview.src = '';
+                }
+                const fileName = form.querySelector('.file-name');
+                if (fileName) {
+                    fileName.textContent = '';
+                }
+
+                // Reload styles
+                await loadStyles();
+                closeAddModal();
+            } catch (error) {
+                console.error('Error creating style:', error);
+                alert('Failed to create style: ' + error.message);
+            } finally {
+                const submitButton = event.target.querySelector('button[type="submit"]');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Add Style';
+            }
+        }
+
+        // Function to edit a style
+        window.editStyle = async function(styleId) {
+            try {
+                console.log('Editing style:', styleId);
+                const response = await fetch(`/api/styles/${styleId}`, {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Failed to fetch style details:', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        error: errorText
+                    });
+                    throw new Error('Failed to fetch style details');
+                }
+
+                const style = await response.json();
+                console.log('Style details:', style);
+                await populateEditForm(style);
+
+                // Show the modal
+                document.getElementById('editModal').style.display = 'block';
+                document.getElementById('editModal').classList.add('show');
+            } catch (error) {
+                console.error('Error loading style details:', error);
+                showMessage('Error loading style details', 'error');
+            }
+        };
+
+        // Function to close the edit modal
+        window.closeEditModal = function() {
+            const modal = document.getElementById('editModal');
+            const editForm = document.getElementById('editStyleForm');
+            
+            // Start fade out animation
+            modal.classList.remove('show');
+            
+            // Wait for animation to complete
+            setTimeout(() => {
+                modal.style.display = 'none';
+                // Reset the form
+                editForm.reset();
+                
+                // Clear image preview
+                const imagePreview = editForm.querySelector('#editImagePreview');
+                imagePreview.style.display = 'none';
+                imagePreview.src = '';
+                
+                // Clear file name
+                const fileNameSpan = editForm.querySelector('.file-name');
+                if (fileNameSpan) {
+                    fileNameSpan.textContent = '';
+                }
+            }, 300);
+        };
+
+        // Function to delete style
+        window.deleteStyle = async function(styleId) {
+            if (!confirm('Are you sure you want to delete this style?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/styles/${styleId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to delete style');
+                }
+                
+                loadStyles();
+            } catch (error) {
+                console.error('Error deleting style:', error);
+                alert('Failed to delete style');
+            }
+        };
+
+        // Function to move style up or down
+        window.moveStyle = async function(styleId, direction) {
+            const table = document.querySelector('.styles-table tbody');
+            const rows = Array.from(table.querySelectorAll('tr'));
+            const currentRow = rows.find(row => row.dataset.styleId === styleId);
+            const currentIndex = rows.indexOf(currentRow);
+
+            if (direction === 'up' && currentIndex > 0) {
+                table.insertBefore(currentRow, rows[currentIndex - 1]);
+                hasOrderChanged = true;
+            } else if (direction === 'down' && currentIndex < rows.length - 1) {
+                table.insertBefore(currentRow, rows[currentIndex + 2]);
+                hasOrderChanged = true;
+            }
+
+            // Show/hide save order button
+            document.getElementById('saveOrderButton').style.display = hasOrderChanged ? 'block' : 'none';
+        };
+
+        // Function to save the new order
+        window.saveOrder = async function() {
+            const rows = Array.from(document.querySelectorAll('.styles-table tbody tr'));
+            const newOrder = rows.map((row, index) => ({
+                id: row.dataset.styleId,
+                order: index
+            }));
+
+            try {
+                const response = await fetch('/api/styles/order', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ styles: newOrder })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to save order');
+                }
+
+                hasOrderChanged = false;
+                document.getElementById('saveOrderButton').style.display = 'none';
+                alert('Order saved successfully!');
+            } catch (error) {
+                console.error('Error saving order:', error);
+                alert('Failed to save order: ' + error.message);
+            }
+        };
+
+        // Function to load styles
+        async function loadStyles() {
+            try {
+                const response = await fetch('/api/styles', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch styles');
+                }
+
+                const styles = await response.json();
+                const tbody = document.getElementById('stylesTableBody');
+                tbody.innerHTML = '';
+
+                if (styles.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="empty-state">No styles found. Add your first style above!</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                styles.sort((a, b) => {
+                    if (currentSort.field === 'order') {
+                        return currentSort.order === 'asc' ? a.order - b.order : b.order - a.order;
+                    }
+                    const aVal = a[currentSort.field] || '';
+                    const bVal = b[currentSort.field] || '';
+                    return currentSort.order === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                });
+
+                styles.forEach((style, index) => {
+                    const tr = document.createElement('tr');
+                    tr.dataset.styleId = style._id;
+                    
+                    tr.innerHTML = `
+                        <td>
+                            <img src="${style.imageUrl || '/images/placeholder.png'}" alt="${style.name}" class="style-image">
+                        </td>
+                        <td>${style.name}</td>
+                        <td>${style.prompt}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-edit" onclick="editStyle('${style._id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-delete" onclick="deleteStyle('${style._id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="reorder-buttons">
+                                <button class="btn-reorder" onclick="moveStyle('${style._id}', 'up')" ${index === 0 ? 'disabled' : ''}>
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
+                                <button class="btn-reorder" onclick="moveStyle('${style._id}', 'down')" ${index === styles.length - 1 ? 'disabled' : ''}>
+                                    <i class="fas fa-arrow-down"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error loading styles:', error);
+                alert('Failed to load styles');
+            }
+        }
+
+        // Make loadStyles function available globally
+        window.loadStyles = loadStyles;
+
+        // Function to save edited style
+        window.saveEditedStyle = async function(event) {
+            event.preventDefault();
+            
+            try {
+                const formData = new FormData();
+                const form = event.target;
+                
+                // Add form fields to FormData
+                formData.append('name', form.querySelector('[name="name"]').value);
+                formData.append('prompt', form.querySelector('[name="prompt"]').value);
+                formData.append('elements', form.querySelector('[name="elements"]').value);
+                formData.append('artStyles', form.querySelector('[name="artStyles"]').value);
+                formData.append('fontstyle', form.querySelector('[name="fontstyle"]').value);
+                formData.append('feel', form.querySelector('[name="feel"]').value);
+                
+                // Get file input
+                const fileInput = form.querySelector('input[type="file"]');
+                if (fileInput && fileInput.files[0]) {
+                    formData.append('image', fileInput.files[0]);
+                }
+
+                const styleId = form.getAttribute('data-style-id');
+                const submitButton = form.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Saving...';
+
+                const response = await fetch(`/api/styles/${styleId}`, {
+                    method: 'PUT',
+                    credentials: 'include',
+                    body: formData
+                });
+                
+                let errorData;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    errorData = await response.json();
+                } else {
+                    const text = await response.text();
+                    console.error('Non-JSON response:', text);
+                    throw new Error('Server error: ' + text);
+                }
+
+                if (!response.ok) {
+                    throw new Error(errorData.error || 'Update failed');
+                }
+                
+                await loadStyles();
+                closeEditModal();
+                alert('Style updated successfully!');
+            } catch (error) {
+                console.error('Error updating style:', error);
+                alert('Failed to update style: ' + error.message);
+            } finally {
+                const submitButton = event.target.querySelector('button[type="submit"]');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Save Changes';
+            }
+        };
+
+        // Load settings
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/settings', {
+                    credentials: 'include'
+                });
+                const settings = await response.json();
+                
+                // Populate form
+                document.getElementById('appName').value = settings.appName || '';
+                document.getElementById('mainTitle').value = settings.mainTitle || '';
+                document.getElementById('useLogoInstead').checked = settings.useLogoInstead || false;
+                
+                // Handle logo preview
+                if (settings.useLogoInstead) {
+                    document.getElementById('logoUploadGroup').style.display = 'block';
+                    if (settings.logoUrl) {
+                        document.getElementById('logoPreview').src = settings.logoUrl;
+                        document.getElementById('logoPreview').style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+
+        // Handle logo checkbox
+        document.getElementById('useLogoInstead').addEventListener('change', function(e) {
+            document.getElementById('logoUploadGroup').style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        // Handle logo file selection
+        document.getElementById('logoFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('logoPreview').src = e.target.result;
+                    document.getElementById('logoPreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Handle settings form submission
+        document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            
+            // Add text fields
+            formData.append('appName', document.getElementById('appName').value);
+            formData.append('mainTitle', document.getElementById('mainTitle').value);
+            
+            // Add checkbox state
+            const useLogoInstead = document.getElementById('useLogoInstead').checked;
+            formData.append('useLogoInstead', useLogoInstead);
+            
+            // Add logo file if it exists and useLogoInstead is checked
+            const logoFile = document.getElementById('logoFile').files[0];
+            if (useLogoInstead && logoFile) {
+                formData.append('logo', logoFile);
+            }
+            
+            try {
+                const response = await fetch('/api/settings', {
+                    method: 'PUT',
+                    credentials: 'include',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to save settings');
+                }
+
+                alert('Settings saved successfully!');
+                window.location.reload();
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                alert('Failed to save settings: ' + error.message);
+            }
+        });
+
+        // Load settings on page load
+        loadSettings();
+
+        // Handle file selection for edit form
+        function handleEditImageChange(event) {
+            const file = event.target.files[0];
+            const fileName = event.target.closest('.form-group').querySelector('.file-name');
+            const preview = document.getElementById('editImagePreview');
+            
+            if (file) {
+                fileName.textContent = file.name;
+                
+                // Create preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.removeProperty('display');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                fileName.textContent = '';
+                preview.style.setProperty('display', 'none');
+            }
+        }
+
+        // Helper function to show messages
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            
+            // Add to page
+            document.querySelector('.container').insertBefore(messageDiv, document.querySelector('.styles-table'));
+            
+            // Remove after 3 seconds
+            setTimeout(() => messageDiv.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Collections</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="module">
+        // Import components
+        import { Toast, showToast } from '/js/components/Toast.js';
+
+        // Make showToast available globally
+        window.showToast = showToast;
+
+        // Simple error notification function as fallback
+        window.showError = function(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.position = 'fixed';
+            errorDiv.style.top = '20px';
+            errorDiv.style.left = '50%';
+            errorDiv.style.transform = 'translateX(-50%)';
+            errorDiv.style.background = '#f44336';
+            errorDiv.style.color = 'white';
+            errorDiv.style.padding = '12px 24px';
+            errorDiv.style.borderRadius = '8px';
+            errorDiv.style.zIndex = '10000';
+            errorDiv.textContent = message;
+
+            document.body.appendChild(errorDiv);
+
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 4000);
+        };
+    </script>
+    <style>
+        body {
+            background: #f8f9fa;
+            color: #333;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+            color: #1f2937;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            color: #1f2937;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .view-btn {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #6b7280;
+        }
+
+        .view-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .view-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        /* Collection Folders Grid */
+        .collections-folders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .collection-folder-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .collection-folder-card:hover {
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .collection-folder-card.selected {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .collection-folder-card.all-images {
+            border-color: #28a745;
+        }
+
+        .collection-folder-card.all-images:hover {
+            border-color: #1e7e34;
+        }
+
+        .collection-folder-card.all-images.selected {
+            border-color: #28a745;
+            background: rgba(40, 167, 69, 0.05);
+        }
+
+        .collection-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .collection-folder-icon {
+            font-size: 1.5rem;
+            color: #007bff;
+        }
+
+        .collection-folder-card.all-images .collection-folder-icon {
+            color: #28a745;
+        }
+
+        .collection-folder-name {
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .collection-folder-count {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .collection-delete-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 10px;
+            opacity: 0;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .collection-folder-card {
+            position: relative;
+        }
+
+        .collection-folder-card:hover .collection-delete-btn {
+            opacity: 1;
+        }
+
+        .collection-delete-btn:hover {
+            background: #dc3545;
+            transform: scale(1.1);
+        }
+
+        /* Collection Images Grid */
+        .collection-images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .collection-images-grid.list-view {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        /* Image Cards */
+        .image-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-card:hover {
+            border-color: #d1d5db;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .image-card.list-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 8px;
+            min-height: 80px;
+        }
+
+        .image-card.list-item:hover {
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-preview {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: url('/images/transp.png') repeat;
+            background-size: 20px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .list-item .image-preview {
+            width: 60px;
+            height: 60px;
+            min-width: 60px;
+            min-height: 60px;
+            border-radius: 6px;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        /* Filter Controls */
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-toggle {
+            display: flex;
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 2px;
+            border: 1px solid #d1d5db;
+        }
+
+        .filter-option {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #6b7280;
+            background: transparent;
+            border: none;
+        }
+
+        .filter-option.active {
+            background: #007bff;
+            color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-option:hover:not(.active) {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        /* Image Info and Actions */
+        .image-info {
+            padding: 1rem;
+        }
+
+        .image-title {
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            color: #1f2937;
+        }
+
+        .image-meta {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin: 0 0 1rem 0;
+        }
+
+        .image-tags {
+            display: flex;
+            gap: 0.25rem;
+            margin: 0.5rem 0;
+        }
+
+        .image-tag {
+            padding: 0.2rem 0.5rem;
+            background: #e5e7eb;
+            color: #374151;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .image-tag.high-res {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .image-tag.transparent {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .image-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid #d1d5db;
+            color: #374151;
+        }
+
+        .btn-outline:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            border: 1px solid #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            border-color: #bd2130;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+            border: 1px solid #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            border-color: #1e7e34;
+        }
+
+        /* List View Styles */
+        .list-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 0;
+        }
+
+        .list-info {
+            flex: 1;
+            min-width: 0;
+            margin-right: 1rem;
+        }
+
+        .list-info h3 {
+            margin: 0 0 0.25rem 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1f2937;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .list-info .image-meta {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #6b7280;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .list-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #9ca3af;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 0.5rem;
+            color: #4b5563;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .collections-folders-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 0.75rem;
+            }
+
+            .collection-images-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+
+            .list-item .image-preview {
+                width: 50px;
+                height: 50px;
+                min-width: 50px;
+                min-height: 50px;
+            }
+
+            .list-info h3 {
+                font-size: 0.9rem;
+            }
+
+            .list-info .image-meta {
+                font-size: 0.75rem;
+            }
+
+            .list-actions {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .list-actions .btn {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.75rem;
+            }
+
+            .image-actions {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .image-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Image Modal Styles */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-modal.show {
+            display: flex;
+        }
+
+        .image-modal-content {
+            position: relative;
+            width: 600px;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .image-modal-preview {
+            width: 600px;
+            height: 600px;
+            background: url('/images/transp.png') repeat;
+            background-size: 20px 20px;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+
+        .image-modal-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .image-modal-controls {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .background-color-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .background-color-control label {
+            font-weight: 500;
+            color: #495057;
+            font-size: 14px;
+        }
+
+        .background-color-picker {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        .background-color-picker:hover {
+            border-color: #007bff;
+        }
+
+        .transparent-btn {
+            padding: 8px 16px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+
+        .transparent-btn:hover {
+            background: #5a6268;
+        }
+
+        .transparent-btn.active {
+            background: #007bff;
+        }
+
+        .color-presets {
+            display: flex;
+            gap: 8px;
+            margin-left: 15px;
+        }
+
+        .color-preset {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: border-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .color-preset:hover {
+            border-color: #007bff;
+            transform: scale(1.1);
+        }
+
+        .color-preset.active {
+            border-color: #007bff;
+            border-width: 3px;
+        }
+
+        .image-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 1001;
+            transition: background 0.2s ease;
+        }
+
+        .image-modal-close:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <div id="topbar"></div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Your Collections</h1>
+            <div class="header-actions">
+                <button class="btn btn-primary" id="createCollectionBtn">
+                    <i class="fas fa-plus"></i>
+                    New Collection
+                </button>
+            </div>
+        </div>
+
+        <!-- Collections Folders Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Collections</h2>
+            </div>
+            <div class="collections-folders-grid" id="collectionsFoldersGrid">
+                <!-- Collection folders will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Collection Images Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title" id="selectedCollectionTitle">All Images</h2>
+                <div class="filter-controls">
+                    <!-- Resolution Filter -->
+                    <div class="filter-group">
+                        <span style="font-size: 0.9rem; color: #6b7280;">Resolution:</span>
+                        <div class="filter-toggle" id="resolutionFilter">
+                            <button class="filter-option active" data-filter="low-res">Low Res</button>
+                            <button class="filter-option" data-filter="high-res">High Res</button>
+                        </div>
+                    </div>
+
+                    <!-- Background Filter -->
+                    <div class="filter-group">
+                        <span style="font-size: 0.9rem; color: #6b7280;">Background:</span>
+                        <div class="filter-toggle" id="backgroundFilter">
+                            <button class="filter-option active" data-filter="normal-bg">Normal BG</button>
+                            <button class="filter-option" data-filter="transparent">Transparent</button>
+                        </div>
+                    </div>
+
+                    <!-- Debug Button -->
+                    <button onclick="debugAllImages()" style="padding: 0.5rem; background: #ff6b6b; color: white; border: none; border-radius: 4px; font-size: 0.8rem;">
+                        Debug Images
+                    </button>
+
+                    <!-- View Toggle -->
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="grid" data-section="images">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button class="view-btn" data-view="list" data-section="images">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="collection-images-grid" id="collectionImagesGrid">
+                <!-- Collection images will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="image-modal" id="imageModal">
+        <div class="image-modal-content">
+            <button class="image-modal-close" onclick="closeImageModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="image-modal-preview" id="imageModalPreview">
+                <img id="modalImage" src="" alt="Image">
+            </div>
+            <div class="image-modal-controls">
+                <div class="background-color-control">
+                    <label for="backgroundColorPicker">Background:</label>
+                    <input type="color" id="backgroundColorPicker" class="background-color-picker" value="#ffffff">
+                    <button class="transparent-btn active" id="transparentBtn" onclick="setTransparentBackground()">
+                        Transparent
+                    </button>
+                </div>
+                <div class="color-presets">
+                    <div class="color-preset" style="background-color: #ffffff;" onclick="setPresetColor('#ffffff')" title="White"></div>
+                    <div class="color-preset" style="background-color: #000000;" onclick="setPresetColor('#000000')" title="Black"></div>
+                    <div class="color-preset" style="background-color: #ff0000;" onclick="setPresetColor('#ff0000')" title="Red"></div>
+                    <div class="color-preset" style="background-color: #00ff00;" onclick="setPresetColor('#00ff00')" title="Green"></div>
+                    <div class="color-preset" style="background-color: #0000ff;" onclick="setPresetColor('#0000ff')" title="Blue"></div>
+                    <div class="color-preset" style="background-color: #ffff00;" onclick="setPresetColor('#ffff00')" title="Yellow"></div>
+                    <div class="color-preset" style="background-color: #ff00ff;" onclick="setPresetColor('#ff00ff')" title="Magenta"></div>
+                    <div class="color-preset" style="background-color: #00ffff;" onclick="setPresetColor('#00ffff')" title="Cyan"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <collection-modal></collection-modal>
+    <toast-notification></toast-notification>
+
+    <script type="module">
+        import { createTopbar } from '/js/components/Topbar.js';
+        import { showToast } from '/js/components/Toast.js';
+        import '/js/components/CollectionModal.js';
+        import '/js/components/Toast.js';
+
+        // Initialize topbar
+        createTopbar();
+
+        // Get DOM elements
+        const collectionsFoldersGrid = document.getElementById('collectionsFoldersGrid');
+        const collectionImagesGrid = document.getElementById('collectionImagesGrid');
+        const selectedCollectionTitle = document.getElementById('selectedCollectionTitle');
+        const createCollectionBtn = document.getElementById('createCollectionBtn');
+        const collectionModal = document.querySelector('collection-modal');
+
+        // State
+        let currentView = 'grid';
+        let selectedCollection = null;
+        let allCollections = [];
+        let allImages = [];
+        let currentFilters = {
+            resolution: 'low-res',
+            background: 'normal-bg'
+        };
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('Collections page loaded');
+
+            // Test authentication first
+            try {
+                const testResponse = await fetch('/api/collections', {
+                    credentials: 'include'
+                });
+                console.log('Auth test response:', testResponse.status);
+                if (testResponse.status === 401) {
+                    console.log('User not authenticated, redirecting to login');
+                    window.location.href = '/auth';
+                    return;
+                }
+            } catch (error) {
+                console.error('Auth test failed:', error);
+            }
+
+            await loadContent();
+            setupEventListeners();
+            setupFilterListeners();
+        });
+
+        function setupEventListeners() {
+            // Create collection button - for now, just test API
+            createCollectionBtn.addEventListener('click', async () => {
+                // Test API response
+                try {
+                    const response = await fetch('/api/collections', {
+                        credentials: 'include'
+                    });
+                    const data = await response.json();
+
+                    // Create a detailed debug display
+                    const debugDiv = document.createElement('div');
+                    debugDiv.style.cssText = `
+                        position: fixed; top: 10px; left: 10px; right: 10px; bottom: 10px;
+                        background: white; border: 2px solid #333; padding: 20px;
+                        overflow: auto; z-index: 10000; font-family: monospace; font-size: 12px;
+                    `;
+                    debugDiv.innerHTML = `
+                        <h3>API Response Debug</h3>
+                        <button onclick="this.parentElement.remove()" style="float: right;">Close</button>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    document.body.appendChild(debugDiv);
+
+                    console.log('Full API response:', data);
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                    console.error('Error testing API:', error);
+                }
+            });
+
+            // View toggle buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const view = e.target.closest('.view-btn').getAttribute('data-view');
+                    setView(view);
+                });
+            });
+
+            // Collection folder selection
+            collectionsFoldersGrid.addEventListener('click', (e) => {
+                const folderCard = e.target.closest('.collection-folder-card');
+                if (folderCard) {
+                    // Update selected state
+                    document.querySelectorAll('.collection-folder-card').forEach(card =>
+                        card.classList.remove('selected'));
+                    folderCard.classList.add('selected');
+
+                    // Load collection images
+                    const collectionId = folderCard.dataset.collectionId;
+                    const collectionName = folderCard.dataset.collectionName;
+                    selectCollection(collectionId, collectionName);
+                }
+            });
+
+            // Listen for collection events
+            window.addEventListener('collectionCreated', loadContent);
+            window.addEventListener('imageAddedToCollection', loadContent);
+        }
+
+        function setupFilterListeners() {
+            // Resolution filter
+            document.querySelectorAll('#resolutionFilter .filter-option').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const filter = e.target.getAttribute('data-filter');
+                    setResolutionFilter(filter);
+                });
+            });
+
+            // Background filter
+            document.querySelectorAll('#backgroundFilter .filter-option').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const filter = e.target.getAttribute('data-filter');
+                    setBackgroundFilter(filter);
+                });
+            });
+        }
+
+        function setResolutionFilter(filter) {
+            currentFilters.resolution = filter;
+
+            // Update button states
+            document.querySelectorAll('#resolutionFilter .filter-option').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-filter') === filter);
+            });
+
+            // Re-display images with new filter
+            displayImages();
+        }
+
+        function setBackgroundFilter(filter) {
+            currentFilters.background = filter;
+
+            // Update button states
+            document.querySelectorAll('#backgroundFilter .filter-option').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-filter') === filter);
+            });
+
+            // Re-display images with new filter
+            displayImages();
+        }
+
+        function setView(view) {
+            currentView = view;
+
+            // Update button states
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-view') === view);
+            });
+
+            // Update grid classes
+            if (view === 'list') {
+                collectionImagesGrid.classList.add('list-view');
+            } else {
+                collectionImagesGrid.classList.remove('list-view');
+            }
+
+            // Re-render images
+            displayImages();
+        }
+
+        async function loadContent() {
+            try {
+                console.log('Loading content...');
+                // Load collections first, then load images
+                await loadCollections();
+                console.log('Collections loaded, now loading images...');
+                await loadAllImages();
+                console.log('Content loading complete');
+            } catch (error) {
+                console.error('Error loading content:', error);
+                showToast('Failed to load content', 'error');
+            }
+        }
+
+        async function loadCollections() {
+            try {
+                console.log('Loading collections...');
+                const response = await fetch('/api/collections', {
+                    credentials: 'include'
+                });
+                if (!response.ok) {
+                    console.error('API response not ok:', response.status, response.statusText);
+                    if (response.status === 401) {
+                        // User not authenticated, redirect to login
+                        window.location.href = '/auth';
+                        return;
+                    }
+                    throw new Error('Failed to load collections');
+                }
+
+                const data = await response.json();
+                console.log('Raw API response:', data);
+                console.log('Response type:', typeof data);
+                console.log('Is array:', Array.isArray(data));
+
+                // Handle both response formats
+                allCollections = Array.isArray(data) ? data : (data.collections || []);
+                console.log('Processed collections:', allCollections);
+                console.log('Collections count:', allCollections.length);
+
+                // Log each collection's structure
+                allCollections.forEach((collection, index) => {
+                    console.log(`Collection ${index}:`, {
+                        id: collection._id,
+                        title: collection.title,
+                        imagesCount: collection.images ? collection.images.length : 0,
+                        images: collection.images
+                    });
+
+                    // Log first image structure for debugging
+                    if (collection.images && collection.images.length > 0) {
+                        console.log(`First image in ${collection.title}:`, collection.images[0]);
+                    }
+                });
+
+                displayCollectionFolders();
+            } catch (error) {
+                console.error('Error loading collections:', error);
+                collectionsFoldersGrid.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><h3>Error loading collections</h3></div>';
+            }
+        }
+
+        async function loadAllImages() {
+            try {
+                console.log('Loading all images from collections...');
+                console.log('Collections to process:', allCollections.length);
+
+                // Load all images from all collections
+                const allImagesFromCollections = [];
+                for (const collection of allCollections) {
+                    console.log(`Processing collection: ${collection.title}`);
+                    console.log(`Collection images:`, collection.images);
+
+                    if (collection.images && collection.images.length > 0) {
+                        console.log(`Found ${collection.images.length} images in ${collection.title}`);
+                        collection.images.forEach((generation, index) => {
+                            console.log(`Processing image ${index}:`, generation);
+
+                            // Check if generation is valid
+                            if (generation && generation._id && generation.imageUrl) {
+                                // Map Generation object to image format
+                                allImagesFromCollections.push({
+                                    _id: generation._id,
+                                    imageUrl: generation.imageUrl,
+                                    name: generation.prompt || 'Untitled',
+                                    prompt: generation.prompt,
+                                    createdAt: generation.createdAt,
+                                    collectionName: collection.title,
+                                    collectionId: collection._id,
+                                    tags: generation.tags || [] // Initialize tags array
+                                });
+                                console.log(`Successfully added image ${index} to allImages`);
+                            } else {
+                                console.error(`Invalid generation object at index ${index}:`, generation);
+                            }
+                        });
+                    } else {
+                        console.log(`No images in collection: ${collection.title}`);
+                    }
+                }
+                allImages = allImagesFromCollections;
+
+                console.log('Loaded all images:', allImages.length, 'images');
+                console.log('All images array:', allImages);
+
+                // Update debug display
+                const debugDiv = document.querySelector('[style*="background: #fff3cd"]');
+                if (debugDiv) {
+                    debugDiv.innerHTML += `<p><strong>After processing:</strong> ${allImages.length} images in allImages array</p>`;
+                }
+
+                // If no collection is selected, show all images
+                if (!selectedCollection) {
+                    selectedCollectionTitle.textContent = 'All Images';
+                    displayImages();
+                }
+            } catch (error) {
+                console.error('Error loading all images:', error);
+            }
+        }
+
+        function displayCollectionFolders() {
+            // Add "All Images" folder first
+            const allImagesCount = allImages.length;
+
+            // Add debug info
+            let debugHTML = `
+                
+            `;
+
+            let foldersHTML = debugHTML + `
+                <div class="collection-folder-card all-images selected"
+                     data-collection-id="all"
+                     data-collection-name="All Images">
+                    <div class="collection-header">
+                        <div class="collection-folder-icon">
+                            <i class="fas fa-images"></i>
+                        </div>
+                        <h3 class="collection-folder-name">All Images</h3>
+                    </div>
+                    <div class="collection-folder-count">${allImagesCount} images</div>
+                </div>
+            `;
+
+            // Add collection folders
+            if (allCollections.length === 0) {
+                foldersHTML += `
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>No collections yet</h3>
+                        <p>Create your first collection to get started</p>
+                    </div>
+                `;
+            } else {
+                foldersHTML += allCollections.map(collection =>
+                    createCollectionFolderCard(collection)
+                ).join('');
+            }
+
+            collectionsFoldersGrid.innerHTML = foldersHTML;
+        }
+
+        function createCollectionFolderCard(collection) {
+            const imageCount = collection.images ? collection.images.length : 0;
+            return `
+                <div class="collection-folder-card"
+                     data-collection-id="${collection._id}"
+                     data-collection-name="${collection.title}">
+                    <button class="collection-delete-btn"
+                            onclick="deleteCollection('${collection._id}', '${collection.title.replace(/'/g, "\\'")}', event)"
+                            title="Delete Collection">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="collection-header">
+                        <div class="collection-folder-icon">
+                            <i class="fas fa-folder"></i>
+                        </div>
+                        <h3 class="collection-folder-name">${collection.title}</h3>
+                    </div>
+                    <div class="collection-folder-count">${imageCount} images</div>
+                </div>
+            `;
+        }
+
+        function selectCollection(collectionId, collectionName) {
+            selectedCollection = collectionId === 'all' ? null : { id: collectionId, name: collectionName };
+            selectedCollectionTitle.textContent = collectionName;
+            displayImages();
+        }
+
+        function displayImages() {
+            let imagesToShow = selectedCollection
+                ? allImages.filter(img => img.collectionId === selectedCollection.id)
+                : allImages;
+
+            // Apply filters
+            imagesToShow = imagesToShow.filter(img => {
+                // Resolution filter
+                const isHighRes = img.tags && img.tags.includes('high-res');
+                const resolutionMatch = currentFilters.resolution === 'high-res' ? isHighRes : !isHighRes;
+
+                // Background filter
+                const isTransparent = img.tags && img.tags.includes('transparent');
+                const backgroundMatch = currentFilters.background === 'transparent' ? isTransparent : !isTransparent;
+
+                console.log(`Filter check for image ${img._id}:`, {
+                    tags: img.tags,
+                    isHighRes,
+                    isTransparent,
+                    currentFilters,
+                    resolutionMatch,
+                    backgroundMatch,
+                    finalMatch: resolutionMatch && backgroundMatch
+                });
+
+                return resolutionMatch && backgroundMatch;
+            });
+
+            console.log('Displaying images:', {
+                selectedCollection,
+                totalImages: allImages.length,
+                filteredImages: imagesToShow.length,
+                filters: currentFilters,
+                images: imagesToShow
+            });
+
+            if (imagesToShow.length === 0) {
+                const emptyMessage = selectedCollection
+                    ? `<div class="empty-state">
+                        <i class="fas fa-images"></i>
+                        <h3>No images in this collection</h3>
+                        <p>Add some images to get started</p>
+                    </div>`
+                    : `<div class="empty-state">
+                        <i class="fas fa-images"></i>
+                        <h3>No images found</h3>
+                        <p>Create collections and add images to get started</p>
+                    </div>`;
+
+                collectionImagesGrid.innerHTML = emptyMessage;
+                return;
+            }
+
+            const isListView = collectionImagesGrid.classList.contains('list-view');
+            collectionImagesGrid.innerHTML = imagesToShow.map(image =>
+                createImageCard(image, isListView)
+            ).join('');
+        }
+
+        function createImageCard(image, isListView = false) {
+            const cardClass = isListView ? 'image-card list-item' : 'image-card';
+            const imageDate = new Date(image.createdAt || Date.now()).toLocaleDateString();
+
+            // Create tags HTML
+            const tags = image.tags || [];
+            const tagsHTML = tags.length > 0 ? `
+                <div class="image-tags">
+                    ${tags.map(tag => {
+                        const tagClass = tag === 'high-res' ? 'image-tag high-res' :
+                                        tag === 'transparent' ? 'image-tag transparent' : 'image-tag';
+                        return `<span class="${tagClass}">${tag}</span>`;
+                    }).join('')}
+                </div>
+            ` : '';
+
+            return `
+                <div class="${cardClass}" data-image-id="${image._id}">
+                    <div class="image-preview">
+                        <img src="${image.imageUrl}" alt="${image.name || 'Image'}" loading="lazy" onclick="openImageModal('${image.imageUrl}')" style="cursor: pointer;">
+                    </div>
+                    ${isListView ? `
+                        <div class="list-content">
+                            <div class="list-info">
+                                <h3>${image.name || 'Untitled'}</h3>
+                                <p class="image-meta">Added ${imageDate} • ${image.collectionName || 'Unknown Collection'}</p>
+                                ${tagsHTML}
+                            </div>
+                            <div class="list-actions">
+                                <button class="btn btn-sm btn-outline" onclick="downloadImage('${image._id}')">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="addToCollection('${image._id}')">
+                                    <i class="fas fa-folder-plus"></i> Add to Collection
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="upscaleImage('${image._id}')">
+                                    <i class="fas fa-expand-arrows-alt"></i> Upscale
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="removeBackground('${image._id}')">
+                                    <i class="fas fa-cut"></i> Remove BG
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="deleteImage('${image._id}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="image-info">
+                            <p class="image-meta">Added ${imageDate} • ${image.collectionName || 'Unknown Collection'}</p>
+                            ${tagsHTML}
+                            <div class="image-actions">
+                                <button class="btn btn-sm btn-outline" onclick="downloadImage('${image._id}')">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="addToCollection('${image._id}')">
+                                    <i class="fas fa-folder-plus"></i> Add to Collection
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="upscaleImage('${image._id}')">
+                                    <i class="fas fa-expand-arrows-alt"></i> Upscale
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="removeBackground('${image._id}')">
+                                    <i class="fas fa-cut"></i> Remove BG
+                                </button>
+                                <button class="btn btn-sm btn-outline" onclick="deleteImage('${image._id}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+        // Action handlers
+        async function upscaleImage(imageId) {
+            console.log('Upscale image:', imageId);
+
+            // Find the original image
+            const originalImage = allImages.find(img => img._id === imageId);
+            if (!originalImage) {
+                showToast('Image not found', 'error');
+                return;
+            }
+
+            // Check if already upscaled
+            if (originalImage.tags && originalImage.tags.includes('high-res')) {
+                showToast('Image is already upscaled', 'warning');
+                return;
+            }
+
+            showToast('Upscaling image...', 'info');
+
+            try {
+                // Get the current image URL and ensure it's absolute and properly encoded
+                let currentUrl = originalImage.imageUrl;
+                if (!currentUrl.startsWith('http')) {
+                    // Convert relative URL to absolute
+                    const a = document.createElement('a');
+                    a.href = currentUrl;
+                    currentUrl = a.href;
+                }
+
+                // Ensure URL is properly encoded
+                try {
+                    currentUrl = new URL(currentUrl).toString();
+                } catch (e) {
+                    console.error('Invalid URL:', currentUrl);
+                    throw new Error('Invalid image URL');
+                }
+
+                console.log('Sending image URL for upscale:', currentUrl);
+
+                const response = await fetch('/api/images/upscale', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        imageUrl: currentUrl,
+                        generationId: originalImage._id
+                    }),
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || data.details || 'Failed to upscale image');
+                }
+
+                const data = await response.json();
+                console.log('Upscale response:', data);
+
+                // Check if we got the expected response format
+                if (!data.imageUrl && !data.url) {
+                    console.error('Invalid upscale response format:', data);
+                    throw new Error('Invalid response format from upscale API');
+                }
+
+                // Use imageUrl or url from response
+                const upscaledUrl = data.imageUrl || data.url;
+                console.log('Using upscaled URL:', upscaledUrl);
+
+                // Update the original image in our local array
+                const imageIndex = allImages.findIndex(img => img._id === imageId);
+                if (imageIndex !== -1) {
+                    allImages[imageIndex].imageUrl = upscaledUrl;
+                    allImages[imageIndex].name = (allImages[imageIndex].name || 'Untitled') + ' [Upscaled]';
+                    allImages[imageIndex].tags = [...(allImages[imageIndex].tags || []), 'high-res'];
+                    console.log('Updated original image in allImages array');
+                }
+
+                // IMPORTANT: Reload collections data from database to get updated tags
+                console.log('Reloading collections data to get updated tags from database...');
+                await loadContent();
+
+                showToast('Image upscaled successfully! The original image has been updated.', 'success');
+
+            } catch (error) {
+                console.error('Error upscaling image:', error);
+                showToast('Failed to upscale image: ' + error.message, 'error');
+            }
+        }
+
+        function addToCollection(imageId) {
+            console.log('Add to collection:', imageId);
+            const image = allImages.find(img => img._id === imageId);
+            if (image && collectionModal) {
+                // Set the image data for the modal
+                collectionModal.setImageData({
+                    imageUrl: image.imageUrl,
+                    prompt: image.prompt || image.name || 'Untitled',
+                    generationId: imageId
+                });
+                // Show the modal
+                collectionModal.show();
+            } else {
+                console.error('Image not found or modal not available:', imageId);
+                showToast('Failed to open collection dialog', 'error');
+            }
+        }
+
+        function downloadImage(imageId) {
+            const image = allImages.find(img => img._id === imageId);
+            if (image && image.imageUrl) {
+                try {
+                    // Use the same download API endpoint as index.html
+                    window.open(`/api/download?imageUrl=${encodeURIComponent(image.imageUrl)}`, '_blank');
+                    showToast('Image download started', 'info');
+                } catch (error) {
+                    console.error('Error downloading image:', error);
+                    showToast('Failed to download image', 'error');
+                }
+            } else {
+                showToast('Image not found', 'error');
+            }
+        }
+
+        function saveToGenerations(imageId) {
+            console.log('Save to generations:', imageId);
+            showToast('Saving to generations...', 'info');
+            // Implement save to generations functionality
+        }
+
+        async function removeBackground(imageId) {
+            console.log('Remove background:', imageId);
+
+            // Find the original image
+            const originalImage = allImages.find(img => img._id === imageId);
+            if (!originalImage) {
+                showToast('Image not found', 'error');
+                return;
+            }
+
+            // Check if background already removed
+            if (originalImage.tags && originalImage.tags.includes('transparent')) {
+                showToast('Background already removed from this image', 'warning');
+                return;
+            }
+
+            showToast('Removing background...', 'info');
+
+            try {
+                // Get the current image URL and ensure it's absolute and properly encoded
+                let currentUrl = originalImage.imageUrl;
+                if (!currentUrl.startsWith('http')) {
+                    // Convert relative URL to absolute using current origin
+                    if (currentUrl.startsWith('/')) {
+                        currentUrl = window.location.origin + currentUrl;
+                    } else {
+                        // For relative paths without leading slash
+                        currentUrl = window.location.origin + '/' + currentUrl;
+                    }
+                    console.log('Converted relative URL to absolute:', currentUrl);
+                }
+
+                // Ensure URL is properly encoded
+                try {
+                    currentUrl = new URL(currentUrl).toString();
+                } catch (e) {
+                    console.error('Invalid URL:', currentUrl);
+                    throw new Error('Invalid image URL');
+                }
+
+                console.log('Sending image URL for background removal:', currentUrl);
+
+                const response = await fetch('/api/images/bgremove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        imageUrl: currentUrl,
+                        generationId: originalImage._id
+                    }),
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || data.details || 'Failed to remove background');
+                }
+
+                const data = await response.json();
+                console.log('Background removal response:', data);
+
+                // Check if we got the expected response format
+                if (!data.imageUrl && !data.url) {
+                    console.error('Invalid background removal response format:', data);
+                    throw new Error('Invalid response format from background removal API');
+                }
+
+                // Use imageUrl or url from response
+                const transparentUrl = data.imageUrl || data.url;
+                console.log('Using transparent URL:', transparentUrl);
+
+                // Update the original image in our local array
+                const imageIndex = allImages.findIndex(img => img._id === imageId);
+                if (imageIndex !== -1) {
+                    allImages[imageIndex].imageUrl = transparentUrl;
+                    allImages[imageIndex].name = (allImages[imageIndex].name || 'Untitled') + ' [BG Removed]';
+                    allImages[imageIndex].tags = [...(allImages[imageIndex].tags || []), 'transparent'];
+                    console.log('Updated original image in allImages array');
+                }
+
+                // IMPORTANT: Reload collections data from database to get updated tags
+                console.log('Reloading collections data to get updated tags from database...');
+                await loadContent();
+
+                showToast('Background removed successfully! The original image has been updated.', 'success');
+
+            } catch (error) {
+                console.error('Error removing background:', error);
+                showToast('Failed to remove background: ' + error.message, 'error');
+            }
+        }
+
+        function editImage(imageId) {
+            console.log('Edit image:', imageId);
+            // Redirect to image editor
+            window.location.href = `/design-editor.html?imageId=${imageId}`;
+        }
+
+
+
+        async function deleteImage(imageId) {
+            if (confirm('Are you sure you want to delete this image?')) {
+                console.log('Delete image:', imageId);
+                showToast('Deleting image...', 'info');
+
+                try {
+                    const response = await fetch(`/api/generations/${imageId}`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Failed to delete image');
+                    }
+
+                    showToast('Image deleted successfully', 'success');
+                    // Reload content to refresh the page
+                    loadContent();
+                } catch (error) {
+                    console.error('Error deleting image:', error);
+                    showToast('Failed to delete image: ' + error.message, 'error');
+                }
+            }
+        }
+
+
+
+        // Debug function
+        function debugAllImages() {
+            console.log('=== DEBUG ALL IMAGES ===');
+            console.log('Total images in allImages:', allImages.length);
+            console.log('Current filters:', currentFilters);
+
+            allImages.forEach((img, index) => {
+                console.log(`Image ${index}:`, {
+                    id: img._id,
+                    name: img.name,
+                    tags: img.tags,
+                    imageUrl: img.imageUrl,
+                    collectionId: img.collectionId,
+                    collectionName: img.collectionName
+                });
+            });
+
+            // Show in alert too
+            const summary = `Total Images: ${allImages.length}\nCurrent Filters: ${JSON.stringify(currentFilters)}\n\nImages:\n${allImages.map((img, i) => `${i+1}. ${img.name} - Tags: [${(img.tags || []).join(', ')}]`).join('\n')}`;
+            alert(summary);
+        }
+
+        // Image Modal Functions
+        function openImageModal(imageUrl) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const backgroundColorPicker = document.getElementById('backgroundColorPicker');
+            const transparentBtn = document.getElementById('transparentBtn');
+
+            modalImage.src = imageUrl;
+            modal.classList.add('show');
+
+            // Reset to transparent background by default
+            setTransparentBackground();
+
+            // Initialize color picker event listener
+            backgroundColorPicker.addEventListener('input', handleBackgroundColorChange);
+
+            // Close modal when clicking outside the image
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeImageModal();
+                }
+            });
+
+            // Close modal with Escape key
+            document.addEventListener('keydown', handleEscapeKey);
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            const backgroundColorPicker = document.getElementById('backgroundColorPicker');
+            modal.classList.remove('show');
+
+            // Remove event listeners
+            backgroundColorPicker.removeEventListener('input', handleBackgroundColorChange);
+            document.removeEventListener('keydown', handleEscapeKey);
+        }
+
+        function handleBackgroundColorChange(e) {
+            const color = e.target.value;
+            setBackgroundColor(color);
+        }
+
+        function setBackgroundColor(color) {
+            const preview = document.getElementById('imageModalPreview');
+            const transparentBtn = document.getElementById('transparentBtn');
+            const backgroundColorPicker = document.getElementById('backgroundColorPicker');
+            const colorPresets = document.querySelectorAll('.color-preset');
+
+            // Set solid background color
+            preview.style.backgroundColor = color;
+            preview.style.backgroundImage = 'none';
+
+            // Update color picker value
+            backgroundColorPicker.value = color;
+
+            // Update button states
+            transparentBtn.classList.remove('active');
+
+            // Update preset button states
+            colorPresets.forEach(preset => {
+                preset.classList.remove('active');
+                if (preset.style.backgroundColor === color || rgbToHex(preset.style.backgroundColor) === color) {
+                    preset.classList.add('active');
+                }
+            });
+        }
+
+        function setTransparentBackground() {
+            const preview = document.getElementById('imageModalPreview');
+            const transparentBtn = document.getElementById('transparentBtn');
+            const colorPresets = document.querySelectorAll('.color-preset');
+
+            // Set transparent pattern background
+            preview.style.backgroundColor = '';
+            preview.style.backgroundImage = "url('/images/transp.png')";
+
+            // Update button states
+            transparentBtn.classList.add('active');
+            colorPresets.forEach(preset => preset.classList.remove('active'));
+        }
+
+        function setPresetColor(color) {
+            setBackgroundColor(color);
+        }
+
+        // Helper function to convert RGB to Hex
+        function rgbToHex(rgb) {
+            if (!rgb || rgb === 'transparent') return '#ffffff';
+
+            const result = rgb.match(/\d+/g);
+            if (!result || result.length < 3) return '#ffffff';
+
+            return '#' + result.slice(0, 3).map(x => {
+                const hex = parseInt(x).toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('');
+        }
+
+        function handleEscapeKey(e) {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
+        }
+
+        async function deleteCollection(collectionId, collectionTitle, event) {
+            // Prevent the card click event from firing
+            event.stopPropagation();
+
+            console.log('Delete collection:', collectionId, collectionTitle);
+
+            // Show confirmation dialog
+            const confirmed = confirm(`Are you sure you want to delete the collection "${collectionTitle}"?\n\nThis action cannot be undone. The images in this collection will not be deleted, but the collection itself will be removed.`);
+
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                showToast('Deleting collection...', 'info');
+
+                const response = await fetch(`/api/collections/${collectionId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Failed to delete collection');
+                }
+
+                const data = await response.json();
+                console.log('Collection deleted successfully:', data);
+
+                showToast(`Collection "${collectionTitle}" deleted successfully!`, 'success');
+
+                // Reload the collections to update the UI
+                await loadContent();
+
+                // If the deleted collection was currently selected, switch to "All Images"
+                if (selectedCollectionId === collectionId) {
+                    selectCollection('all', 'All Images');
+                }
+
+            } catch (error) {
+                console.error('Error deleting collection:', error);
+                showToast('Failed to delete collection: ' + error.message, 'error');
+            }
+        }
+
+        // Make functions globally available
+        window.upscaleImage = upscaleImage;
+        window.addToCollection = addToCollection;
+        window.downloadImage = downloadImage;
+        window.saveToGenerations = saveToGenerations;
+        window.removeBackground = removeBackground;
+        window.editImage = editImage;
+        window.deleteImage = deleteImage;
+        window.deleteCollection = deleteCollection;
+        window.debugAllImages = debugAllImages;
+        window.openImageModal = openImageModal;
+        window.closeImageModal = closeImageModal;
+        window.setTransparentBackground = setTransparentBackground;
+        window.setPresetColor = setPresetColor;
+    </script>
+</body>
+</html>

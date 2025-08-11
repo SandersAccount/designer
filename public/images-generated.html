@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manage Images Generated</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        .inspirations-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            background: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .inspirations-table th,
+        .inspirations-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .inspirations-table th {
+            background: #2a2a2a;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .inspiration-image {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 4px;
+            padding: 0;
+            margin: 0;
+            display: block;
+        }
+
+        .inspirations-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #333;
+            vertical-align: middle;
+        }
+
+        .inspirations-table td:first-child {
+            width: 90px;
+        }
+
+        .actions-cell {
+            width: 150px;
+        }
+
+        .btn-action {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: background 0.2s;
+        }
+
+        .btn-action:hover {
+            background: #444;
+        }
+
+        .btn-edit {
+            background: #2196f3;
+        }
+
+        .btn-edit:hover {
+            background: #0b7dda;
+        }
+
+        .btn-delete {
+            background: #f44336;
+        }
+
+        .btn-delete:hover {
+            background: #d32f2f;
+        }
+
+        .btn-publish {
+            background: #4CAF50;
+        }
+
+        .btn-publish:hover {
+            background: #3e8e41;
+        }
+
+        .btn-unpublish {
+            background: #ff9800;
+        }
+
+        .btn-unpublish:hover {
+            background: #e68a00;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            overflow-y: auto;
+        }
+
+        /* Style for when modal is visible */
+        .modal.visible {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .modal-content {
+            background: #1a1a1a;
+            margin: 5% auto;
+            padding: 2rem;
+            width: 80%;
+            max-width: 800px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 10000;
+        }
+
+        /* Ensure form is visible */
+        #editInspirationForm {
+            display: block !important;
+            position: relative;
+            z-index: 1002;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .close-modal {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-modal:hover {
+            color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .help-text {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #3e8e41;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .order-actions {
+            margin: 1rem 0;
+        }
+
+        .message {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .message.info {
+            background-color: #2196f3;
+            color: white;
+        }
+        
+        .message.success {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .message.error {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tag {
+            background: #333;
+            color: #fff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .published-badge {
+            background: #4CAF50;
+            color: #fff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+
+        .unpublished-badge {
+            background: #f44336;
+            color: #fff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+
+        .text-highlight {
+            background: rgba(255, 255, 0, 0.2);
+            padding: 0 3px;
+            border-radius: 3px;
+        }
+
+        .variable-marker {
+            display: inline-block;
+            padding: 2px 5px;
+            margin: 0 2px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            font-family: monospace;
+        }
+
+        .object-variable {
+            background: rgba(33, 150, 243, 0.2);
+            border: 1px solid rgba(33, 150, 243, 0.5);
+        }
+
+        .text-variable {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+
+        .preview-section {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #222;
+            border-radius: 4px;
+        }
+
+        .preview-prompt {
+            font-family: monospace;
+            white-space: pre-wrap;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #333;
+            border-radius: 4px;
+            line-height: 1.5;
+        }
+
+        .color-palette-container {
+            margin-bottom: 1.5rem;
+        }
+        
+        .color-palette-container label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .palette-message {
+            margin-top: 0.5rem;
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .prompt-controls {
+            margin-bottom: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .prompt-controls .btn-action {
+            margin: 0;
+        }
+
+        #promptPreviewContainer {
+            margin-top: 15px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 10px;
+            background: #222;
+        }
+
+        #promptPreviewContainer p {
+            margin: 0 0 8px 0;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .prompt-preview {
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .highlight-object {
+            background-color: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            border-radius: 3px;
+            padding: 0 3px;
+            color: #8bc34a;
+        }
+
+        .highlight-text {
+            background-color: rgba(33, 150, 243, 0.2);
+            border: 1px solid rgba(33, 150, 243, 0.5);
+            border-radius: 3px;
+            padding: 0 3px;
+            color: #64b5f6;
+        }
+
+        .highlight-color {
+            background-color: rgba(255, 152, 0, 0.2);
+            border: 1px solid rgba(255, 152, 0, 0.5);
+            border-radius: 3px;
+            padding: 0 3px;
+            color: #ffb74d;
+        }
+
+        .palette-message {
+            margin-top: 5px;
+            color: #999;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="topbar"></div>
+    
+    <div class="container">
+        <div class="header-actions">
+            <h1>Manage Images Generated</h1>
+            <a href="/inspiration.html" class="btn-primary">View Public Gallery</a>
+        </div>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="order-actions">
+            <button id="saveOrderButton" onclick="saveOrder()" class="btn-primary" style="display: none;">Save Order</button>
+        </div>
+
+        <table class="inspirations-table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Object</th>
+                    <th>Model</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="inspirationsTableBody">
+                <!-- Inspirations will be loaded here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Edit Inspiration Modal -->
+    <div id="editInspirationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Inspiration</h2>
+                <span class="close-modal" onclick="closeEditModal()">&times;</span>
+            </div>
+            <form id="editInspirationForm">
+                <input type="hidden" id="inspirationId" name="id">
+                
+                <div class="form-group">
+                    <label for="imageUrl">Image URL</label>
+                    <input type="text" id="imageUrl" name="imageUrl" class="form-control" readonly>
+                    <div class="preview-section">
+                        <img id="imagePreview" src="" alt="Inspiration Preview" style="max-width: 200px; max-height: 200px;">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="model">Model</label>
+                    <input type="text" id="model" name="model" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="prompt">Prompt</label>
+                    <div class="prompt-controls">
+                        <button type="button" class="btn-action" onclick="addObjectPlaceholder()">Add [input-object]</button>
+                        <button type="button" class="btn-action" onclick="addTextPlaceholder()">Add [input-text-1]</button>
+                        <button type="button" class="btn-action" onclick="addPalettePlaceholder()">Add [palette]</button>
+                    </div>
+                    <textarea id="prompt" name="prompt" rows="8" class="form-control" oninput="updatePromptPreview()"></textarea>
+                    <div id="promptPreviewContainer">
+                        <p>Preview:</p>
+                        <div id="promptPreview" class="prompt-preview"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="object">Object</label>
+                    <input type="text" id="object" name="object" class="form-control">
+                    <div class="help-text">
+                        The main object in the prompt that users will replace.
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="textValues">Text Variables (one per line)</label>
+                    <textarea id="textValues" name="textValues" rows="3" class="form-control"></textarea>
+                    <small class="form-text text-muted">Text values that users will be able to replace. Enter one per line.</small>
+                </div>
+                
+                <div class="form-group color-palette-container">
+                    <label for="colorPalette">Color Palette</label>
+                    <div id="colorPaletteContainer"></div>
+                    <small class="form-text text-muted">The color palette used in this design. Users will be able to change this.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="originalPalette">Original Palette Description</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="originalPalette" name="originalPalette" class="form-control" placeholder="e.g., dark navy blue, muted burnt orange, and desaturated off-white" style="flex: 1;">
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="addPalettePlaceholder()">
+                            Add [palette] Placeholder
+                        </button>
+                    </div>
+                    <div class="help-text">
+                        The original color palette description. Use [palette] in your prompt to mark where this should be inserted.
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tags">Tags (comma separated)</label>
+                    <input type="text" id="tags" name="tags" class="form-control" placeholder="e.g., animal, cartoon, colorful">
+                </div>
+                
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <input type="number" id="priority" name="priority" class="form-control" min="0" value="0">
+                    <div class="help-text">
+                        Higher priority inspirations will be shown first in the gallery.
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">Admin Notes</label>
+                    <textarea id="notes" name="notes" class="form-control" rows="2" placeholder="Internal notes for admins"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="published">Published Status</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="published" name="published" style="width: auto;">
+                        <label for="published" style="margin: 0;">Make this inspiration visible to users</label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Global functions for HTML onclick attributes
+        function closeEditModal() {
+            document.getElementById('editInspirationModal').classList.remove('visible');
+        }
+        
+        function editInspiration(id) {
+            console.log('Edit inspiration clicked for ID:', id);
+            const modal = document.getElementById('editInspirationModal');
+
+            // Show loading state first
+            const form = document.getElementById('editInspirationForm');
+            form.style.display = 'block';
+
+            // Clear form fields to show loading state
+            document.getElementById('inspirationId').value = '';
+            document.getElementById('prompt').value = 'Loading...';
+            document.getElementById('object').value = 'Loading...';
+            document.getElementById('model').value = 'Loading...';
+            document.getElementById('textValues').value = '';
+            document.getElementById('tags').value = '';
+            document.getElementById('priority').value = '';
+            document.getElementById('notes').value = '';
+            document.getElementById('published').checked = false;
+            document.getElementById('originalPalette').value = '';
+
+            // Show modal immediately with loading state
+            modal.classList.add('visible');
+            modal.style.display = 'block';
+            modal.style.visibility = 'visible';
+            modal.style.opacity = '1';
+
+            // Load data asynchronously and populate form
+            window.editInspirationImpl(id);
+        }
+        
+        function togglePublishStatus(id, publishStatus) {
+            window.togglePublishStatusImpl(id, publishStatus);
+        }
+        
+        function deleteInspiration(id) {
+            window.deleteInspirationImpl(id);
+        }
+        
+        function saveOrder() {
+            window.saveOrderImpl();
+        }
+        
+        function showEditModalAlternative(id) {
+            console.log('Showing alternative edit modal for ID:', id);
+
+            // Remove any existing overlay
+            const existingOverlay = document.getElementById('editModalOverlay');
+            if (existingOverlay) {
+                document.body.removeChild(existingOverlay);
+            }
+
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'editModalOverlay';
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+            overlay.style.zIndex = '99999';
+            overlay.style.display = 'flex';
+            overlay.style.justifyContent = 'center';
+            overlay.style.alignItems = 'center';
+
+            // Get the original modal content
+            const originalContent = document.querySelector('#editInspirationModal .modal-content').cloneNode(true);
+            originalContent.style.display = 'block';
+            originalContent.style.position = 'relative';
+            originalContent.style.zIndex = '100000';
+            originalContent.style.maxHeight = '90vh';
+            originalContent.style.overflowY = 'auto';
+            
+            // Add close button functionality
+            const closeBtn = originalContent.querySelector('.close-modal');
+            closeBtn.onclick = function() {
+                document.body.removeChild(overlay);
+            };
+            
+            // Add form submission handler
+            const form = originalContent.querySelector('#editInspirationForm');
+            form.onsubmit = async function(event) {
+                event.preventDefault();
+                
+                try {
+                    const formId = form.querySelector('#inspirationId').value;
+                    const model = form.querySelector('#model').value;
+                    const prompt = form.querySelector('#prompt').value;
+                    const object = form.querySelector('#object').value;
+                    const textValuesText = form.querySelector('#textValues').value;
+                    const textValues = textValuesText.split('\n').filter(text => text.trim() !== '');
+                    const tagsText = form.querySelector('#tags').value;
+                    const tags = tagsText.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+                    const priority = parseInt(form.querySelector('#priority').value) || 0;
+                    const notes = form.querySelector('#notes').value;
+                    const published = form.querySelector('#published').checked;
+                    const originalPalette = form.querySelector('#originalPalette').value;
+
+                    // Get color palette data from the cloned form
+                    const colorPaletteSelector = form.querySelector('color-palette-selector');
+                    const colorPalette = colorPaletteSelector ? colorPaletteSelector.selectedPalette : null;
+
+                    const data = {
+                        model,
+                        prompt,
+                        object,
+                        textValues,
+                        textCount: textValues.length,
+                        tags,
+                        priority,
+                        notes,
+                        published,
+                        originalPalette,
+                        colorPalette: colorPalette ? {
+                            id: colorPalette.id,
+                            name: colorPalette.name,
+                            description: colorPalette.description
+                        } : null
+                    };
+                    
+                    if (!formId) {
+                        throw new Error('No inspiration ID found');
+                    }
+
+                    const response = await fetch(`/api/inspirations/${formId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data),
+                        credentials: 'include'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to update inspiration');
+                    }
+
+                    // Close the modal first
+                    document.body.removeChild(overlay);
+
+                    // Show success message using the global function
+                    if (typeof window.showMessage === 'function') {
+                        window.showMessage('Inspiration updated successfully!', 'success');
+                    } else {
+                        alert('Inspiration updated successfully!');
+                    }
+
+                    // Wait a moment then reload inspirations to ensure the save completed
+                    setTimeout(() => {
+                        if (typeof loadInspirations === 'function') {
+                            loadInspirations();
+                        } else {
+                            // Fallback: reload the page
+                            window.location.reload();
+                        }
+                    }, 500);
+
+                } catch (error) {
+                    console.error('Error saving edited inspiration:', error);
+                    if (typeof window.showMessage === 'function') {
+                        window.showMessage('Failed to save changes. Please try again.', 'error');
+                    } else {
+                        alert('Failed to save changes. Please try again.');
+                    }
+                }
+            };
+            
+            // Setup prompt preview update
+            const promptInput = form.querySelector('#prompt');
+            const objectInput = form.querySelector('#object');
+            const textValuesInput = form.querySelector('#textValues');
+            const previewDiv = form.querySelector('#promptPreview');
+            
+            const updatePreview = function() {
+                const promptText = promptInput.value;
+                const objectText = objectInput.value;
+                const textValues = textValuesInput.value.split('\n').filter(text => text.trim() !== '');
+                
+                let previewText = promptText;
+                
+                if (objectText && promptText.includes(objectText)) {
+                    previewText = previewText.replace(
+                        new RegExp(objectText, 'g'),
+                        `<span class="highlight-object">${objectText}</span>`
+                    );
+                }
+                
+                textValues.forEach(text => {
+                    if (text && promptText.includes(text)) {
+                        previewText = previewText.replace(
+                            new RegExp(text, 'g'),
+                            `<span class="highlight-text">${text}</span>`
+                        );
+                    }
+                });
+                
+                previewDiv.innerHTML = previewText;
+            };
+            
+            promptInput.addEventListener('input', updatePreview);
+            objectInput.addEventListener('input', updatePreview);
+            textValuesInput.addEventListener('input', updatePreview);
+            
+            // Show loading state in the cloned form
+            const clonedForm = originalContent.querySelector('#editInspirationForm');
+            if (clonedForm) {
+                const fields = {
+                    '#inspirationId': '',
+                    '#prompt': 'Loading...',
+                    '#object': 'Loading...',
+                    '#model': 'Loading...',
+                    '#textValues': '',
+                    '#tags': '',
+                    '#priority': '',
+                    '#notes': '',
+                    '#originalPalette': ''
+                };
+
+                Object.entries(fields).forEach(([selector, value]) => {
+                    const field = clonedForm.querySelector(selector);
+                    if (field) field.value = value;
+                });
+
+                const publishedField = clonedForm.querySelector('#published');
+                if (publishedField) publishedField.checked = false;
+            }
+
+            // Add the content to the overlay
+            overlay.appendChild(originalContent);
+
+            // Add the overlay to the body
+            document.body.appendChild(overlay);
+
+            // Call the implementation to populate the form
+            window.editInspirationImpl(id);
+        }
+    </script>
+    
+    <script type="module">
+        import { createTopbar } from '/js/components/Topbar.js';
+        import { createColorPaletteSelector } from '/js/components/ColorPaletteSelector.js';
+        import { extractColorDescription, findClosestPalette } from '/js/data/colorPalettes.js';
+
+        // Initialize topbar
+        createTopbar();
+        
+        // Load all inspirations when page loads
+        document.addEventListener('DOMContentLoaded', loadInspirations);
+        
+        // Add event listener for edit form submission
+        document.getElementById('editInspirationForm').addEventListener('submit', saveEditedInspiration);
+        
+        // Function to load all inspirations
+        async function loadInspirations() {
+            try {
+                const response = await fetch('/api/inspirations/admin', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load inspirations');
+                }
+                
+                const inspirations = await response.json();
+                
+                const tableBody = document.getElementById('inspirationsTableBody');
+                tableBody.innerHTML = '';
+                
+                inspirations.forEach(inspiration => {
+                    const row = document.createElement('tr');
+                    row.dataset.inspirationId = inspiration._id;
+                    row.innerHTML = `
+                        <td>
+                            <img src="${inspiration.imageUrl}" alt="Inspiration" class="inspiration-image">
+                        </td>
+                        <td>
+                            <strong>${inspiration.object}</strong>
+                            <div class="tag-list">
+                                ${inspiration.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            </div>
+                        </td>
+                        <td>${inspiration.model}</td>
+                        <td>
+                            ${inspiration.published 
+                                ? '<span class="published-badge">Published</span>' 
+                                : '<span class="unpublished-badge">Draft</span>'}
+                        </td>
+                        <td>${inspiration.priority}</td>
+                        <td class="actions-cell">
+                            <button class="btn-action btn-edit" onclick="showEditModalAlternative('${inspiration._id}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn-action ${inspiration.published ? 'btn-unpublish' : 'btn-publish'}" 
+                                onclick="togglePublishStatus('${inspiration._id}', ${!inspiration.published})">
+                                <i class="fas fa-${inspiration.published ? 'eye-slash' : 'eye'}"></i> 
+                                ${inspiration.published ? 'Unpublish' : 'Publish'}
+                            </button>
+                            <button class="btn-action btn-delete" onclick="deleteInspiration('${inspiration._id}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                            <button class="btn-action btn-send" onclick="sendToEditor('${inspiration._id}')" title="Send to Design Editor">
+                                <i class="fas fa-paper-plane"></i> Send
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                
+                // Make table rows draggable for reordering
+                makeTableRowsDraggable();
+                
+            } catch (error) {
+                console.error('Error loading inspirations:', error);
+                showMessage('Failed to load inspirations. Please try again.', 'error');
+            }
+        }
+        
+        // Function to make table rows draggable
+        function makeTableRowsDraggable() {
+            const tableBody = document.getElementById('inspirationsTableBody');
+            const rows = Array.from(tableBody.querySelectorAll('tr'));
+            
+            rows.forEach(row => {
+                row.draggable = true;
+                
+                row.addEventListener('dragstart', e => {
+                    e.dataTransfer.setData('text/plain', row.dataset.inspirationId);
+                    row.classList.add('dragging');
+                });
+                
+                row.addEventListener('dragend', () => {
+                    row.classList.remove('dragging');
+                    document.getElementById('saveOrderButton').style.display = 'block';
+                });
+                
+                row.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    const draggingRow = document.querySelector('.dragging');
+                    if (draggingRow !== row) {
+                        const rect = row.getBoundingClientRect();
+                        const y = e.clientY;
+                        const midpoint = rect.y + rect.height / 2;
+                        
+                        if (y < midpoint) {
+                            tableBody.insertBefore(draggingRow, row);
+                        } else {
+                            tableBody.insertBefore(draggingRow, row.nextSibling);
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Function to save the order of inspirations
+        window.saveOrderImpl = async function() {
+            const rows = Array.from(document.querySelectorAll('.inspirations-table tbody tr'));
+            const newOrder = rows.map((row, index) => ({
+                id: row.dataset.inspirationId,
+                priority: rows.length - index // Higher priority = higher in the list
+            }));
+            
+            try {
+                // Update each inspiration's priority
+                for (const item of newOrder) {
+                    await fetch(`/api/inspirations/${item.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ priority: item.priority }),
+                        credentials: 'include'
+                    });
+                }
+                
+                showMessage('Inspiration order saved successfully!', 'success');
+                document.getElementById('saveOrderButton').style.display = 'none';
+                
+                // Reload inspirations to reflect the new order
+                loadInspirations();
+                
+            } catch (error) {
+                console.error('Error saving order:', error);
+                showMessage('Failed to save order. Please try again.', 'error');
+            }
+        };
+        
+        // Function to edit an inspiration
+        window.editInspirationImpl = async function(id) {
+            try {
+                console.log('Fetching inspiration data for ID:', id);
+                const response = await fetch(`/api/inspirations/${id}`, {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch inspiration data');
+                }
+                
+                const inspiration = await response.json();
+                console.log('Inspiration data:', inspiration);
+                
+                // Populate form fields - handle both original modal and alternative modal
+                // Try to find fields in the alternative modal first, then fallback to original modal
+                const getField = (id) => {
+                    return document.querySelector(`#editModalOverlay ${id}`) || document.getElementById(id.substring(1));
+                };
+
+                const inspirationIdField = getField('#inspirationId');
+                const promptField = getField('#prompt');
+                const objectField = getField('#object');
+
+                console.log('Found fields:', {
+                    inspirationIdField: !!inspirationIdField,
+                    promptField: !!promptField,
+                    objectField: !!objectField
+                });
+
+                if (inspirationIdField) {
+                    inspirationIdField.value = inspiration._id;
+                    console.log('Set inspiration ID:', inspiration._id);
+                }
+                if (promptField) {
+                    promptField.value = inspiration.prompt || '';
+                    console.log('Set prompt:', inspiration.prompt?.substring(0, 50) + '...');
+                }
+                if (objectField) {
+                    objectField.value = inspiration.object || '';
+                    console.log('Set object:', inspiration.object);
+                }
+
+                // Set the image URL and preview
+                const imageUrlField = getField('#imageUrl');
+                const imagePreview = getField('#imagePreview');
+
+                if (imageUrlField && imagePreview) {
+                    if (inspiration.imageUrl) {
+                        imageUrlField.value = inspiration.imageUrl;
+                        imagePreview.src = inspiration.imageUrl;
+                        imagePreview.style.display = 'block';
+                        console.log('Set image URL and preview');
+                    } else {
+                        imageUrlField.value = '';
+                        imagePreview.src = '';
+                        imagePreview.style.display = 'none';
+                    }
+                }
+                
+                // Set the model
+                const modelField = getField('#model');
+                if (modelField) {
+                    modelField.value = inspiration.model || 'flux-stickers';
+                    console.log('Set model:', inspiration.model || 'flux-stickers');
+                }
+
+                // Handle text values
+                const textValuesField = getField('#textValues');
+                if (textValuesField) {
+                    if (inspiration.textValues && Array.isArray(inspiration.textValues)) {
+                        textValuesField.value = inspiration.textValues.join('\n');
+                        console.log('Set text values:', inspiration.textValues);
+                    } else {
+                        textValuesField.value = '';
+                    }
+                }
+                
+                // Handle color palette
+                let paletteId = 'default';
+                
+                try {
+                    // If the inspiration already has a color palette, use it
+                    if (inspiration.colorPalette && inspiration.colorPalette.id) {
+                        paletteId = inspiration.colorPalette.id;
+                    } else {
+                        // Otherwise, try to extract color description from the prompt
+                        const colorDescription = extractColorDescription(inspiration.prompt || '');
+                        
+                        if (colorDescription) {
+                            const closestPalette = findClosestPalette(colorDescription);
+                            
+                            if (closestPalette && closestPalette.id) {
+                                paletteId = closestPalette.id;
+                            }
+                        }
+                        
+                        // Store the color description for later use
+                        const promptEl = document.getElementById('prompt');
+                        if (promptEl) {
+                            promptEl.dataset.colorDescription = colorDescription || '';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error handling color palette:', error);
+                    // Continue with default palette
+                }
+                
+                // Create or update color palette selector
+                const colorPaletteContainer = getField('#colorPaletteContainer');
+                if (colorPaletteContainer) {
+                    colorPaletteContainer.innerHTML = ''; // Clear previous selector
+                    console.log('Found color palette container');
+                    
+                    const colorSelector = createColorPaletteSelector(
+                        'colorPaletteContainer',
+                        paletteId,
+                        (palette) => {
+                            // Update the prompt with the new color palette
+                            updatePromptWithColorPalette(palette);
+                        }
+                    );
+
+                    // Connect the original palette input to the color selector
+                    const originalPaletteInput = getField('#originalPalette');
+                    if (originalPaletteInput && colorSelector) {
+                        // Set initial value if exists
+                        const currentValue = originalPaletteInput.value;
+                        if (currentValue) {
+                            colorSelector.setOriginalPaletteDescription(currentValue);
+                        }
+
+                        // Add event listener for future changes
+                        originalPaletteInput.addEventListener('input', function(e) {
+                            const description = e.target.value.trim();
+                            colorSelector.setOriginalPaletteDescription(description);
+                            console.log('Admin original palette description updated:', description);
+                        });
+                    }
+                }
+                
+                // Handle tags
+                const tagsField = getField('#tags');
+                if (tagsField) {
+                    if (inspiration.tags && Array.isArray(inspiration.tags)) {
+                        tagsField.value = inspiration.tags.join(', ');
+                        console.log('Set tags:', inspiration.tags);
+                    } else {
+                        tagsField.value = '';
+                    }
+                }
+
+                // Handle priority
+                const priorityField = getField('#priority');
+                if (priorityField) {
+                    priorityField.value = inspiration.priority || 0;
+                    console.log('Set priority:', inspiration.priority || 0);
+                }
+
+                // Handle notes
+                const notesField = getField('#notes');
+                if (notesField) {
+                    notesField.value = inspiration.notes || '';
+                    console.log('Set notes:', inspiration.notes || '(empty)');
+                }
+
+                // Handle published status
+                const publishedField = getField('#published');
+                if (publishedField) {
+                    publishedField.checked = inspiration.published || false;
+                    console.log('Set published:', inspiration.published || false);
+                }
+                
+                // Handle original palette
+                const originalPaletteField = getField('#originalPalette');
+                if (originalPaletteField) {
+                    // If we already have an originalPalette value, use it
+                    if (inspiration.originalPalette) {
+                        originalPaletteField.value = inspiration.originalPalette;
+                        console.log('Using existing originalPalette:', inspiration.originalPalette);
+                    } 
+                    // Otherwise try to extract it from the prompt
+                    else {
+                        try {
+                            // Try to extract color description from the prompt
+                            const result = extractColorDescription(inspiration.prompt || '');
+                            if (result && result.colorDescription) {
+                                originalPaletteField.value = result.colorDescription;
+                                console.log('Extracted originalPalette from prompt:', result.colorDescription);
+                                
+                                // If the prompt contains the exact problematic text from the screenshot
+                                if (inspiration.prompt && inspiration.prompt.includes('The color palette is strictly limited to dark navy blue, bright orange, and desaturated cream')) {
+                                    originalPaletteField.value = 'dark navy blue, bright orange, and desaturated cream';
+                                    console.log('Found exact problematic palette text, using it as originalPalette');
+                                }
+                            } else {
+                                originalPaletteField.value = '';
+                                console.log('No color description found in prompt');
+                            }
+                        } catch (error) {
+                            console.error('Error extracting color description:', error);
+                            originalPaletteField.value = '';
+                        }
+                    }
+                    
+                    // Add a change event listener to update the prompt when originalPalette changes
+                    originalPaletteField.addEventListener('change', function() {
+                        updatePromptWithOriginalPalette(this.value);
+                    });
+                }
+                
+                // Update the preview - ensure this happens after all fields are populated
+                setTimeout(() => {
+                    updatePromptPreview();
+                    console.log('Preview updated via setTimeout');
+                }, 100);
+                
+            } catch (error) {
+                console.error('Error loading inspiration for edit:', error);
+                showMessage('Failed to load inspiration details. Please try again.', 'error');
+            }
+        }
+        
+        // Function to save edited inspiration
+        async function saveEditedInspiration(event) {
+            event.preventDefault();
+
+            try {
+                const id = document.getElementById('inspirationId').value;
+                const prompt = document.getElementById('prompt').value;
+                const object = document.getElementById('object').value;
+                const model = document.getElementById('model').value;
+                const textValuesText = document.getElementById('textValues').value;
+                const textValues = textValuesText.split('\n').filter(text => text.trim() !== '');
+                const tagsText = document.getElementById('tags').value;
+                const tags = tagsText.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+                const priority = parseInt(document.getElementById('priority').value) || 0;
+                const notes = document.getElementById('notes').value;
+                const published = document.getElementById('published').checked;
+                const originalPalette = document.getElementById('originalPalette').value;
+
+                // Get color palette data
+                const colorPaletteSelector = document.querySelector('color-palette-selector');
+                const colorPalette = colorPaletteSelector ? colorPaletteSelector.selectedPalette : null;
+
+                const response = await fetch(`/api/inspirations/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model,
+                        prompt,
+                        object,
+                        textValues,
+                        textCount: textValues.length,
+                        tags,
+                        priority,
+                        notes,
+                        published,
+                        originalPalette,
+                        colorPalette: colorPalette ? {
+                            id: colorPalette.id,
+                            name: colorPalette.name,
+                            description: colorPalette.description
+                        } : null
+                    }),
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update inspiration');
+                }
+
+                // Show success message
+                showMessage('Inspiration updated successfully', 'success');
+
+                // Close modal first
+                closeEditModal();
+
+                // Wait a moment then refresh data to ensure the save completed
+                setTimeout(() => {
+                    loadInspirations();
+                }, 500);
+
+            } catch (error) {
+                console.error('Error saving inspiration:', error);
+                showMessage('Failed to update inspiration: ' + error.message, 'error');
+            }
+        }
+        
+        // Function to update the prompt preview with highlighted variables
+        function updatePromptPreview() {
+            console.log('Updating prompt preview');
+
+            // Helper function to get fields from either modal
+            const getField = (id) => {
+                return document.querySelector(`#editModalOverlay ${id}`) || document.getElementById(id.substring(1));
+            };
+
+            // Handle both original modal and alternative modal
+            const promptField = getField('#prompt');
+            const objectField = getField('#object');
+            const textValuesField = getField('#textValues');
+            const originalPaletteField = getField('#originalPalette');
+
+            if (!promptField) {
+                console.error('Prompt field not found!');
+                return;
+            }
+
+            const prompt = promptField.value;
+            const object = objectField ? objectField.value : '';
+            const textValuesText = textValuesField ? textValuesField.value : '';
+            const textValues = textValuesText.split('\n').filter(t => t.trim() !== '');
+            const originalPalette = originalPaletteField ? originalPaletteField.value : '';
+
+            // Get color palette
+            const colorPaletteSelector = document.querySelector('#editModalOverlay color-palette-selector') || document.querySelector('color-palette-selector');
+            const colorPalette = colorPaletteSelector ? colorPaletteSelector.selectedPalette : null;
+            console.log('Color Palette:', colorPalette);
+
+            // Create a preview element
+            const previewEl = getField('#promptPreview');
+            console.log('Preview Element:', previewEl);
+            
+            if (previewEl) {
+                let previewPrompt = prompt;
+                
+                // Highlight object placeholder
+                previewPrompt = previewPrompt.replace(
+                    /\[input-object\]/g, 
+                    '<span class="highlight-object">[input-object]</span>'
+                );
+                
+                // Highlight text placeholders
+                previewPrompt = previewPrompt.replace(
+                    /\[input-text-\d+\]/g,
+                    match => `<span class="highlight-text">${match}</span>`
+                );
+                
+                // Highlight object
+                if (object && object.trim() !== '') {
+                    try {
+                        const escapedObject = object.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        previewPrompt = previewPrompt.replace(
+                            new RegExp(`\\b${escapedObject}\\b`, 'gi'), 
+                            `<span class="highlight-object">${object}</span>`
+                        );
+                    } catch (error) {
+                        console.error('Error highlighting object:', error);
+                    }
+                }
+                
+                // Highlight text values
+                textValues.forEach(text => {
+                    if (text && text.trim() !== '') {
+                        try {
+                            const escapedText = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                            previewPrompt = previewPrompt.replace(
+                                new RegExp(`\\b${escapedText}\\b`, 'gi'), 
+                                `<span class="highlight-text">${text}</span>`
+                            );
+                        } catch (error) {
+                            console.error('Error highlighting text value:', error, text);
+                        }
+                    }
+                });
+                
+                // Highlight [palette] placeholder or original palette
+                if (previewPrompt.includes('[palette]')) {
+                    previewPrompt = previewPrompt.replace(
+                        /\[palette\]/g,
+                        `<span class="highlight-color">[palette]</span>`
+                    );
+                    
+                    // Show a message about what will be used
+                    const paletteValue = originalPalette && originalPalette.trim() !== '' 
+                        ? originalPalette 
+                        : (colorPalette ? colorPalette.description : 'default palette');
+                    
+                    const paletteMsg = document.createElement('div');
+                    paletteMsg.className = 'palette-message';
+                    paletteMsg.innerHTML = `<small><em>Note: [palette] will be replaced with: "${paletteValue}"</em></small>`;
+                    
+                    // Add or update the message
+                    const existingMsg = previewEl.parentNode.querySelector('.palette-message');
+                    if (existingMsg) {
+                        previewEl.parentNode.replaceChild(paletteMsg, existingMsg);
+                    } else {
+                        previewEl.parentNode.insertBefore(paletteMsg, previewEl.nextSibling);
+                    }
+                    
+                } else if (originalPalette && originalPalette.trim() !== '') {
+                    try {
+                        const escapedPalette = originalPalette.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        previewPrompt = previewPrompt.replace(
+                            new RegExp(escapedPalette, 'gi'),
+                            `<span class="highlight-color">${originalPalette}</span>`
+                        );
+                    } catch (error) {
+                        console.error('Error highlighting original palette:', error);
+                    }
+                    
+                    // Remove any existing palette message
+                    const existingMsg = previewEl.parentNode.querySelector('.palette-message');
+                    if (existingMsg) {
+                        previewEl.parentNode.removeChild(existingMsg);
+                    }
+                } else if (colorPalette) {
+                    try {
+                        const escapedDesc = colorPalette.description.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        previewPrompt = previewPrompt.replace(
+                            new RegExp(escapedDesc, 'gi'),
+                            `<span class="highlight-color">${colorPalette.description}</span>`
+                        );
+                    } catch (error) {
+                        console.error('Error highlighting color palette description:', error);
+                    }
+                    
+                    // Remove any existing palette message
+                    const existingMsg = previewEl.parentNode.querySelector('.palette-message');
+                    if (existingMsg) {
+                        previewEl.parentNode.removeChild(existingMsg);
+                    }
+                }
+                
+                previewEl.innerHTML = previewPrompt;
+            } else {
+                console.error('promptPreview element not found!');
+            }
+        }
+        
+        /**
+         * Update the prompt with the selected color palette
+         * @param {Object} palette - The selected color palette
+         */
+        function updatePromptWithColorPalette(palette) {
+            const promptEl = document.getElementById('prompt');
+            const modifiedPrompt = promptEl.dataset.modifiedPrompt;
+            const colorDescription = promptEl.dataset.colorDescription;
+            
+            if (modifiedPrompt && palette) {
+                // Replace the color palette placeholder with the new palette description
+                promptEl.value = modifiedPrompt.replace('[COLOR_PALETTE]', palette.description);
+                updatePromptPreview();
+            } else if (colorDescription && palette) {
+                // If we don't have a modified prompt but we do have a color description,
+                // try to replace the color description directly
+                promptEl.value = promptEl.value.replace(colorDescription, palette.description);
+                updatePromptPreview();
+            }
+        }
+        
+        /**
+         * Update the prompt with the original palette
+         * @param {string} originalPalette - The original palette description
+         */
+        function updatePromptWithOriginalPalette(originalPalette) {
+            const promptEl = document.getElementById('prompt');
+            const modifiedPrompt = promptEl.dataset.modifiedPrompt;
+            
+            if (modifiedPrompt) {
+                // Replace the color palette placeholder with the original palette description
+                promptEl.value = modifiedPrompt.replace('[COLOR_PALETTE]', originalPalette);
+                updatePromptPreview();
+            } else {
+                // If we don't have a modified prompt, try to replace the color description directly
+                const colorDescription = promptEl.dataset.colorDescription;
+                if (colorDescription) {
+                    promptEl.value = promptEl.value.replace(colorDescription, originalPalette);
+                    updatePromptPreview();
+                }
+            }
+        }
+        
+        /**
+         * Add a [palette] placeholder to the prompt
+         */
+        window.addPalettePlaceholder = function() {
+            const promptEl = document.getElementById('prompt');
+            const originalPaletteEl = document.getElementById('originalPalette');
+            
+            if (!promptEl || !originalPaletteEl) return;
+            
+            const prompt = promptEl.value;
+            const originalPalette = originalPaletteEl.value;
+            
+            // If we already have a palette placeholder, don't add another one
+            if (prompt.includes('[palette]')) {
+                showMessage('Prompt already contains a [palette] placeholder', 'info');
+                return;
+            }
+            
+            // If we have an original palette, try to replace it with [palette]
+            if (originalPalette && originalPalette.trim() !== '') {
+                // Escape special regex characters in the original palette
+                const escapedPalette = originalPalette.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                
+                // Create a regex to find the original palette
+                const paletteRegex = new RegExp(escapedPalette, 'gi');
+                
+                // Check if the original palette is in the prompt
+                if (prompt.match(paletteRegex)) {
+                    promptEl.value = prompt.replace(paletteRegex, '[palette]');
+                    showMessage('Replaced original palette with [palette] placeholder', 'success');
+                    updatePromptPreview();
+                    return;
+                }
+            }
+            
+            // Try to find color description patterns in the prompt
+            const colorPatterns = [
+                /color palette is strictly limited to ([^.]+)/i,
+                /colors? (include|are|is) ([^.]+)/i,
+                /palette of ([^.]+)/i,
+                /in (shades of [^.]+)/i,
+                /using (only [^.]+) colors/i
+            ];
+            
+            for (const pattern of colorPatterns) {
+                const match = prompt.match(pattern);
+                if (match) {
+                    // The color description is in the captured group
+                    const colorDesc = match[1] || match[2];
+                    
+                    // Replace the matched color description with [palette]
+                    const newPrompt = prompt.replace(
+                        match[0], 
+                        match[0].replace(colorDesc, '[palette]')
+                    );
+                    
+                    promptEl.value = newPrompt;
+                    
+                    // Update the original palette field with the extracted color description
+                    if (!originalPalette || originalPalette.trim() === '') {
+                        originalPaletteEl.value = colorDesc.trim();
+                    }
+                    
+                    showMessage('Added [palette] placeholder to prompt', 'success');
+                    updatePromptPreview();
+                    return;
+                }
+            }
+            
+            // If we couldn't find a pattern, add the palette placeholder at the end
+            promptEl.value = `${prompt.trim()} The color palette is [palette].`;
+            showMessage('Added [palette] placeholder to end of prompt', 'success');
+            updatePromptPreview();
+        }
+        
+        // Function to toggle publish status
+        window.togglePublishStatusImpl = async function(id, publishStatus) {
+            try {
+                const response = await fetch(`/api/inspirations/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ published: publishStatus }),
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to update publish status');
+                }
+                
+                loadInspirations();
+                showMessage(`Inspiration ${publishStatus ? 'published' : 'unpublished'} successfully!`, 'success');
+                
+            } catch (error) {
+                console.error('Error updating publish status:', error);
+                showMessage('Failed to update publish status. Please try again.', 'error');
+            }
+        };
+        
+        // Function to delete an inspiration
+        window.deleteInspirationImpl = async function(id) {
+            if (!confirm('Are you sure you want to delete this inspiration? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/inspirations/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to delete inspiration');
+                }
+                
+                loadInspirations();
+                showMessage('Inspiration deleted successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error deleting inspiration:', error);
+                showMessage('Failed to delete inspiration. Please try again.', 'error');
+            }
+        };
+        
+        // Function to show a message
+        function showMessage(message, type) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = message;
+            messageElement.className = `message ${type}`;
+            messageElement.style.display = 'block';
+
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Make showMessage globally available
+        window.showMessage = showMessage;
+        
+        /**
+         * Add an [input-object] placeholder to the prompt
+         */
+        window.addObjectPlaceholder = function() {
+            const promptEl = document.getElementById('prompt');
+            const objectEl = document.getElementById('object');
+            
+            if (!promptEl || !objectEl) return;
+            
+            const prompt = promptEl.value;
+            const object = objectEl.value;
+            
+            // If we already have an object placeholder, don't add another one
+            if (prompt.includes('[input-object]')) {
+                showMessage('Prompt already contains an [input-object] placeholder', 'info');
+                return;
+            }
+            
+            // If we have an original object, try to replace it with [input-object]
+            if (object && object.trim() !== '') {
+                // Escape special regex characters in the original object
+                const escapedObject = object.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                
+                // Create a regex to find the original object
+                const objectRegex = new RegExp(`\\b${escapedObject}\\b`, 'gi');
+                
+                // Check if the original object is in the prompt
+                if (prompt.match(objectRegex)) {
+                    promptEl.value = prompt.replace(objectRegex, '[input-object]');
+                    showMessage('Replaced original object with [input-object] placeholder', 'success');
+                    updatePromptPreview();
+                    return;
+                }
+            }
+            
+            // If we couldn't replace the object, suggest manual placement
+            showMessage('Could not automatically replace object. Please position your cursor where you want to insert the placeholder and try again.', 'warning');
+            
+            // Insert placeholder at cursor position
+            const cursorPos = promptEl.selectionStart;
+            promptEl.value = prompt.substring(0, cursorPos) + '[input-object]' + prompt.substring(cursorPos);
+            updatePromptPreview();
+        };
+        
+        /**
+         * Add an [input-text-N] placeholder to the prompt
+         */
+            // Function to send inspiration data to the design editor
+            window.sendToEditor = async function(id) {
+                try {
+                    console.log('Sending inspiration to editor for ID:', id);
+                    const response = await fetch(`/api/inspirations/${id}`, {
+                        credentials: 'include'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch inspiration data for editor');
+                    }
+
+                    const inspiration = await response.json();
+                    console.log('Inspiration data for editor:', inspiration);
+                    console.log('=== DEBUGGING PROMPT DATA ===');
+                    console.log('inspiration.prompt:', inspiration.prompt);
+                    console.log('inspiration.prompt type:', typeof inspiration.prompt);
+                    console.log('inspiration.prompt length:', inspiration.prompt ? inspiration.prompt.length : 'null/undefined');
+                    console.log('Raw inspiration object:', JSON.stringify(inspiration, null, 2));
+                    console.log('=== END DEBUGGING ===');
+
+                    // Prepare data for URL parameters
+                    const imageUrl = inspiration.imageUrl || '';
+                    const model = inspiration.model || '';
+                    const prompt = inspiration.prompt || '';
+                    // Use originalPalette if available, otherwise fallback or leave empty
+                    const palette = inspiration.originalPalette || (inspiration.colorPalette ? inspiration.colorPalette.description : '');
+
+                    console.log('=== URL PARAMETERS BEING SET ===');
+                    console.log('imageUrl:', imageUrl);
+                    console.log('model:', model);
+                    console.log('prompt:', prompt);
+                    console.log('palette:', palette);
+                    console.log('inspirationId:', id);
+                    console.log('=== END URL PARAMETERS ===');
+
+                    // Construct the URL with safe encoding
+                    const editorUrl = new URL('/design-editor.html', window.location.origin);
+
+                    // Use safe encoding for all parameters
+                    if (imageUrl) editorUrl.searchParams.set('imageUrl', imageUrl);
+                    if (model) editorUrl.searchParams.set('model', model);
+                    if (prompt) {
+                        // Clean the prompt to avoid encoding issues
+                        const cleanPrompt = prompt.replace(/[^\x20-\x7E]/g, ''); // Remove non-ASCII characters
+                        editorUrl.searchParams.set('prompt', cleanPrompt);
+                    }
+                    if (palette) editorUrl.searchParams.set('palette', palette);
+                    if (id) editorUrl.searchParams.set('inspirationId', id); // Also send ID for reference
+
+                    console.log('Opening editor URL:', editorUrl.toString());
+
+                    // Open in a new tab
+                    window.open(editorUrl.toString(), '_blank');
+
+                    showMessage('Inspiration sent to editor!', 'info');
+
+                } catch (error) {
+                    console.error('Error sending inspiration to editor:', error);
+                    showMessage('Failed to send inspiration to editor. Please try again.', 'error');
+                }
+            };
+
+            window.addTextPlaceholder = function() {
+                const promptEl = document.getElementById('prompt');
+                const textValuesEl = document.getElementById('textValues');
+            
+            if (!promptEl || !textValuesEl) return;
+            
+            const prompt = promptEl.value;
+            const textValuesText = textValuesEl.value;
+            const textValues = textValuesText.split('\n').filter(t => t.trim() !== '');
+            
+            // Count existing text placeholders
+            const existingPlaceholders = (prompt.match(/\[input-text-\d+\]/g) || []);
+            const nextNumber = existingPlaceholders.length + 1;
+            
+            // If we have text values, try to replace one with a placeholder
+            if (textValues.length > 0 && nextNumber <= textValues.length) {
+                const textValue = textValues[nextNumber - 1];
+                
+                if (textValue && textValue.trim() !== '') {
+                    // Escape special regex characters in the text value
+                    const escapedText = textValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    
+                    // Create a regex to find the text value
+                    const textRegex = new RegExp(`\\b${escapedText}\\b`, 'gi');
+                    
+                    // Check if the text value is in the prompt
+                    if (prompt.match(textRegex)) {
+                        promptEl.value = prompt.replace(textRegex, `[input-text-${nextNumber}]`);
+                        showMessage(`Replaced "${textValue}" with [input-text-${nextNumber}] placeholder`, 'success');
+                        updatePromptPreview();
+                        return;
+                    }
+                }
+            }
+            
+            // If we couldn't replace the text, suggest manual placement
+            showMessage('Please position your cursor where you want to insert the placeholder.', 'info');
+            
+            // Insert placeholder at cursor position
+            const cursorPos = promptEl.selectionStart;
+            promptEl.value = prompt.substring(0, cursorPos) + `[input-text-${nextNumber}]` + prompt.substring(cursorPos);
+            updatePromptPreview();
+        };
+    </script>
+</body>
+</html>

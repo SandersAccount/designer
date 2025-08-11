@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Input Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .text-input {
+            width: 300px;
+            padding: 8px;
+            margin: 5px;
+        }
+        .button {
+            padding: 8px 16px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .button.add-mode {
+            background: #28a745;
+        }
+        .log {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .text-object {
+            padding: 10px;
+            margin: 5px 0;
+            background: #e9ecef;
+            border-radius: 3px;
+        }
+        .text-object.selected {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Text Input ID Collision Test</h1>
+    
+    <div class="test-section">
+        <h3>Text Input Control</h3>
+        <input id="iText" type="text" class="text-input" placeholder="Type text here..." value="">
+        <button id="addEditTextBtn" class="button">Add Text</button>
+        <button id="clearBtn" class="button">Clear Selection</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>Text Objects</h3>
+        <div id="textObjects"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Debug Log</h3>
+        <div id="debugLog" class="log"></div>
+        <button onclick="clearLog()" class="button">Clear Log</button>
+    </div>
+
+    <script>
+        // Simulate the design editor's text system
+        let canvasObjects = [];
+        let selectedObjectIndex = -1;
+        let nextId = 1;
+
+        // Create initial "DESIGN" text like in the real editor
+        const initialText = {
+            id: nextId++,
+            type: 'text',
+            text: 'DESIGN',
+            x: 100,
+            y: 100
+        };
+        canvasObjects.push(initialText);
+        selectedObjectIndex = 0;
+
+        // Get DOM elements
+        const iText = document.getElementById('iText');
+        const addEditTextBtn = document.getElementById('addEditTextBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const textObjectsDiv = document.getElementById('textObjects');
+        const debugLog = document.getElementById('debugLog');
+
+        function log(message) {
+            console.log(message);
+            const timestamp = new Date().toLocaleTimeString();
+            debugLog.innerHTML += `[${timestamp}] ${message}<br>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+
+        function clearLog() {
+            debugLog.innerHTML = '';
+        }
+
+        function updateUI() {
+            // Update text input
+            if (selectedObjectIndex !== -1 && canvasObjects[selectedObjectIndex]) {
+                iText.value = canvasObjects[selectedObjectIndex].text;
+                addEditTextBtn.textContent = 'Edit Text';
+                addEditTextBtn.className = 'button';
+            } else {
+                iText.value = '';
+                addEditTextBtn.textContent = 'Add Text';
+                addEditTextBtn.className = 'button add-mode';
+            }
+
+            // Update text objects display
+            textObjectsDiv.innerHTML = '';
+            canvasObjects.forEach((obj, index) => {
+                if (obj.type === 'text') {
+                    const div = document.createElement('div');
+                    div.className = 'text-object' + (index === selectedObjectIndex ? ' selected' : '');
+                    div.innerHTML = `
+                        <strong>ID: ${obj.id}</strong> - "${obj.text}"
+                        <button onclick="selectText(${index})" style="margin-left: 10px;">Select</button>
+                    `;
+                    textObjectsDiv.appendChild(div);
+                }
+            });
+
+            log(`UI Updated - Selected: ${selectedObjectIndex}, Objects: ${canvasObjects.length}`);
+        }
+
+        function selectText(index) {
+            if (selectedObjectIndex !== -1) {
+                // Deselect previous
+                log(`Deselecting object ${selectedObjectIndex}`);
+            }
+            selectedObjectIndex = index;
+            log(`Selected object ${index}: "${canvasObjects[index].text}"`);
+            updateUI();
+        }
+
+        function clearSelection() {
+            selectedObjectIndex = -1;
+            log('Cleared selection');
+            updateUI();
+        }
+
+        function createTextObject(text) {
+            const newObj = {
+                id: nextId++,
+                type: 'text',
+                text: text,
+                x: Math.random() * 200 + 50,
+                y: Math.random() * 200 + 50
+            };
+            log(`Created new text object: ID=${newObj.id}, text="${newObj.text}"`);
+            return newObj;
+        }
+
+        function handleAddTextObject() {
+            const text = iText.value.trim();
+            if (!text) {
+                alert("Please enter text before adding.");
+                return;
+            }
+
+            log(`Adding new text object: "${text}"`);
+            const newObj = createTextObject(text);
+            
+            if (selectedObjectIndex !== -1) {
+                log(`Deselecting previous object ${selectedObjectIndex}`);
+            }
+
+            canvasObjects.push(newObj);
+            selectedObjectIndex = canvasObjects.length - 1;
+            log(`Added object, new selectedObjectIndex: ${selectedObjectIndex}`);
+            updateUI();
+        }
+
+        // Text input event handler (same logic as design editor)
+        iText.oninput = () => {
+            log(`TEXT INPUT CHANGED: value="${iText.value}"`);
+            log(`TEXT INPUT CHANGED: selectedObjectIndex=${selectedObjectIndex}`);
+            
+            if (selectedObjectIndex !== -1 && 
+                selectedObjectIndex < canvasObjects.length && 
+                canvasObjects[selectedObjectIndex] && 
+                canvasObjects[selectedObjectIndex].type === 'text') {
+                
+                const selectedText = canvasObjects[selectedObjectIndex];
+                log(`TEXT INPUT CHANGED: Updating selected text object: ID=${selectedText.id}, old="${selectedText.text}", new="${iText.value}"`);
+                selectedText.text = iText.value;
+                updateUI();
+            } else {
+                log('TEXT INPUT CHANGED: No valid text object selected, ignoring input change');
+            }
+        };
+
+        // Button event handlers
+        addEditTextBtn.onclick = () => {
+            log('ADD/EDIT BUTTON CLICKED');
+            log(`selectedObjectIndex=${selectedObjectIndex}`);
+            
+            if (selectedObjectIndex !== -1 && 
+                selectedObjectIndex < canvasObjects.length && 
+                canvasObjects[selectedObjectIndex] && 
+                canvasObjects[selectedObjectIndex].type === 'text') {
+                
+                log('EDIT MODE: Focusing text input');
+                iText.focus();
+            } else {
+                log('ADD MODE: Creating new text object');
+                handleAddTextObject();
+            }
+        };
+
+        clearBtn.onclick = clearSelection;
+
+        // Initialize
+        updateUI();
+        log('Test page initialized with DESIGN text object');
+    </script>
+</body>
+</html>

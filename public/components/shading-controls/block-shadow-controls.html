@@ -1,0 +1,65 @@
+<!-- Block Shadow Controls -->
+<div class="block-shadow-controls">
+    <div class="control-group">
+        <label for="blockShadowColor">Shadow Color:</label>
+        <div class="simplified-color-picker">
+            <input type="color" id="blockShadowColor" value="#000000">
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="blockShadowOpacity">Opacity:</label>
+        <div class="slider-container">
+            <input type="range" id="blockShadowOpacity" class="slider" min="0" max="100" value="100" step="1">
+            <span class="slider-value" id="blockShadowOpacityValue">100%</span>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="blockShadowOffset">Extrude Distance:</label>
+        <div class="slider-container">
+            <input type="range" id="blockShadowOffset" class="slider" min="0" max="100" value="40" step="1">
+            <span class="slider-value" id="blockShadowOffsetValue">40</span>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="blockShadowAngle">Angle:</label>
+        <div class="slider-container">
+            <input type="range" id="blockShadowAngle" class="slider" min="-180" max="180" value="-58" step="1">
+            <span class="slider-value" id="blockShadowAngleValue">-58°</span>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="blockShadowBlur">Blur:</label>
+        <div class="slider-container">
+            <input type="range" id="blockShadowBlur" class="slider" min="0" max="50" value="5" step="1">
+            <span class="slider-value" id="blockShadowBlurValue">5</span>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label for="blockShadowOutlineWidth">Outline Width:</label>
+        <div class="slider-container">
+            <input type="range" id="blockShadowOutlineWidth" class="slider" min="0" max="50" value="18" step="1">
+            <span class="slider-value" id="blockShadowOutlineWidthValue">18</span>
+        </div>
+    </div>
+
+    <div class="control-group perspective-toggle" style="margin-top: 15px; padding: 10px; background-color: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px;">
+        <label class="checkbox-container" for="blockShadowPerspective">
+            <input type="checkbox" id="blockShadowPerspective">
+            <span class="checkbox-label">Perspective Shadow</span>
+            <span class="tooltip">Creates shadows that get smaller with distance</span>
+        </label>
+    </div>
+
+    <div class="control-group perspective-control" style="display: none; margin-top: 10px; padding: 8px; background-color: #f0f9ff; border-left: 3px solid #3b82f6; border-radius: 4px;">
+        <label for="blockShadowPerspectiveIntensity">Perspective Intensity:</label>
+        <div class="slider-container">
+            <input type="range" id="blockShadowPerspectiveIntensity" class="slider" min="10" max="100" value="50" step="5" disabled>
+            <span class="slider-value" id="vBlockShadowPerspectiveIntensity">50%</span>
+        </div>
+    </div>
+</div>

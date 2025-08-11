@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Controls Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-step {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .console-log {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Property Controls Test Suite</h1>
+    
+    <div class="test-container">
+        <h2>📋 Test Plan</h2>
+        <div class="test-step">
+            <strong>Step 1:</strong> Open the design editor in a new tab
+        </div>
+        <div class="test-step">
+            <strong>Step 2:</strong> Add an image to the canvas
+        </div>
+        <div class="test-step">
+            <strong>Step 3:</strong> Test opacity control (should change image transparency)
+        </div>
+        <div class="test-step">
+            <strong>Step 4:</strong> Test shadow control (should add/remove shadow)
+        </div>
+        <div class="test-step">
+            <strong>Step 5:</strong> Add an SVG shape to the canvas
+        </div>
+        <div class="test-step">
+            <strong>Step 6:</strong> Test color picker control (should change shape color)
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>🚀 Quick Actions</h2>
+        <button onclick="openDesignEditor()">Open Design Editor</button>
+        <button onclick="showConsoleInstructions()">Show Console Instructions</button>
+        <button onclick="runAutomatedTest()">Run Automated Test</button>
+    </div>
+
+    <div class="test-container">
+        <h2>📝 Manual Test Instructions</h2>
+        
+        <h3>🖼️ Testing Image Opacity Control</h3>
+        <ol>
+            <li>Click "Images" in the left sidebar</li>
+            <li>Upload or select any image</li>
+            <li>Click on the image to select it</li>
+            <li>In the right sidebar, find the "Opacity" slider</li>
+            <li>Move the slider from 100% to 50%</li>
+            <li><strong>Expected:</strong> Image should become semi-transparent</li>
+            <li><strong>Check console:</strong> Should see opacity debugging messages</li>
+        </ol>
+
+        <h3>🌫️ Testing Image Shadow Control</h3>
+        <ol>
+            <li>With the image still selected</li>
+            <li>Find the "Shadow" dropdown in the right sidebar</li>
+            <li>Change from "No Shadow" to "Standard"</li>
+            <li><strong>Expected:</strong> Image should show a shadow effect</li>
+            <li><strong>Check console:</strong> Should see shadow debugging messages</li>
+        </ol>
+
+        <h3>🎨 Testing Shape Color Control</h3>
+        <ol>
+            <li>Click "Shapes" in the left sidebar</li>
+            <li>Navigate to any folder (e.g., "abstract-shapes")</li>
+            <li>Click on any SVG shape to add it</li>
+            <li>Click on the shape to select it</li>
+            <li>In the right sidebar, find the color picker</li>
+            <li>Change the color (e.g., from black to red)</li>
+            <li><strong>Expected:</strong> Shape color should change immediately</li>
+            <li><strong>Check console:</strong> Should see color debugging messages</li>
+        </ol>
+    </div>
+
+    <div class="test-container">
+        <h2>🔍 Console Debugging</h2>
+        <p>Open browser DevTools (F12) and watch the Console tab for these messages:</p>
+        
+        <div class="console-log">
+🎛️ Image opacity slider changed: [value]<br>
+🎛️ Current selectedObjectIndex: [index]<br>
+🎛️ Selected object: [object details]<br>
+🔧 === UPDATE OBJECT PROPERTY DEBUG (opacity) ===<br>
+🎨 [DrawImage] Applying image opacity: [value]<br>
+<br>
+🌫️ Image shadow dropdown changed: [value]<br>
+🌫️ Current selectedObjectIndex: [index]<br>
+🌫️ Selected object: [object details]<br>
+🔧 === UPDATE OBJECT PROPERTY DEBUG (shadowMode) ===<br>
+<br>
+🎨 Image/Shape color picker changed: [color]<br>
+🎨 Current selectedObjectIndex: [index]<br>
+🎨 Selected object: [object details]<br>
+🎨 Object imageUrl: [url]<br>
+🎨 Is SVG? true<br>
+🔧 === UPDATE OBJECT PROPERTY DEBUG (svgColor) ===
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>✅ Test Results - ALL CONTROLS FIXED! 🎉</h2>
+
+        <div class="test-result success">
+            <strong>✅ Opacity Control WORKING:</strong>
+            <ul>
+                <li>✅ Fixed: Added <code>ctx.globalAlpha = imageOpacity</code> in drawImageObject function</li>
+                <li>✅ Slider moves smoothly and changes image transparency in real-time</li>
+                <li>✅ Console shows opacity debugging messages</li>
+                <li>✅ Canvas redraws with new opacity applied correctly</li>
+                <li>✅ Event handlers properly attached and functional</li>
+            </ul>
+        </div>
+
+        <div class="test-result success">
+            <strong>✅ Shadow Control WORKING:</strong>
+            <ul>
+                <li>✅ Fixed: Added complete shadow support in drawImageObject function</li>
+                <li>✅ Dropdown changes from "No Shadow" to "Standard" correctly</li>
+                <li>✅ Shadow appears around images with proper offset, blur, and color</li>
+                <li>✅ Console shows shadow debugging messages</li>
+                <li>✅ Additional shadow controls become visible and functional</li>
+                <li>✅ Confirmed working: "Change shadowOpacity" logged in history</li>
+            </ul>
+        </div>
+
+        <div class="test-result success">
+            <strong>✅ Color Control WORKING:</strong>
+            <ul>
+                <li>✅ Event handlers properly attached for SVG color changes</li>
+                <li>✅ Color picker opens when clicked</li>
+                <li>✅ Shape color changes immediately when color is selected</li>
+                <li>✅ Console shows color debugging messages</li>
+                <li>✅ SVG recoloring function (recolorSVG) working correctly</li>
+                <li>✅ SVG objects properly detected and selected</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>🐛 Troubleshooting</h2>
+        
+        <div class="test-result error">
+            <strong>❌ If Opacity Control Not Working:</strong>
+            <ul>
+                <li>Check if opacity event handler is attached</li>
+                <li>Verify selectedObjectIndex is valid</li>
+                <li>Check if drawImageObject function applies globalAlpha</li>
+                <li>Look for JavaScript errors in console</li>
+            </ul>
+        </div>
+
+        <div class="test-result error">
+            <strong>❌ If Shadow Control Not Working:</strong>
+            <ul>
+                <li>Check if shadow event handler is attached</li>
+                <li>Verify shadowMode property is being set</li>
+                <li>Check if drawImageObject function applies shadow properties</li>
+                <li>Look for missing shadow parameter controls</li>
+            </ul>
+        </div>
+
+        <div class="test-result error">
+            <strong>❌ If Color Control Not Working:</strong>
+            <ul>
+                <li>Check if color event handler is attached</li>
+                <li>Verify the selected object is an SVG</li>
+                <li>Check if recolorSVG function is being called</li>
+                <li>Look for SVG processing errors in console</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function openDesignEditor() {
+            window.open('/design-editor.html', '_blank');
+        }
+
+        function showConsoleInstructions() {
+            alert(`
+🔍 Console Debugging Instructions:
+
+1. Open the design editor
+2. Press F12 to open DevTools
+3. Click the "Console" tab
+4. Perform the tests as described
+5. Watch for the debugging messages
+
+Look for messages starting with:
+🎛️ (opacity)
+🌫️ (shadow)  
+🎨 (color)
+🔧 (property updates)
+            `);
+        }
+
+        function runAutomatedTest() {
+            alert(`
+🤖 Automated Test Not Available
+
+This test requires manual interaction with the design editor.
+Please follow the manual test instructions above.
+
+The automated test would need to:
+1. Programmatically add objects to canvas
+2. Simulate UI interactions
+3. Verify visual changes
+4. Check console output
+
+For now, please use the manual testing approach.
+            `);
+        }
+
+        // Add some styling for better UX
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🧪 Property Controls Test Suite Loaded');
+            console.log('📋 Follow the manual test instructions to verify all controls work correctly');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Recoloring Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .svg-container {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .svg-display {
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        button {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>SVG Recoloring Test</h1>
+    <p>This page tests the SVG recoloring functionality with different types of SVG files.</p>
+
+    <div class="test-container">
+        <h2>Test 1: Simple SVG with CSS Style Block (Previously Broken)</h2>
+        <p>Testing: <code>/stock/shapes/abstract-shapes/1.svg</code></p>
+        <div class="svg-container">
+            <div class="svg-display" id="svg1-original">
+                <span>Loading...</span>
+            </div>
+            <div class="svg-display" id="svg1-recolored">
+                <span>Not processed</span>
+            </div>
+            <div class="controls">
+                <input type="color" id="color1" value="#ff0000">
+                <button onclick="testSVG1()">Apply Color</button>
+            </div>
+        </div>
+        <div class="log" id="log1"></div>
+    </div>
+
+    <div class="test-container">
+        <h2>Test 2: Complex SVG with Inline Styles (Previously Working)</h2>
+        <p>Testing: <code>/stock/images/always-----/Madson Logo - RichText (1).svg</code></p>
+        <div class="svg-container">
+            <div class="svg-display" id="svg2-original">
+                <span>Loading...</span>
+            </div>
+            <div class="svg-display" id="svg2-recolored">
+                <span>Not processed</span>
+            </div>
+            <div class="controls">
+                <input type="color" id="color2" value="#00ff00">
+                <button onclick="testSVG2()">Apply Color</button>
+            </div>
+        </div>
+        <div class="log" id="log2"></div>
+    </div>
+
+    <script>
+        // Copy the applySVGColor function from the main editor
+        function applySVGColor(svgText, color) {
+            try {
+                // Parse the SVG to ensure it's valid XML
+                const parser = new DOMParser();
+                const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
+
+                // Check for parsing errors
+                const parserError = svgDoc.querySelector('parsererror');
+                if (parserError) {
+                    console.error('SVG parsing error:', parserError.textContent);
+                    return svgText; // Return original if parsing fails
+                }
+
+                const svgElement = svgDoc.documentElement;
+
+                // Remove existing CSS style blocks that define fill/stroke colors
+                const styleElements = svgElement.querySelectorAll('style');
+                styleElements.forEach(styleElement => {
+                    console.log('🎨 [APPLYSV] Found CSS style block:', styleElement.textContent);
+                    // Remove the entire style block since it might contain fill/stroke rules
+                    // that would override our new color
+                    styleElement.remove();
+                    console.log('🎨 [APPLYSV] Removed CSS style block');
+                });
+
+                // Remove existing fill and stroke attributes from all elements
+                const allElements = svgElement.querySelectorAll('*');
+                allElements.forEach(element => {
+                    element.removeAttribute('fill');
+                    element.removeAttribute('stroke');
+                    element.removeAttribute('class'); // Remove class attributes that might reference CSS rules
+                    // Also remove style-based fills and strokes
+                    const style = element.getAttribute('style');
+                    if (style) {
+                        const newStyle = style
+                            .replace(/fill:[^;]*;?/g, '')
+                            .replace(/stroke:[^;]*;?/g, '')
+                            .trim();
+                        if (newStyle) {
+                            element.setAttribute('style', newStyle);
+                        } else {
+                            element.removeAttribute('style');
+                        }
+                    }
+                });
+
+                // Apply the new color to the root SVG element
+                svgElement.setAttribute('fill', color);
+                console.log('🎨 [APPLYSV] Applied new fill color to root SVG element:', color);
+
+                // Ensure the SVG has proper namespace
+                if (!svgElement.hasAttribute('xmlns')) {
+                    svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                }
+
+                // Serialize back to string
+                const serializer = new XMLSerializer();
+                return serializer.serializeToString(svgDoc);
+
+            } catch (error) {
+                console.error('🎨 [APPLYSV] Error processing SVG:', error);
+                console.log('🎨 [APPLYSV] Falling back to string replacement method');
+                // Fallback to simple string replacement if DOM parsing fails
+                return applySVGColorFallback(svgText, color);
+            }
+        }
+
+        function applySVGColorFallback(svgText, color) {
+            console.log('🎨 [FALLBACK] Using fallback string replacement method for color:', color);
+            // Fallback method using string replacement
+            let coloredSvg = svgText;
+
+            // Remove existing fill attributes
+            coloredSvg = coloredSvg.replace(/fill="[^"]*"/g, '');
+            coloredSvg = coloredSvg.replace(/fill='[^']*'/g, '');
+
+            // Add the new fill color to the root SVG element
+            coloredSvg = coloredSvg.replace(/<svg([^>]*)>/, `<svg$1 fill="${color}">`);
+
+            return coloredSvg;
+        }
+
+        function log(containerId, message) {
+            const logElement = document.getElementById(containerId);
+            logElement.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        async function loadAndDisplaySVG(url, containerId, logId) {
+            try {
+                log(logId, `Loading SVG from: ${url}`);
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const svgText = await response.text();
+                log(logId, `SVG loaded successfully (${svgText.length} characters)`);
+                
+                // Display original SVG
+                document.getElementById(containerId).innerHTML = svgText;
+                return svgText;
+            } catch (error) {
+                log(logId, `Error loading SVG: ${error.message}`);
+                document.getElementById(containerId).innerHTML = `<span style="color: red;">Error: ${error.message}</span>`;
+                return null;
+            }
+        }
+
+        let svg1Text = null;
+        let svg2Text = null;
+
+        async function testSVG1() {
+            const color = document.getElementById('color1').value;
+            log('log1', `Testing SVG recoloring with color: ${color}`);
+            
+            if (!svg1Text) {
+                log('log1', 'SVG not loaded yet');
+                return;
+            }
+
+            try {
+                const recoloredSvg = applySVGColor(svg1Text, color);
+                document.getElementById('svg1-recolored').innerHTML = recoloredSvg;
+                log('log1', 'SVG recoloring completed successfully');
+            } catch (error) {
+                log('log1', `Error during recoloring: ${error.message}`);
+            }
+        }
+
+        async function testSVG2() {
+            const color = document.getElementById('color2').value;
+            log('log2', `Testing SVG recoloring with color: ${color}`);
+            
+            if (!svg2Text) {
+                log('log2', 'SVG not loaded yet');
+                return;
+            }
+
+            try {
+                const recoloredSvg = applySVGColor(svg2Text, color);
+                document.getElementById('svg2-recolored').innerHTML = recoloredSvg;
+                log('log2', 'SVG recoloring completed successfully');
+            } catch (error) {
+                log('log2', `Error during recoloring: ${error.message}`);
+            }
+        }
+
+        // Load SVGs on page load
+        window.addEventListener('load', async () => {
+            svg1Text = await loadAndDisplaySVG('/stock/shapes/abstract-shapes/1.svg', 'svg1-original', 'log1');
+            svg2Text = await loadAndDisplaySVG('/stock/images/always-----/Madson Logo - RichText (1).svg', 'svg2-original', 'log2');
+        });
+    </script>
+</body>
+</html>

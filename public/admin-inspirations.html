@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manage Templates</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+        /* Re-use styles similar to images-generated.html.html */
+        .templates-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            background: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .templates-table th,
+        .templates-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #333;
+            vertical-align: middle;
+        }
+
+        .templates-table th {
+            background: #2a2a2a;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .template-preview-image {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 4px;
+            padding: 0;
+            margin: 0;
+            display: block;
+            background-color: #333; /* Placeholder background */
+        }
+
+        .templates-table td:first-child {
+            width: 90px;
+        }
+
+        .actions-cell {
+            width: 280px;
+        }
+
+        .btn-action {
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: background 0.2s;
+        }
+
+        .btn-action:hover {
+            background: #444;
+        }
+
+        .btn-load {
+            background: #2196f3;
+        }
+        .btn-load:hover {
+            background: #0b7dda;
+        }
+
+        .btn-delete {
+            background: #f44336;
+        }
+        .btn-delete:hover {
+            background: #d32f2f;
+        }
+
+        .btn-edit {
+            background: #ff9800;
+        }
+        .btn-edit:hover {
+            background: #f57c00;
+        }
+
+        .btn-publish {
+            background: #4CAF50;
+        }
+        .btn-publish:hover {
+            background: #45a049;
+        }
+
+        .btn-unpublish {
+            background: #9e9e9e;
+        }
+        .btn-unpublish:hover {
+            background: #757575;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+         .message {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .message.info { background-color: #2196f3; color: white; }
+        .message.success { background-color: #4CAF50; color: white; }
+        .message.error { background-color: #dc3545; color: white; }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: #1a1a1a;
+            margin: 5% auto;
+            padding: 2rem;
+            border: 2px solid #333;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            color: #fff;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #fff;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ccc;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background: #2a2a2a;
+            color: #fff;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2196f3;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary:hover {
+            background: #0b7dda;
+        }
+
+        .btn-secondary {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: #777;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="topbar"></div>
+
+    <div class="container">
+        <div class="header-actions">
+            <h1>Manage Inspirations</h1>
+            <!-- Add button to go back to editor or elsewhere if needed -->
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <table class="templates-table">
+            <thead>
+                <tr>
+                    <th>Preview</th>
+                    <th>Name</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="templatesTableBody">
+                <!-- Templates will be loaded here -->
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 2rem;">Loading templates...</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Pagination Container -->
+        <div id="paginationContainer"></div>
+    </div>
+
+    <!-- Edit Template Modal -->
+    <div id="editTemplateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Template</h2>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <form id="editTemplateForm">
+                <div class="form-group">
+                    <label for="editTemplateName">Template Name:</label>
+                    <input type="text" id="editTemplateName" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editImagePrompt">Image Prompt:</label>
+                    <textarea id="editImagePrompt" name="prompt" placeholder="Enter the prompt used to generate the image"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="editModel">AI Model:</label>
+                    <input type="text" id="editModel" name="model" placeholder="e.g., flux-yarn-art, sticker-maker">
+                </div>
+
+                <div class="form-group">
+                    <label for="editOriginalPalette">Original Palette:</label>
+                    <textarea id="editOriginalPalette" name="originalPalette" placeholder="Enter the default palette description that will be used when users select 'Original Palette'" rows="3"></textarea>
+                    <small style="color: #888;">This palette will replace the [palette] variable when users select "Original Palette" option</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="editOriginalObject">Original Object:</label>
+                    <textarea id="editOriginalObject" name="originalObject" placeholder="Enter the default object/subject for this template (e.g., 'A chicken holding his nest with eggs')" rows="3"></textarea>
+                    <small style="color: #888;">This object will be used as the default subject when users load this template</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="editFontStyles">Font Styles:</label>
+                    <textarea id="editFontStyles" name="fontStyles" placeholder="JSON array of saved font configurations for cycling" rows="6" style="font-family: monospace; font-size: 12px;"></textarea>
+                    <small style="color: #888;">JSON array of font style configurations that users can cycle through. Each style contains font settings for all text objects.</small>
+                    <div style="margin-top: 8px;">
+                        <button type="button" id="validateFontStylesBtn" style="padding: 4px 8px; font-size: 12px; background-color: #6366f1; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            🔍 Validate JSON
+                        </button>
+                        <button type="button" id="clearFontStylesBtn" style="padding: 4px 8px; font-size: 12px; background-color: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 8px;">
+                            🗑️ Clear
+                        </button>
+                        <span id="fontStylesValidation" style="margin-left: 8px; font-size: 12px;"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editDecorStyles">Decor Styles:</label>
+                    <textarea id="editDecorStyles" name="decorStyles" placeholder="JSON array of saved decoration and shadow configurations for cycling" rows="6" style="font-family: monospace; font-size: 12px;"></textarea>
+                    <small style="color: #888;">JSON array of decoration and shadow configurations that users can cycle through. Each style contains shadow and decoration settings for all text and shape objects.</small>
+                    <div style="margin-top: 8px;">
+                        <button type="button" id="validateDecorStylesBtn" style="padding: 4px 8px; font-size: 12px; background-color: #8b5cf6; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            🔍 Validate JSON
+                        </button>
+                        <button type="button" id="clearDecorStylesBtn" style="padding: 4px 8px; font-size: 12px; background-color: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 8px;">
+                            🗑️ Clear
+                        </button>
+                        <span id="decorStylesValidation" style="margin-left: 8px; font-size: 12px;"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editCSSFilters">CSS Filters:</label>
+                    <textarea id="editCSSFilters" name="cssFilters" placeholder="JSON object of saved CSS filter values" rows="4" style="font-family: monospace; font-size: 12px;"></textarea>
+                    <small style="color: #888;">JSON object containing CSS filter slider values (blur, brightness, contrast, saturate, hueRotate, grayscale, sepia, invert) that are restored when the template is loaded.</small>
+                    <div style="margin-top: 8px;">
+                        <button type="button" id="validateCSSFiltersBtn" style="padding: 4px 8px; font-size: 12px; background-color: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            🔍 Validate JSON
+                        </button>
+                        <button type="button" id="clearCSSFiltersBtn" style="padding: 4px 8px; font-size: 12px; background-color: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 8px;">
+                            🗑️ Clear
+                        </button>
+                        <span id="cssFiltersValidation" style="margin-left: 8px; font-size: 12px;"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editDuotoneEffects">Duotone Effects:</label>
+                    <textarea id="editDuotoneEffects" name="duotoneEffects" placeholder="JSON object of saved duotone effect settings" rows="4" style="font-family: monospace; font-size: 12px;"></textarea>
+                    <small style="color: #888;">JSON object containing duotone effect settings (enabled, color1, color2, matrix) that are restored when the template is loaded.</small>
+                    <div style="margin-top: 8px;">
+                        <button type="button" id="validateDuotoneBtn" style="padding: 4px 8px; font-size: 12px; background-color: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            🔍 Validate JSON
+                        </button>
+                        <button type="button" id="clearDuotoneBtn" style="padding: 4px 8px; font-size: 12px; background-color: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 8px;">
+                            🗑️ Clear
+                        </button>
+                        <span id="duotoneValidation" style="margin-left: 8px; font-size: 12px;"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editGlitchEffects">Glitch Effects:</label>
+                    <textarea id="editGlitchEffects" name="glitchEffects" placeholder="JSON object of saved glitch effect settings" rows="6" style="font-family: monospace; font-size: 12px;"></textarea>
+                    <small style="color: #888;">JSON object containing glitch effect settings (paletteReduction, colorShift, waveDeform, displacement, pixelSort) with their parameters that are restored when the template is loaded.</small>
+                    <div style="margin-top: 8px;">
+                        <button type="button" id="validateGlitchBtn" style="padding: 4px 8px; font-size: 12px; background-color: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            🔍 Validate JSON
+                        </button>
+                        <button type="button" id="clearGlitchBtn" style="padding: 4px 8px; font-size: 12px; background-color: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 8px;">
+                            🗑️ Clear
+                        </button>
+                        <span id="glitchValidation" style="margin-left: 8px; font-size: 12px;"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editHalftoneEffects">Halftone Effects:</label>
+                    <textarea id="editHalftoneEffects" name="halftoneEffects" placeholder="JSON object of saved halftone effect settings" rows="6" style="font-family: monospace; font-size: 12px;"></textarea>
+                    <small style="color: #888;">JSON object containing halftone effect settings (enabled, dotSize, colors, contrast, brightness, grayscale, custom images) that are restored when the template is loaded.</small>
+                    <div style="margin-top: 8px;">
+                        <button type="button" id="validateHalftoneBtn" style="padding: 4px 8px; font-size: 12px; background-color: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            🔍 Validate JSON
+                        </button>
+                        <button type="button" id="clearHalftoneBtn" style="padding: 4px 8px; font-size: 12px; background-color: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 8px;">
+                            🗑️ Clear
+                        </button>
+                        <span id="halftoneValidation" style="margin-left: 8px; font-size: 12px;"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editImageUrl">Image URL:</label>
+                    <input type="url" id="editImageUrl" name="imageUrl" placeholder="https://...">
+                </div>
+
+                <div class="form-group">
+                    <label for="editTexts">Text Objects (JSON):</label>
+                    <textarea id="editTexts" name="texts" placeholder="JSON representation of text objects" rows="6"></textarea>
+                    <small style="color: #888;">Advanced: JSON array of text objects from the editor</small>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createTopbar } from '/js/components/Topbar.js';
+
+        // Initialize topbar
+        createTopbar();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTemplates(1); // Start with page 1
+
+            // Listen for template updates from other tabs/windows
+            if (typeof BroadcastChannel !== 'undefined') {
+                const channel = new BroadcastChannel('template-updates');
+                channel.addEventListener('message', (event) => {
+                    if (event.data.type === 'TEMPLATE_UPDATED') {
+                        console.log('[AdminInspiration] Received template update notification:', event.data);
+                        // Reload the templates list to show updated data
+                        loadTemplates(currentPage);
+                        showMessage(`Template "${event.data.templateName}" was updated in another tab. List refreshed.`, 'success');
+                    }
+                });
+                console.log('[AdminInspiration] Listening for template updates via BroadcastChannel');
+            }
+
+            // Also listen for postMessage from child windows
+            window.addEventListener('message', (event) => {
+                if (event.data.type === 'TEMPLATE_UPDATED') {
+                    console.log('[AdminInspiration] Received template update via postMessage:', event.data);
+                    // Reload the templates list to show updated data
+                    loadTemplates(currentPage);
+                    showMessage(`Template "${event.data.templateName}" was updated. List refreshed.`, 'success');
+                }
+            });
+        });
+
+        let currentPage = 1;
+        let totalPages = 1;
+        let isLoading = false;
+
+        // Make loadTemplates globally accessible for pagination buttons
+        window.loadTemplates = async function(page = 1) {
+            if (isLoading) return;
+
+            isLoading = true;
+            const tableBody = document.getElementById('templatesTableBody');
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">Loading templates...</td></tr>'; // Show loading state
+
+            try {
+                // Fetch from the correct design templates endpoint with pagination
+                const response = await fetch(`/api/design-templates?page=${page}&limit=10`, { credentials: 'include' });
+                if (!response.ok) {
+                    throw new Error(`Failed to load templates: ${response.statusText}`);
+                }
+                const data = await response.json();
+
+                console.log('🔍 API Response:', data);
+
+                // Handle both old format (array) and new format (object with templates array)
+                let templates = Array.isArray(data) ? data : data.templates;
+                let pagination = data.pagination || {};
+
+                // If API returns all templates without pagination, implement client-side pagination
+                if (Array.isArray(data) && !data.pagination) {
+                    console.log('📄 Implementing client-side pagination for', data.length, 'templates');
+                    const itemsPerPage = 10;
+                    const totalCount = data.length;
+                    const totalPages = Math.ceil(totalCount / itemsPerPage);
+                    const startIndex = (page - 1) * itemsPerPage;
+                    const endIndex = startIndex + itemsPerPage;
+
+                    templates = data.slice(startIndex, endIndex);
+                    pagination = {
+                        currentPage: page,
+                        totalPages: totalPages,
+                        totalCount: totalCount,
+                        hasPrevPage: page > 1,
+                        hasNextPage: page < totalPages
+                    };
+                }
+
+                // Update pagination info
+                currentPage = pagination.currentPage || page;
+                totalPages = pagination.totalPages || 1;
+
+                console.log('📄 Pagination info:', pagination);
+
+                // Show warning if using fallback mode
+                if (data.warning) {
+                    console.warn('Template loading warning:', data.warning);
+                }
+
+                tableBody.innerHTML = ''; // Clear loading state
+
+                if (templates.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">No templates saved yet.</td></tr>';
+                    return;
+                }
+
+                templates.forEach(template => {
+                    const row = document.createElement('tr');
+                    row.dataset.templateId = template._id;
+
+                    // Format date nicely
+                    const createdAt = new Date(template.createdAt).toLocaleString();
+
+                    row.innerHTML = `
+                        <td>
+                            <img src="${template.previewImageUrl}" alt="Template Preview" class="template-preview-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div style="display:none; width: 90px; height: 90px; background: #444; color: #aaa; text-align: center; line-height: 90px; font-size: 0.8em;">No Preview</div>
+                        </td>
+                        <td>${template.name || 'Untitled Template'}</td>
+                        <td>${createdAt}</td>
+                        <td class="actions-cell">
+                            <button class="btn-action btn-load" onclick="loadTemplateInEditor('${template._id}')" title="Load in Editor">
+                                <i class="fas fa-edit"></i> Load
+                            </button>
+                            <button class="btn-action btn-edit" onclick="editTemplate('${template._id}')" title="Edit Template">
+                                <i class="fas fa-cog"></i> Edit
+                            </button>
+                            <button class="btn-action ${template.published !== false ? 'btn-unpublish' : 'btn-publish'}"
+                                    onclick="togglePublishStatus('${template._id}', ${template.published !== false})"
+                                    title="${template.published !== false ? 'Unpublish Template' : 'Publish Template'}"
+                                    id="publish-btn-${template._id}">
+                                <i class="fas ${template.published !== false ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                                ${template.published !== false ? 'Unpublish' : 'Publish'}
+                            </button>
+                            <button class="btn-action btn-delete" onclick="deleteTemplate('${template._id}')" title="Delete Template">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                // Update pagination controls
+                updatePaginationControls(pagination);
+
+                console.log('✅ Templates loaded successfully. Page:', currentPage, 'Total pages:', totalPages);
+
+            } catch (error) {
+                console.error('Error loading templates:', error);
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 2rem; color: red;">Error loading templates: ${error.message}</td></tr>`;
+                showMessage(`Error loading templates: ${error.message}`, 'error');
+
+                // Hide pagination on error
+                updatePaginationControls(null);
+            } finally {
+                isLoading = false;
+            }
+        };
+
+        // Make updatePaginationControls globally accessible
+        window.updatePaginationControls = function(pagination) {
+            let paginationHtml = '';
+
+            if (pagination && pagination.totalPages > 1) {
+                const { currentPage, totalPages, hasPrevPage, hasNextPage, totalCount } = pagination;
+
+                paginationHtml = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 2rem 0; padding: 1.5rem; background: #2a2a2a; border-radius: 8px; border: 1px solid #444;">
+                        <div>
+                            <span style="color: #fff; font-weight: 500;">
+                                Showing page ${currentPage} of ${totalPages} (${totalCount} total templates)
+                            </span>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button onclick="loadTemplates(1)" ${currentPage === 1 ? 'disabled' : ''}
+                                    style="padding: 0.75rem 1rem; border: 1px solid #555; background: ${currentPage === 1 ? '#333' : '#444'}; color: ${currentPage === 1 ? '#666' : '#fff'}; border-radius: 4px; cursor: ${currentPage === 1 ? 'not-allowed' : 'pointer'}; transition: background 0.2s;">
+                                First
+                            </button>
+                            <button onclick="loadTemplates(${currentPage - 1})" ${!hasPrevPage ? 'disabled' : ''}
+                                    style="padding: 0.75rem 1rem; border: 1px solid #555; background: ${!hasPrevPage ? '#333' : '#444'}; color: ${!hasPrevPage ? '#666' : '#fff'}; border-radius: 4px; cursor: ${!hasPrevPage ? 'not-allowed' : 'pointer'}; transition: background 0.2s;">
+                                Previous
+                            </button>
+                            <span style="padding: 0.75rem 1rem; background: #2196f3; color: white; border-radius: 4px; font-weight: 500;">
+                                ${currentPage}
+                            </span>
+                            <button onclick="loadTemplates(${currentPage + 1})" ${!hasNextPage ? 'disabled' : ''}
+                                    style="padding: 0.75rem 1rem; border: 1px solid #555; background: ${!hasNextPage ? '#333' : '#444'}; color: ${!hasNextPage ? '#666' : '#fff'}; border-radius: 4px; cursor: ${!hasNextPage ? 'not-allowed' : 'pointer'}; transition: background 0.2s;"
+                                    onmouseover="if(!this.disabled) this.style.background='#555'"
+                                    onmouseout="if(!this.disabled) this.style.background='#444'">
+                                Next
+                            </button>
+                            <button onclick="loadTemplates(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}
+                                    style="padding: 0.75rem 1rem; border: 1px solid #555; background: ${currentPage === totalPages ? '#333' : '#444'}; color: ${currentPage === totalPages ? '#666' : '#fff'}; border-radius: 4px; cursor: ${currentPage === totalPages ? 'not-allowed' : 'pointer'}; transition: background 0.2s;"
+                                    onmouseover="if(!this.disabled) this.style.background='#555'"
+                                    onmouseout="if(!this.disabled) this.style.background='#444'">
+                                Last
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else if (pagination && pagination.totalCount > 0) {
+                // Show info even if only one page
+                paginationHtml = `
+                    <div style="margin: 2rem 0; padding: 1rem; background: #2a2a2a; border-radius: 8px; border: 1px solid #444; text-align: center;">
+                        <span style="color: #fff;">
+                            Showing all ${pagination.totalCount} templates
+                        </span>
+                    </div>
+                `;
+            }
+
+            // Find or create pagination container
+            let paginationContainer = document.getElementById('paginationContainer');
+            if (!paginationContainer) {
+                paginationContainer = document.createElement('div');
+                paginationContainer.id = 'paginationContainer';
+
+                // Insert after the table
+                const table = document.querySelector('table');
+                table.parentNode.insertBefore(paginationContainer, table.nextSibling);
+            }
+
+            paginationContainer.innerHTML = paginationHtml;
+        };
+
+        window.loadTemplateInEditor = function(id) {
+            console.log('Redirecting to editor for template ID:', id);
+            // Construct the URL for the editor, passing the template ID
+            const editorUrl = new URL('/design-editor.html', window.location.origin);
+            editorUrl.searchParams.set('templateId', id);
+            // Open the editor in the same tab or a new one
+            window.location.href = editorUrl.toString(); // Open in same tab
+            // window.open(editorUrl.toString(), '_blank'); // Open in new tab
+        }
+
+        window.deleteTemplate = async function(id) {
+            console.log('Delete template ID:', id);
+            if (!confirm('Are you sure you want to delete this template? This cannot be undone.')) {
+                return;
+            }
+            // Send DELETE request to /api/design-templates/:id and reload list
+            try {
+                const response = await fetch(`/api/design-templates/${id}`, { // Use correct endpoint
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                if (!response.ok) {
+                     const errorData = await response.json().catch(() => ({ message: 'Failed to delete template' })); // Try to get error message from body
+                    throw new Error(errorData.message || `Failed to delete template (${response.status})`);
+                }
+                showMessage('Template deleted successfully', 'success');
+                loadTemplates(currentPage); // Refresh the current page
+            } catch (error) {
+                console.error('Error deleting template:', error);
+                showMessage(`Error deleting template: ${error.message}`, 'error');
+            }
+        }
+
+        // Function to show a message
+        function showMessage(message, type) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = message;
+            messageElement.className = `message ${type}`;
+            messageElement.style.display = 'block';
+
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 5000);
+        }
+
+        // Edit template functionality
+        let currentEditingTemplateId = null;
+
+        window.editTemplate = async function(id) {
+            console.log('Edit template ID:', id);
+            currentEditingTemplateId = id;
+
+            try {
+                // Fetch the template data
+                const response = await fetch(`/api/design-templates/${id}`, { credentials: 'include' });
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch template: ${response.statusText}`);
+                }
+                const template = await response.json();
+
+                // Debug: Check what template data we received
+                console.log('🎨 Template data received for editing:', {
+                    id: template._id,
+                    name: template.name,
+                    originalPalette: template.originalPalette,
+                    'originalPalette type': typeof template.originalPalette,
+                    'originalPalette length': template.originalPalette?.length,
+                    'has originalPalette': 'originalPalette' in template,
+                    'template keys': Object.keys(template)
+                });
+
+                // 🎨 CSS FILTER DEBUG - Raw template data from API
+                console.log('🎨 [ADMIN] RAW TEMPLATE DATA FROM API:', {
+                    'template.cssFilterState': template.cssFilterState,
+                    'template.adminData?.cssFilterState': template.adminData?.cssFilterState,
+                    'template.cssFilterState type': typeof template.cssFilterState,
+                    'template.adminData?.cssFilterState type': typeof template.adminData?.cssFilterState,
+                    'has cssFilterState': 'cssFilterState' in template,
+                    'has adminData.cssFilterState': template.adminData && 'cssFilterState' in template.adminData,
+                    'template.cssFilterState JSON': JSON.stringify(template.cssFilterState),
+                    'template.adminData?.cssFilterState JSON': JSON.stringify(template.adminData?.cssFilterState)
+                });
+
+                // Populate the form
+                document.getElementById('editTemplateName').value = template.name || '';
+                document.getElementById('editImagePrompt').value = template.adminData?.prompt || '';
+                document.getElementById('editModel').value = template.adminData?.model || '';
+                document.getElementById('editOriginalPalette').value = template.originalPalette || '';
+                document.getElementById('editOriginalObject').value = template.originalObject || '';
+                document.getElementById('editImageUrl').value = template.adminData?.imageUrl || '';
+
+                // Populate font styles field (check both top-level and adminData)
+                const fontStylesField = document.getElementById('editFontStyles');
+                // Use the one that has content, not just exists
+                const fontStylesList = (template.fontStylesList && template.fontStylesList.length > 0)
+                    ? template.fontStylesList
+                    : template.adminData?.fontStylesList;
+
+                // Debug font styles loading
+                console.log('🎨 FONT STYLES DEBUG - Loading template for edit:', {
+                    'template.fontStylesList': template.fontStylesList,
+                    'template.adminData?.fontStylesList': template.adminData?.fontStylesList,
+                    'combined fontStylesList': fontStylesList,
+                    'is array': Array.isArray(fontStylesList),
+                    'length': fontStylesList?.length,
+                    'fontStylesField found': !!fontStylesField,
+                    'template.adminData': template.adminData,
+                    'template keys': Object.keys(template)
+                });
+
+                if (fontStylesList && Array.isArray(fontStylesList)) {
+                    const jsonValue = JSON.stringify(fontStylesList, null, 2);
+                    fontStylesField.value = jsonValue;
+                    console.log('🎨 FONT STYLES DEBUG - Set textarea value:', jsonValue);
+                } else {
+                    fontStylesField.value = '';
+                    console.log('🎨 FONT STYLES DEBUG - Set empty value (no font styles found)');
+                }
+
+                // Populate decor styles field (check both top-level and adminData)
+                const decorStylesField = document.getElementById('editDecorStyles');
+                // Use the one that has content, not just exists
+                const decorStylesList = (template.decorStylesList && template.decorStylesList.length > 0)
+                    ? template.decorStylesList
+                    : template.adminData?.decorStylesList;
+
+                // Debug decor styles loading
+                console.log('🎨 DECOR STYLES DEBUG - Loading template for edit:', {
+                    'template.decorStylesList': template.decorStylesList,
+                    'template.adminData?.decorStylesList': template.adminData?.decorStylesList,
+                    'combined decorStylesList': decorStylesList,
+                    'is array': Array.isArray(decorStylesList),
+                    'length': decorStylesList?.length,
+                    'decorStylesField found': !!decorStylesField
+                });
+
+                if (decorStylesList && Array.isArray(decorStylesList)) {
+                    const jsonValue = JSON.stringify(decorStylesList, null, 2);
+                    decorStylesField.value = jsonValue;
+                    console.log('🎨 DECOR STYLES DEBUG - Set textarea value:', jsonValue);
+                } else {
+                    decorStylesField.value = '';
+                    console.log('🎨 DECOR STYLES DEBUG - Set empty value (no decor styles found)');
+                }
+
+                // Populate CSS filters field (check both top-level and adminData)
+                const cssFiltersField = document.getElementById('editCSSFilters');
+                // Use the one that has content, not just exists
+                const cssFilterState = (template.cssFilterState && Object.keys(template.cssFilterState).length > 0)
+                    ? template.cssFilterState
+                    : template.adminData?.cssFilterState;
+
+                // Debug CSS filters loading
+                console.log('🎨 CSS FILTERS DEBUG - Loading template for edit:', {
+                    'template name': template.name,
+                    'template.cssFilterState': template.cssFilterState,
+                    'template.adminData?.cssFilterState': template.adminData?.cssFilterState,
+                    'combined cssFilterState': cssFilterState,
+                    'is object': typeof cssFilterState === 'object',
+                    'keys length': cssFilterState ? Object.keys(cssFilterState).length : 0,
+                    'cssFiltersField found': !!cssFiltersField,
+                    'template keys': Object.keys(template),
+                    'adminData keys': template.adminData ? Object.keys(template.adminData) : 'no adminData'
+                });
+
+                if (cssFilterState && typeof cssFilterState === 'object' && Object.keys(cssFilterState).length > 0) {
+                    const jsonValue = JSON.stringify(cssFilterState, null, 2);
+                    cssFiltersField.value = jsonValue;
+                    console.log('🎨 CSS FILTERS DEBUG - Set textarea value:', jsonValue);
+                } else {
+                    cssFiltersField.value = '';
+                    console.log('🎨 CSS FILTERS DEBUG - Set empty value (no CSS filters found)');
+                }
+
+                // Populate duotone effects field (check both top-level and adminData)
+                const duotoneField = document.getElementById('editDuotoneEffects');
+                const duotoneState = (template.duotoneState && Object.keys(template.duotoneState).length > 0)
+                    ? template.duotoneState
+                    : template.adminData?.duotoneState;
+
+                console.log('🎨 DUOTONE DEBUG - Loading template for edit:', {
+                    'template name': template.name,
+                    'template.duotoneState': template.duotoneState,
+                    'template.adminData?.duotoneState': template.adminData?.duotoneState,
+                    'combined duotoneState': duotoneState
+                });
+
+                if (duotoneState && typeof duotoneState === 'object' && Object.keys(duotoneState).length > 0) {
+                    const jsonValue = JSON.stringify(duotoneState, null, 2);
+                    duotoneField.value = jsonValue;
+                    console.log('🎨 DUOTONE DEBUG - Set textarea value:', jsonValue);
+                } else {
+                    duotoneField.value = '';
+                    console.log('🎨 DUOTONE DEBUG - Set empty value (no duotone effects found)');
+                }
+
+                // Populate glitch effects field (check both top-level and adminData)
+                const glitchField = document.getElementById('editGlitchEffects');
+                const glitchState = (template.glitchState && Object.keys(template.glitchState).length > 0)
+                    ? template.glitchState
+                    : template.adminData?.glitchState;
+
+                console.log('🎨 GLITCH DEBUG - Loading template for edit:', {
+                    'template name': template.name,
+                    'template.glitchState': template.glitchState,
+                    'template.adminData?.glitchState': template.adminData?.glitchState,
+                    'combined glitchState': glitchState
+                });
+
+                if (glitchState && typeof glitchState === 'object' && Object.keys(glitchState).length > 0) {
+                    const jsonValue = JSON.stringify(glitchState, null, 2);
+                    glitchField.value = jsonValue;
+                    console.log('🎨 GLITCH DEBUG - Set textarea value:', jsonValue);
+                } else {
+                    glitchField.value = '';
+                    console.log('🎨 GLITCH DEBUG - Set empty value (no glitch effects found)');
+                }
+
+                // Populate halftone effects field (check both top-level and adminData)
+                const halftoneField = document.getElementById('editHalftoneEffects');
+                const halftoneState = (template.halftoneState && Object.keys(template.halftoneState).length > 0)
+                    ? template.halftoneState
+                    : template.adminData?.halftoneState;
+
+                console.log('🎨 HALFTONE DEBUG - Loading template for edit:', {
+                    'template name': template.name,
+                    'template.halftoneState': template.halftoneState,
+                    'template.adminData?.halftoneState': template.adminData?.halftoneState,
+                    'combined halftoneState': halftoneState
+                });
+
+                if (halftoneState && typeof halftoneState === 'object' && Object.keys(halftoneState).length > 0) {
+                    const jsonValue = JSON.stringify(halftoneState, null, 2);
+                    halftoneField.value = jsonValue;
+                    console.log('🎨 HALFTONE DEBUG - Set textarea value:', jsonValue);
+                } else {
+                    halftoneField.value = '';
+                    console.log('🎨 HALFTONE DEBUG - Set empty value (no halftone effects found)');
+                }
+
+                // Format canvas objects for display (show text objects only)
+                const textObjects = template.canvasObjects?.filter(obj => obj.type === 'text') || [];
+                document.getElementById('editTexts').value = JSON.stringify(textObjects, null, 2);
+
+                // Show the modal
+                const modal = document.getElementById('editTemplateModal');
+                modal.style.display = 'block';
+                modal.style.visibility = 'visible';
+                modal.style.opacity = '1';
+                console.log('Modal should now be visible:', modal.style.display);
+
+            } catch (error) {
+                console.error('Error fetching template for edit:', error);
+                showMessage(`Error loading template: ${error.message}`, 'error');
+            }
+        }
+
+        window.closeEditModal = function() {
+            const modal = document.getElementById('editTemplateModal');
+            modal.style.display = 'none';
+            modal.style.visibility = 'hidden';
+            modal.style.opacity = '0';
+            currentEditingTemplateId = null;
+            console.log('Modal closed');
+        }
+
+        // Handle form submission
+        document.getElementById('editTemplateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!currentEditingTemplateId) {
+                showMessage('No template selected for editing', 'error');
+                return;
+            }
+
+            try {
+                // Get form data
+                const formData = new FormData(e.target);
+                const name = formData.get('name');
+                const prompt = formData.get('prompt');
+                const model = formData.get('model');
+                const originalPalette = formData.get('originalPalette');
+                const originalObject = formData.get('originalObject');
+                const imageUrl = formData.get('imageUrl');
+                const textsJson = formData.get('texts');
+                const fontStylesJson = formData.get('fontStyles');
+                const decorStylesJson = formData.get('decorStyles');
+                const cssFiltersJson = formData.get('cssFilters');
+                const duotoneEffectsJson = formData.get('duotoneEffects');
+                const glitchEffectsJson = formData.get('glitchEffects');
+                const halftoneEffectsJson = formData.get('halftoneEffects');
+
+                // Debug: Log form data
+                console.log('🎨 Form submission debug:', {
+                    name,
+                    prompt,
+                    model,
+                    originalPalette,
+                    originalObject,
+                    imageUrl,
+                    'originalPalette length': originalPalette?.length,
+                    'originalPalette value': `"${originalPalette}"`,
+                    'originalObject length': originalObject?.length,
+                    'originalObject value': `"${originalObject}"`
+                });
+
+                // Parse texts JSON if provided
+                let canvasObjects = null;
+                if (textsJson.trim()) {
+                    try {
+                        const textObjects = JSON.parse(textsJson);
+                        // We'll need to merge these with existing non-text objects
+                        // For now, let's fetch the current template to get all objects
+                        const currentResponse = await fetch(`/api/design-templates/${currentEditingTemplateId}`, { credentials: 'include' });
+                        const currentTemplate = await currentResponse.json();
+
+                        // Keep non-text objects and replace text objects
+                        const nonTextObjects = currentTemplate.canvasObjects?.filter(obj => obj.type !== 'text') || [];
+                        canvasObjects = [...nonTextObjects, ...textObjects];
+                    } catch (parseError) {
+                        throw new Error('Invalid JSON format for text objects');
+                    }
+                }
+
+                // Parse font styles JSON if provided
+                let fontStylesList = [];
+                if (fontStylesJson.trim()) {
+                    try {
+                        fontStylesList = JSON.parse(fontStylesJson);
+                        if (!Array.isArray(fontStylesList)) {
+                            throw new Error('Font styles must be an array');
+                        }
+                        console.log('🎨 Parsed font styles list:', fontStylesList);
+                    } catch (error) {
+                        console.error('🎨 Error parsing font styles JSON:', error);
+                        alert('Invalid JSON format in font styles field. Must be an array.');
+                        return;
+                    }
+                }
+
+                // Parse decor styles JSON if provided
+                let decorStylesList = [];
+                if (decorStylesJson.trim()) {
+                    try {
+                        decorStylesList = JSON.parse(decorStylesJson);
+                        if (!Array.isArray(decorStylesList)) {
+                            throw new Error('Decor styles must be an array');
+                        }
+                        console.log('🎨 Parsed decor styles list:', decorStylesList);
+                    } catch (error) {
+                        console.error('🎨 Error parsing decor styles JSON:', error);
+                        alert('Invalid JSON format in decor styles field. Must be an array.');
+                        return;
+                    }
+                }
+
+                // Parse CSS filters JSON if provided
+                let cssFilterState = {};
+                if (cssFiltersJson.trim()) {
+                    try {
+                        cssFilterState = JSON.parse(cssFiltersJson);
+                        if (typeof cssFilterState !== 'object' || Array.isArray(cssFilterState) || cssFilterState === null) {
+                            throw new Error('CSS filters must be an object');
+                        }
+                        console.log('🎨 Parsed CSS filter state:', cssFilterState);
+                    } catch (error) {
+                        console.error('🎨 Error parsing CSS filters JSON:', error);
+                        alert('Invalid JSON format in CSS filters field. Must be an object.');
+                        return;
+                    }
+                }
+
+                // Parse duotone effects JSON if provided
+                let duotoneState = {};
+                if (duotoneEffectsJson.trim()) {
+                    try {
+                        duotoneState = JSON.parse(duotoneEffectsJson);
+                        if (typeof duotoneState !== 'object' || Array.isArray(duotoneState) || duotoneState === null) {
+                            throw new Error('Duotone effects must be an object');
+                        }
+                        console.log('🎨 Parsed duotone state:', duotoneState);
+                    } catch (error) {
+                        console.error('🎨 Error parsing duotone effects JSON:', error);
+                        alert('Invalid JSON format in duotone effects field. Must be an object.');
+                        return;
+                    }
+                }
+
+                // Parse glitch effects JSON if provided
+                let glitchState = {};
+                if (glitchEffectsJson.trim()) {
+                    try {
+                        glitchState = JSON.parse(glitchEffectsJson);
+                        if (typeof glitchState !== 'object' || Array.isArray(glitchState) || glitchState === null) {
+                            throw new Error('Glitch effects must be an object');
+                        }
+                        console.log('🎨 Parsed glitch state:', glitchState);
+                    } catch (error) {
+                        console.error('🎨 Error parsing glitch effects JSON:', error);
+                        alert('Invalid JSON format in glitch effects field. Must be an object.');
+                        return;
+                    }
+                }
+
+                // Parse halftone effects JSON if provided
+                let halftoneState = {};
+                if (halftoneEffectsJson.trim()) {
+                    try {
+                        halftoneState = JSON.parse(halftoneEffectsJson);
+                        if (typeof halftoneState !== 'object' || Array.isArray(halftoneState) || halftoneState === null) {
+                            throw new Error('Halftone effects must be an object');
+                        }
+                        console.log('🎨 Parsed halftone state:', halftoneState);
+                    } catch (error) {
+                        console.error('🎨 Error parsing halftone effects JSON:', error);
+                        alert('Invalid JSON format in halftone effects field. Must be an object.');
+                        return;
+                    }
+                }
+
+                // Prepare update data
+                const updateData = {
+                    name: name,
+                    originalPalette: originalPalette,
+                    originalObject: originalObject,
+                    fontStylesList: fontStylesList, // Include font styles as top-level field (like originalPalette/originalObject)
+                    decorStylesList: decorStylesList, // Include decor styles as top-level field
+                    cssFilterState: cssFilterState, // Include CSS filters as top-level field
+                    duotoneState: duotoneState, // Include duotone effects as top-level field
+                    glitchState: glitchState, // Include glitch effects as top-level field
+                    halftoneState: halftoneState, // Include halftone effects as top-level field
+                    adminData: {
+                        prompt: prompt,
+                        model: model,
+                        imageUrl: imageUrl,
+                        fontStylesList: fontStylesList, // Also include in admin data for backward compatibility
+                        decorStylesList: decorStylesList, // Also include in admin data for backward compatibility
+                        cssFilterState: cssFilterState, // Also include in admin data for backward compatibility
+                        duotoneState: duotoneState, // Also include in admin data for backward compatibility
+                        glitchState: glitchState, // Also include in admin data for backward compatibility
+                        halftoneState: halftoneState // Also include in admin data for backward compatibility
+                    }
+                };
+
+                // Debug: Log update data being sent
+                console.log('🎨 Update data being sent to server:', updateData);
+                console.log('🎨 ADMIN SAVE DEBUG - Effects data:', {
+                    'duotoneEffectsJson': duotoneEffectsJson,
+                    'glitchEffectsJson': glitchEffectsJson,
+                    'halftoneEffectsJson': halftoneEffectsJson,
+                    'parsed duotoneState': duotoneState,
+                    'parsed glitchState': glitchState,
+                    'parsed halftoneState': halftoneState,
+                    'duotoneState type': typeof duotoneState,
+                    'glitchState type': typeof glitchState,
+                    'halftoneState type': typeof halftoneState,
+                    'updateData.duotoneState': updateData.duotoneState,
+                    'updateData.glitchState': updateData.glitchState,
+                    'updateData.halftoneState': updateData.halftoneState,
+                });
+
+                // Only include canvasObjects if we have valid data
+                if (canvasObjects) {
+                    updateData.canvasObjects = canvasObjects;
+                }
+
+                // Send update request
+                const response = await fetch(`/api/design-templates/${currentEditingTemplateId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(updateData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Failed to update template' }));
+                    console.error('🎨 Server response error:', response.status, errorData);
+                    throw new Error(errorData.message || `Failed to update template (${response.status})`);
+                }
+
+                // Log successful response
+                const responseData = await response.json();
+                console.log('🎨 Server response success:', responseData);
+                console.log('🎨 Updated template fontStylesList:', responseData.fontStylesList);
+
+                showMessage('Template updated successfully', 'success');
+                closeEditModal();
+                loadTemplates(currentPage); // Refresh the current page
+
+            } catch (error) {
+                console.error('Error updating template:', error);
+                showMessage(`Error updating template: ${error.message}`, 'error');
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('editTemplateModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        }
+
+        // Toggle publish/unpublish status
+        window.togglePublishStatus = async function(templateId, currentlyPublished) {
+            console.log('Toggle publish status for template:', templateId, 'Currently published:', currentlyPublished);
+
+            try {
+                const response = await fetch(`/api/design-templates/${templateId}/publish`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Failed to toggle publish status' }));
+                    throw new Error(errorData.message || `Failed to toggle publish status (${response.status})`);
+                }
+
+                const result = await response.json();
+                const newPublishedStatus = result.published;
+
+                // Update the button appearance
+                const button = document.getElementById(`publish-btn-${templateId}`);
+                if (button) {
+                    const icon = button.querySelector('i');
+                    if (newPublishedStatus) {
+                        // Template is now published, show unpublish button
+                        button.className = 'btn-action btn-unpublish';
+                        button.title = 'Unpublish Template';
+                        button.onclick = () => togglePublishStatus(templateId, true);
+                        icon.className = 'fas fa-eye-slash';
+                        button.innerHTML = '<i class="fas fa-eye-slash"></i> Unpublish';
+                    } else {
+                        // Template is now unpublished, show publish button
+                        button.className = 'btn-action btn-publish';
+                        button.title = 'Publish Template';
+                        button.onclick = () => togglePublishStatus(templateId, false);
+                        icon.className = 'fas fa-eye';
+                        button.innerHTML = '<i class="fas fa-eye"></i> Publish';
+                    }
+                }
+
+                showMessage(result.message, 'success');
+
+            } catch (error) {
+                console.error('Error toggling publish status:', error);
+                showMessage(`Error toggling publish status: ${error.message}`, 'error');
+            }
+        }
+
+        // Font Styles Management
+        document.getElementById('validateFontStylesBtn')?.addEventListener('click', function() {
+            const fontStylesField = document.getElementById('editFontStyles');
+            const validationSpan = document.getElementById('fontStylesValidation');
+
+            if (!fontStylesField.value.trim()) {
+                validationSpan.textContent = 'Empty field';
+                validationSpan.style.color = '#888';
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(fontStylesField.value);
+                if (!Array.isArray(parsed)) {
+                    throw new Error('Must be an array');
+                }
+
+                // Validate structure
+                let totalStyles = parsed.length;
+                let totalTexts = 0;
+
+                parsed.forEach((style, styleIndex) => {
+                    if (!Array.isArray(style)) {
+                        throw new Error(`Style ${styleIndex + 1} must be an array`);
+                    }
+                    totalTexts = Math.max(totalTexts, style.length);
+
+                    style.forEach((fontConfig, configIndex) => {
+                        if (fontConfig.id === undefined || fontConfig.id === null || !fontConfig.fontFamily || !fontConfig.fontSize) {
+                            throw new Error(`Style ${styleIndex + 1}, config ${configIndex + 1}: Missing required fields (id, fontFamily, fontSize)`);
+                        }
+                    });
+                });
+
+                validationSpan.textContent = `✅ Valid! ${totalStyles} styles, up to ${totalTexts} texts`;
+                validationSpan.style.color = '#10b981';
+
+            } catch (error) {
+                validationSpan.textContent = `❌ ${error.message}`;
+                validationSpan.style.color = '#ef4444';
+            }
+        });
+
+        document.getElementById('clearFontStylesBtn')?.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all font styles? This cannot be undone.')) {
+                document.getElementById('editFontStyles').value = '';
+                document.getElementById('fontStylesValidation').textContent = '';
+            }
+        });
+
+        // Decor Styles Management
+        document.getElementById('validateDecorStylesBtn')?.addEventListener('click', function() {
+            const decorStylesField = document.getElementById('editDecorStyles');
+            const validationSpan = document.getElementById('decorStylesValidation');
+
+            if (!decorStylesField.value.trim()) {
+                validationSpan.textContent = 'Empty field';
+                validationSpan.style.color = '#888';
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(decorStylesField.value);
+                if (!Array.isArray(parsed)) {
+                    throw new Error('Must be an array');
+                }
+
+                // Validate structure
+                let totalStyles = parsed.length;
+                let totalObjects = 0;
+
+                parsed.forEach((style, styleIndex) => {
+                    if (!Array.isArray(style)) {
+                        throw new Error(`Style ${styleIndex + 1} must be an array`);
+                    }
+                    totalObjects = Math.max(totalObjects, style.length);
+
+                    style.forEach((decorConfig, configIndex) => {
+                        if (decorConfig.id === undefined || decorConfig.id === null || !decorConfig.type) {
+                            throw new Error(`Style ${styleIndex + 1}, config ${configIndex + 1}: Missing required fields (id, type)`);
+                        }
+                        if (decorConfig.type !== 'text' && decorConfig.type !== 'shape') {
+                            throw new Error(`Style ${styleIndex + 1}, config ${configIndex + 1}: type must be 'text' or 'shape'`);
+                        }
+                    });
+                });
+
+                validationSpan.textContent = `✅ Valid! ${totalStyles} styles, up to ${totalObjects} objects`;
+                validationSpan.style.color = '#10b981';
+
+            } catch (error) {
+                validationSpan.textContent = `❌ ${error.message}`;
+                validationSpan.style.color = '#ef4444';
+            }
+        });
+
+        document.getElementById('clearDecorStylesBtn')?.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all decor styles? This cannot be undone.')) {
+                document.getElementById('editDecorStyles').value = '';
+                document.getElementById('decorStylesValidation').textContent = '';
+            }
+        });
+
+        // CSS Filters Management
+        document.getElementById('validateCSSFiltersBtn')?.addEventListener('click', function() {
+            const cssFiltersField = document.getElementById('editCSSFilters');
+            const validationSpan = document.getElementById('cssFiltersValidation');
+
+            if (!cssFiltersField.value.trim()) {
+                validationSpan.textContent = 'Empty field';
+                validationSpan.style.color = '#888';
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(cssFiltersField.value);
+
+                // Validate that it's an object
+                if (typeof parsed !== 'object' || Array.isArray(parsed) || parsed === null) {
+                    throw new Error('CSS filters must be a JSON object, not an array or null');
+                }
+
+                // Validate filter properties
+                const validFilters = ['blur', 'brightness', 'contrast', 'saturate', 'hueRotate', 'grayscale', 'sepia', 'invert'];
+                const filterKeys = Object.keys(parsed);
+
+                if (filterKeys.length === 0) {
+                    throw new Error('CSS filters object cannot be empty');
+                }
+
+                filterKeys.forEach(key => {
+                    if (!validFilters.includes(key)) {
+                        throw new Error(`Invalid filter property: ${key}. Valid filters: ${validFilters.join(', ')}`);
+                    }
+
+                    const value = parsed[key];
+                    if (typeof value !== 'number') {
+                        throw new Error(`Filter ${key} must be a number, got ${typeof value}`);
+                    }
+
+                    // Validate ranges for specific filters
+                    if (key === 'blur' && (value < 0 || value > 10)) {
+                        throw new Error(`Filter ${key} must be between 0 and 10, got ${value}`);
+                    }
+                    if (['brightness', 'contrast', 'saturate'].includes(key) && (value < 0 || value > 3)) {
+                        throw new Error(`Filter ${key} must be between 0 and 3, got ${value}`);
+                    }
+                    if (key === 'hueRotate' && (value < 0 || value > 360)) {
+                        throw new Error(`Filter ${key} must be between 0 and 360, got ${value}`);
+                    }
+                    if (['grayscale', 'sepia', 'invert'].includes(key) && (value < 0 || value > 1)) {
+                        throw new Error(`Filter ${key} must be between 0 and 1, got ${value}`);
+                    }
+                });
+
+                validationSpan.textContent = `✅ Valid! ${filterKeys.length} filter properties`;
+                validationSpan.style.color = '#10b981';
+
+            } catch (error) {
+                validationSpan.textContent = `❌ ${error.message}`;
+                validationSpan.style.color = '#ef4444';
+            }
+        });
+
+        document.getElementById('clearCSSFiltersBtn')?.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all CSS filters? This cannot be undone.')) {
+                document.getElementById('editCSSFilters').value = '';
+                document.getElementById('cssFiltersValidation').textContent = '';
+            }
+        });
+
+        // Duotone Effects Management
+        document.getElementById('validateDuotoneBtn')?.addEventListener('click', function() {
+            const duotoneField = document.getElementById('editDuotoneEffects');
+            const validationSpan = document.getElementById('duotoneValidation');
+
+            if (!duotoneField.value.trim()) {
+                validationSpan.textContent = 'Empty field';
+                validationSpan.style.color = '#888';
+                return;
+            }
+
+            try {
+                const duotoneData = JSON.parse(duotoneField.value);
+                validationSpan.textContent = '✅ Valid JSON';
+                validationSpan.style.color = '#10b981';
+                console.log('Duotone data:', duotoneData);
+            } catch (e) {
+                validationSpan.textContent = '❌ Invalid JSON: ' + e.message;
+                validationSpan.style.color = '#ef4444';
+            }
+        });
+
+        document.getElementById('clearDuotoneBtn')?.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all duotone effects? This cannot be undone.')) {
+                document.getElementById('editDuotoneEffects').value = '';
+                document.getElementById('duotoneValidation').textContent = '';
+            }
+        });
+
+        // Glitch Effects Management
+        document.getElementById('validateGlitchBtn')?.addEventListener('click', function() {
+            const glitchField = document.getElementById('editGlitchEffects');
+            const validationSpan = document.getElementById('glitchValidation');
+
+            if (!glitchField.value.trim()) {
+                validationSpan.textContent = 'Empty field';
+                validationSpan.style.color = '#888';
+                return;
+            }
+
+            try {
+                const glitchData = JSON.parse(glitchField.value);
+                validationSpan.textContent = '✅ Valid JSON';
+                validationSpan.style.color = '#10b981';
+                console.log('Glitch data:', glitchData);
+            } catch (e) {
+                validationSpan.textContent = '❌ Invalid JSON: ' + e.message;
+                validationSpan.style.color = '#ef4444';
+            }
+        });
+
+        document.getElementById('clearGlitchBtn')?.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all glitch effects? This cannot be undone.')) {
+                document.getElementById('editGlitchEffects').value = '';
+                document.getElementById('glitchValidation').textContent = '';
+            }
+        });
+
+        // Halftone Effects Management
+        document.getElementById('validateHalftoneBtn')?.addEventListener('click', function() {
+            const halftoneField = document.getElementById('editHalftoneEffects');
+            const validationSpan = document.getElementById('halftoneValidation');
+
+            if (!halftoneField.value.trim()) {
+                validationSpan.textContent = 'Empty field';
+                validationSpan.style.color = '#888';
+                return;
+            }
+
+            try {
+                const halftoneData = JSON.parse(halftoneField.value);
+                validationSpan.textContent = '✅ Valid JSON';
+                validationSpan.style.color = '#10b981';
+                console.log('Halftone data:', halftoneData);
+            } catch (e) {
+                validationSpan.textContent = '❌ Invalid JSON: ' + e.message;
+                validationSpan.style.color = '#ef4444';
+            }
+        });
+
+        document.getElementById('clearHalftoneBtn')?.addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all halftone effects? This cannot be undone.')) {
+                document.getElementById('editHalftoneEffects').value = '';
+                document.getElementById('halftoneValidation').textContent = '';
+            }
+        });
+
+    </script>
+</body>
+</html>

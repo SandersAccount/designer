@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Font Preview Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0 0 20px 0;
+            color: #333;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .input-group input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            min-width: 200px;
+        }
+
+        .input-group button {
+            padding: 10px 20px;
+            background: #007cba;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .input-group button:hover {
+            background: #005a87;
+        }
+
+        .font-size-controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .font-size-controls input[type="range"] {
+            width: 200px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .font-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .font-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .font-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .font-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+
+        .font-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .font-name {
+            font-weight: bold;
+            color: #495057;
+            min-width: 200px;
+        }
+
+        .font-preview {
+            font-size: 24px;
+            line-height: 1.2;
+            color: #333;
+            word-break: break-word;
+        }
+
+        .error {
+            color: #dc3545;
+            font-style: italic;
+        }
+
+        .stats {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Font Tagging System Styles */
+        .font-tags-container {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            margin-top: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .font-tags-header {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .font-tags-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .tag-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #495057;
+        }
+
+        .tag-checkbox input[type="checkbox"] {
+            margin: 0;
+            transform: scale(0.9);
+        }
+
+        .tag-checkbox label {
+            cursor: pointer;
+            user-select: none;
+            margin: 0;
+        }
+
+        .save-tags-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .save-tags-btn:hover {
+            background: #218838;
+        }
+
+        .save-tags-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .tags-status {
+            font-size: 11px;
+            color: #6c757d;
+            margin-left: 8px;
+        }
+
+        .tags-saved {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .tags-status.saving {
+            color: #f59e0b !important;
+            font-style: italic;
+        }
+
+        .tags-status.error {
+            color: #ef4444 !important;
+            font-weight: bold;
+        }
+
+        .save-tags-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .font-table th:last-child {
+            width: 300px;
+        }
+
+        @media (max-width: 768px) {
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .input-group input,
+            .input-group button {
+                width: 100%;
+            }
+
+            .font-table th:first-child,
+            .font-table td:first-child {
+                min-width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔤 Font Preview Tool</h1>
+        <div class="input-group">
+            <label for="previewText">Text to preview:</label>
+            <input type="text" id="previewText" placeholder="Enter your text here..." value="Wanted">
+            <button onclick="generatePreview()">Generate Preview</button>
+        </div>
+        <div class="font-size-controls">
+            <label for="fontSize">Font Size:</label>
+            <input type="range" id="fontSize" min="12" max="72" value="24" oninput="updateFontSize(this.value)">
+            <span id="fontSizeValue">24px</span>
+        </div>
+    </div>
+
+    <div id="loadingMessage" class="loading" style="display: none;">
+        Loading fonts and generating preview...
+    </div>
+
+    <div id="fontTableContainer" style="display: none;">
+        <div class="font-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Font Name</th>
+                        <th>Preview</th>
+                        <th>Tags</th>
+                    </tr>
+                </thead>
+                <tbody id="fontTableBody">
+                </tbody>
+            </table>
+        </div>
+        <div class="stats" id="statsContainer"></div>
+    </div>
+
+    <script src="font-map.js"></script>
+    <script>
+        let currentFontSize = 24;
+
+        function updateFontSize(size) {
+            currentFontSize = size;
+            document.getElementById('fontSizeValue').textContent = size + 'px';
+            
+            // Update all existing previews
+            const previews = document.querySelectorAll('.font-preview');
+            previews.forEach(preview => {
+                preview.style.fontSize = size + 'px';
+            });
+        }
+
+        async function generatePreview() {
+            const text = document.getElementById('previewText').value.trim();
+
+            if (!text) {
+                alert('Please enter some text to preview!');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loadingMessage').style.display = 'block';
+            document.getElementById('fontTableContainer').style.display = 'none';
+
+            // Clear previous results
+            const tableBody = document.getElementById('fontTableBody');
+            tableBody.innerHTML = '';
+
+            // Load font tags from database first
+            console.log('🏷️ [PREVIEW] Loading font tags before generating preview...');
+            await loadFontTags();
+
+            // Generate preview after a short delay to show loading
+            setTimeout(() => {
+                generateFontPreviews(text);
+            }, 100);
+        }
+
+        // Font tagging system
+        const FONT_TAGS = [
+            'All',
+            'Condensed',
+            'Condensed Regular',
+            'Sans Serif',
+            'Serif',
+            'Elegant',
+            'Modern',
+            'Playful',
+            'Bold',
+            'Light',
+            'Script',
+            'Black',
+            'Rounded',
+            'Extended Regular',
+            'Extended'
+        ];
+
+        // Global font tags cache
+        let globalFontTags = {};
+
+        // Load saved font tags from database
+        async function loadFontTags() {
+            try {
+                console.log('🏷️ [LOAD] Loading font tags from database...');
+                const response = await fetch('/api/font-tags');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    globalFontTags = result.data;
+                    console.log('🏷️ [LOAD] Successfully loaded font tags for', Object.keys(globalFontTags).length, 'fonts');
+                    console.log('🏷️ [LOAD] Font tags data:', globalFontTags);
+                    return globalFontTags;
+                } else {
+                    console.error('🏷️ [LOAD] Failed to load font tags:', result.error);
+                    return {};
+                }
+            } catch (error) {
+                console.error('🏷️ [LOAD] Error loading font tags from database:', error);
+
+                // Fallback to localStorage if database fails
+                console.log('🏷️ [LOAD] Falling back to localStorage...');
+                const saved = localStorage.getItem('fontTags');
+                const localData = saved ? JSON.parse(saved) : {};
+
+                // If we have localStorage data, offer to migrate it
+                if (Object.keys(localData).length > 0) {
+                    console.log('🏷️ [LOAD] Found localStorage data, offering migration...');
+                    offerMigration(localData);
+                }
+
+                return localData;
+            }
+        }
+
+        // Save font tags to database
+        async function saveFontTagsToDatabase(fontFamily, tags) {
+            try {
+                console.log('🏷️ [SAVE] Saving tags to database for font:', fontFamily, 'Tags:', tags);
+
+                const response = await fetch('/api/font-tags', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include', // Include cookies for authentication
+                    body: JSON.stringify({
+                        fontFamily: fontFamily,
+                        tags: tags
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('🏷️ [SAVE] Successfully saved tags to database');
+                    // Update local cache
+                    globalFontTags[fontFamily] = tags;
+                    return true;
+                } else {
+                    console.error('🏷️ [SAVE] Failed to save tags to database:', result.error);
+                    return false;
+                }
+            } catch (error) {
+                console.error('🏷️ [SAVE] Error saving tags to database:', error);
+
+                // Fallback to localStorage
+                console.log('🏷️ [SAVE] Falling back to localStorage...');
+                const allFontTags = JSON.parse(localStorage.getItem('fontTags') || '{}');
+                allFontTags[fontFamily] = tags;
+                localStorage.setItem('fontTags', JSON.stringify(allFontTags));
+                return false;
+            }
+        }
+
+        // Offer to migrate localStorage data to database
+        function offerMigration(localData) {
+            const migrate = confirm(
+                `Found ${Object.keys(localData).length} fonts with tags in local storage.\n\n` +
+                'Would you like to migrate this data to the database?\n' +
+                'This will make your tags available across all devices.'
+            );
+
+            if (migrate) {
+                migrateLocalStorageToDatabase(localData);
+            }
+        }
+
+        // Migrate localStorage data to database
+        async function migrateLocalStorageToDatabase(localData) {
+            try {
+                console.log('🏷️ [MIGRATE] Starting migration of localStorage data...');
+
+                const response = await fetch('/api/font-tags/migrate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        localStorageData: localData
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('🏷️ [MIGRATE] Migration completed successfully');
+                    console.log('🏷️ [MIGRATE] Migrated:', result.migrated, 'fonts');
+
+                    alert(`Migration completed successfully!\n\nMigrated ${result.migrated} fonts to database.`);
+
+                    // Clear localStorage after successful migration
+                    localStorage.removeItem('fontTags');
+
+                    // Reload font tags from database
+                    await loadFontTags();
+
+                    // Refresh the interface if it's already generated
+                    const tableBody = document.getElementById('fontTableBody');
+                    if (tableBody && tableBody.children.length > 0) {
+                        const text = document.getElementById('previewText').value;
+                        if (text) {
+                            generateFontPreviews(text);
+                        }
+                    }
+                } else {
+                    console.error('🏷️ [MIGRATE] Migration failed:', result.error);
+                    alert('Migration failed: ' + result.error);
+                }
+            } catch (error) {
+                console.error('🏷️ [MIGRATE] Error during migration:', error);
+                alert('Migration failed: ' + error.message);
+            }
+        }
+
+        // Create tagging interface for a font
+        function createFontTagsInterface(fontFamily) {
+            const container = document.createElement('div');
+            container.className = 'font-tags-container';
+
+            const header = document.createElement('div');
+            header.className = 'font-tags-header';
+            header.textContent = 'Font Tags:';
+            container.appendChild(header);
+
+            const grid = document.createElement('div');
+            grid.className = 'font-tags-grid';
+
+            // Use cached font tags data
+            const fontTags = globalFontTags[fontFamily] || [];
+
+            // Skip 'All' tag for individual font tagging
+            const tagsToShow = FONT_TAGS.filter(tag => tag !== 'All');
+
+            tagsToShow.forEach(tag => {
+                const checkboxContainer = document.createElement('div');
+                checkboxContainer.className = 'tag-checkbox';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `${fontFamily}-${tag}`;
+                checkbox.checked = fontTags.includes(tag);
+
+                const label = document.createElement('label');
+                label.htmlFor = checkbox.id;
+                label.textContent = tag;
+
+                checkboxContainer.appendChild(checkbox);
+                checkboxContainer.appendChild(label);
+                grid.appendChild(checkboxContainer);
+            });
+
+            container.appendChild(grid);
+
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.display = 'flex';
+            buttonContainer.style.alignItems = 'center';
+
+            const saveButton = document.createElement('button');
+            saveButton.className = 'save-tags-btn';
+            saveButton.textContent = 'Save Tags';
+            saveButton.onclick = () => saveFontTagsForFont(fontFamily, container);
+
+            const status = document.createElement('span');
+            status.className = 'tags-status';
+            status.textContent = fontTags.length > 0 ? `${fontTags.length} tags saved` : 'No tags saved';
+            if (fontTags.length > 0) {
+                status.classList.add('tags-saved');
+            }
+
+            buttonContainer.appendChild(saveButton);
+            buttonContainer.appendChild(status);
+            container.appendChild(buttonContainer);
+
+            return container;
+        }
+
+        // Save tags for a specific font
+        async function saveFontTagsForFont(fontFamily, container) {
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            const selectedTags = [];
+
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const tag = checkbox.id.split('-').slice(1).join('-'); // Remove font name prefix
+                    selectedTags.push(tag);
+                }
+            });
+
+            // Update status to show saving
+            const status = container.querySelector('.tags-status');
+            const saveButton = container.querySelector('.save-tags-btn');
+
+            status.textContent = 'Saving...';
+            status.className = 'tags-status saving';
+            saveButton.disabled = true;
+
+            // Save to database
+            const success = await saveFontTagsToDatabase(fontFamily, selectedTags);
+
+            // Update status based on result
+            if (success) {
+                status.textContent = selectedTags.length > 0 ? `${selectedTags.length} tags saved` : 'No tags saved';
+                status.className = 'tags-status';
+                if (selectedTags.length > 0) {
+                    status.classList.add('tags-saved');
+                }
+                console.log(`🏷️ [SAVE] Successfully saved tags for "${fontFamily}":`, selectedTags);
+            } else {
+                status.textContent = 'Save failed - using local storage';
+                status.className = 'tags-status error';
+                console.log(`🏷️ [SAVE] Failed to save to database for "${fontFamily}", using localStorage fallback`);
+            }
+
+            saveButton.disabled = false;
+        }
+
+        function generateFontPreviews(text) {
+            const tableBody = document.getElementById('fontTableBody');
+            let successCount = 0;
+            let errorCount = 0;
+
+            // Get all font families from the fontMap
+            const fontFamilies = Object.keys(fontMap);
+            console.log(`🔤 [FONT-PREVIEW] Total fonts in fontMap: ${fontFamilies.length}`);
+            console.log(`🔤 [FONT-PREVIEW] Font families:`, fontFamilies);
+
+            fontFamilies.forEach(fontFamily => {
+                const fontData = fontMap[fontFamily];
+                
+                // Use regular variant if available, otherwise use the first available variant
+                let fontPath = fontData.regular || fontData[Object.keys(fontData)[0]];
+                
+                if (fontPath) {
+                    const row = document.createElement('tr');
+                    
+                    // Font name cell
+                    const nameCell = document.createElement('td');
+                    nameCell.className = 'font-name';
+                    nameCell.textContent = fontFamily;
+                    
+                    // Preview cell
+                    const previewCell = document.createElement('td');
+                    const previewDiv = document.createElement('div');
+                    previewDiv.className = 'font-preview';
+                    previewDiv.style.fontSize = currentFontSize + 'px';
+                    previewDiv.textContent = text;
+                    
+                    // Load the font
+                    loadFont(fontFamily, fontPath).then(() => {
+                        previewDiv.style.fontFamily = `"${fontFamily}", Arial, sans-serif`;
+                        successCount++;
+                        updateStats(successCount, errorCount, fontFamilies.length);
+                    }).catch(() => {
+                        previewDiv.innerHTML = `<span class="error">Font failed to load</span>`;
+                        errorCount++;
+                        updateStats(successCount, errorCount, fontFamilies.length);
+                    });
+                    
+                    previewCell.appendChild(previewDiv);
+                    row.appendChild(nameCell);
+                    row.appendChild(previewCell);
+
+                    // Tags cell
+                    const tagsCell = document.createElement('td');
+                    const tagsInterface = createFontTagsInterface(fontFamily);
+                    tagsCell.appendChild(tagsInterface);
+                    row.appendChild(tagsCell);
+
+                    tableBody.appendChild(row);
+                } else {
+                    errorCount++;
+                }
+            });
+
+            // Hide loading and show results
+            document.getElementById('loadingMessage').style.display = 'none';
+            document.getElementById('fontTableContainer').style.display = 'block';
+            
+            updateStats(successCount, errorCount, fontFamilies.length);
+        }
+
+        function loadFont(fontFamily, fontPath) {
+            return new Promise((resolve, reject) => {
+                const font = new FontFace(fontFamily, `url(${fontPath})`);
+                
+                font.load().then(() => {
+                    document.fonts.add(font);
+                    resolve();
+                }).catch(() => {
+                    reject();
+                });
+            });
+        }
+
+        function updateStats(successCount, errorCount, totalCount) {
+            const statsContainer = document.getElementById('statsContainer');
+            statsContainer.innerHTML = `
+                <strong>Preview Stats:</strong> 
+                ${successCount} fonts loaded successfully, 
+                ${errorCount} failed to load, 
+                ${totalCount} total fonts
+            `;
+        }
+
+        // Generate preview on Enter key
+        document.getElementById('previewText').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generatePreview();
+            }
+        });
+
+        // Auto-generate preview on page load
+        window.addEventListener('load', function() {
+            generatePreview();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script type="module">
+        // Import components
+        import { Toast, showToast } from '/js/components/Toast.js';
+        
+        // Make showToast available globally
+        window.showToast = showToast;
+        
+        // Simple error notification function as fallback
+        window.showError = function(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.style.position = 'fixed';
+            errorDiv.style.top = '20px';
+            errorDiv.style.left = '50%';
+            errorDiv.style.transform = 'translateX(-50%)';
+            errorDiv.style.background = '#f44336';
+            errorDiv.style.color = 'white';
+            errorDiv.style.padding = '12px 24px';
+            errorDiv.style.borderRadius = '8px';
+            errorDiv.style.zIndex = '10000';
+            errorDiv.textContent = message;
+            
+            document.body.appendChild(errorDiv);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 4000);
+        };
+    </script>
+    <style>
+        body {
+            background: #f8fafc;
+            color: #1f2937;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            padding-top: 80px; /* Add space for topbar */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+            color: #1f2937;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: #374151;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .projects-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin: 0;
+            color: #1f2937;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .view-btn {
+            padding: 0.5rem;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 6px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .projects-grid.list-view {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-card:hover {
+            border-color: #d1d5db;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        /* List View Styles */
+        .project-card.list-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 8px;
+            min-height: 80px;
+        }
+
+        .project-card.list-item:hover {
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-card.create-new {
+            border: 2px dashed #d1d5db;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            background: #f9fafb;
+        }
+
+        .project-card.create-new:hover {
+            border-color: #9ca3af;
+        }
+
+        .project-card.create-new i {
+            font-size: 2rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+
+        .project-card.create-new span {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .project-preview {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #f9fafb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .project-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* List View Project Preview */
+        .list-item .project-preview {
+            width: 60px;
+            height: 60px;
+            min-width: 60px;
+            min-height: 60px;
+            border-radius: 6px;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        /* List View Content */
+        .list-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 0; /* Allow text truncation */
+        }
+
+        .list-info {
+            flex: 1;
+            min-width: 0;
+            margin-right: 1rem;
+        }
+
+        .list-info h3 {
+            margin: 0 0 0.25rem 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1f2937;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .list-info .project-date {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #6b7280;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .list-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .list-actions .btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        .project-info {
+            padding: 1rem;
+        }
+
+        .project-title {
+            font-weight: 600;
+            margin: 0 0 0.5rem;
+            font-size: 1rem;
+            color: #1f2937;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .project-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .project-btn.edit {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .project-btn.edit:hover {
+            background: #2563eb;
+        }
+
+        .project-btn.duplicate {
+            background: #6b7280;
+            color: white;
+        }
+
+        .project-btn.duplicate:hover {
+            background: #4b5563;
+        }
+
+        .project-btn.delete {
+            background: #dc2626;
+            color: white;
+        }
+
+        .project-btn.delete:hover {
+            background: #b91c1c;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #9ca3af;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 0.5rem;
+            color: #4b5563;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .folders-section {
+            margin-bottom: 2rem;
+        }
+
+        .folders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .folder-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .folder-card:hover {
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .folder-card.selected {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .folder-card.create-new {
+            border: 2px dashed #d1d5db;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+            background: #f9fafb;
+        }
+
+        .folder-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .folder-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .folder-title {
+            font-weight: 500;
+            margin: 0;
+            color: #1f2937;
+        }
+
+        .folder-count {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .projects-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+            
+            .folders-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .list-item .project-preview {
+                width: 50px;
+                height: 50px;
+                min-width: 50px;
+                min-height: 50px;
+            }
+
+            .list-info h3 {
+                font-size: 0.9rem;
+            }
+
+            .list-info .project-date {
+                font-size: 0.75rem;
+            }
+
+            .list-actions {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+
+            .list-actions .btn {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Image Modal Styles */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-modal.show {
+            display: flex;
+        }
+
+        .image-modal-content {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            background-color: #f9fafb; /* Default background, will be overridden by JavaScript */
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .image-modal-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .image-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 1001;
+            transition: background 0.2s ease;
+        }
+
+        .image-modal-close:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <div id="topbar"></div>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>My Projects</h1>
+            <div class="header-actions">
+                <a href="/design-editor.html" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    New Project
+                </a>
+                <button class="btn btn-secondary" id="createFolderBtn">
+                    <i class="fas fa-folder-plus"></i>
+                    New Folder
+                </button>
+            </div>
+        </div>
+
+        <!-- Project Folders Section -->
+        <div class="folders-section">
+            <div class="section-header">
+                <h2 class="section-title">Folders</h2>
+            </div>
+            <div class="folders-grid" id="foldersGrid">
+                <!-- Folders will be loaded here -->
+            </div>
+        </div>
+
+        <!-- My Projects Section -->
+        <div class="projects-section">
+            <div class="section-header">
+                <h2 class="section-title">My Projects</h2>
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="grid">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button class="view-btn" data-view="list">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="projects-grid" id="projectsGrid">
+                <!-- Projects will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Recent Projects Section -->
+        <div class="projects-section">
+            <div class="section-header">
+                <h2 class="section-title">Recent Projects</h2>
+            </div>
+            <div class="projects-grid" id="recentProjectsGrid">
+                <!-- Recent projects will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="image-modal" id="imageModal">
+        <div class="image-modal-content">
+            <button class="image-modal-close" onclick="closeImageModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <img id="modalImage" src="" alt="Image">
+        </div>
+    </div>
+
+    <!-- Modals will be added here -->
+    <project-modal></project-modal>
+    <toast-notification></toast-notification>
+
+    <script type="module" src="/js/pages/MyProjectsPage.js"></script>
+</body>
+</html>

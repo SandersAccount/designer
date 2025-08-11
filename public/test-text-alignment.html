@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Alignment Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>📝 Text Alignment Fix Test</h1>
+    
+    <div class="test-container">
+        <h2>Test Instructions</h2>
+        <p>This test verifies that the text alignment fix is working correctly:</p>
+        <ol>
+            <li>Click "Open Design Editor" to open the main editor</li>
+            <li>Add a text object to the canvas</li>
+            <li>Set the Text Box Width to a value like 30 characters</li>
+            <li>Type some text that will wrap to multiple lines</li>
+            <li>Test different alignment options: Left, Center, Right, Justify</li>
+            <li>Verify that text stays within the text box boundaries</li>
+            <li>Check the browser console for alignment debug logs</li>
+        </ol>
+        
+        <button class="test-button" onclick="openDesignEditor()">🎨 Open Design Editor</button>
+        <button class="test-button" onclick="checkLogs()">📋 Check Console Logs</button>
+        <button class="test-button" onclick="runQuickTest()">⚡ Run Quick Test</button>
+        
+        <div id="status" class="status info">
+            <strong>Status:</strong> Ready to test. Click "Open Design Editor" to begin.
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>Expected Behavior</h2>
+        <ul>
+            <li>✅ <strong>Left Alignment:</strong> Text should start from the left edge of the text box</li>
+            <li>✅ <strong>Center Alignment:</strong> Text should be centered within the text box</li>
+            <li>✅ <strong>Right Alignment:</strong> Text should end at the right edge of the text box</li>
+            <li>✅ <strong>Justify Alignment:</strong> Text should spread across the full width (except last line)</li>
+            <li>✅ <strong>No Overflow:</strong> Text should never extend outside the text box boundaries</li>
+            <li>✅ <strong>No Truncation:</strong> All text should be visible within the boundaries</li>
+            <li>✅ <strong>Selection Box:</strong> Should properly indicate the text area</li>
+        </ul>
+    </div>
+
+    <div class="test-container">
+        <h2>Test Results</h2>
+        <div id="testResults">
+            <p>No tests run yet. Use the buttons above to start testing.</p>
+        </div>
+    </div>
+
+    <script>
+        function openDesignEditor() {
+            updateStatus('Opening Design Editor...', 'info');
+            window.open('/design-editor.html', '_blank');
+            setTimeout(() => {
+                updateStatus('Design Editor opened. Follow the test instructions above.', 'success');
+            }, 1000);
+        }
+
+        function checkLogs() {
+            updateStatus('Check the browser console for logs starting with "📦 MULTI-LINE" and "📦 ALIGNMENT BOUNDS"', 'info');
+            console.log('📦 TEST: Checking for text alignment logs...');
+            console.log('📦 TEST: Look for logs like "📦 MULTI-LINE: LEFT/RIGHT/CENTER alignment"');
+            console.log('📦 TEST: Look for logs like "📦 ALIGNMENT BOUNDS DEBUG"');
+        }
+
+        function runQuickTest() {
+            updateStatus('Running quick test...', 'info');
+            
+            // Simulate the test steps
+            const testSteps = [
+                'Creating test text object...',
+                'Setting text box width to 30 characters...',
+                'Testing left alignment...',
+                'Testing center alignment...',
+                'Testing right alignment...',
+                'Testing justify alignment...',
+                'Verifying text boundaries...'
+            ];
+            
+            let currentStep = 0;
+            const interval = setInterval(() => {
+                if (currentStep < testSteps.length) {
+                    updateTestResults(`Step ${currentStep + 1}: ${testSteps[currentStep]}`);
+                    currentStep++;
+                } else {
+                    clearInterval(interval);
+                    updateStatus('Quick test completed. Open the Design Editor for manual testing.', 'success');
+                    updateTestResults('✅ Quick test simulation completed. Manual testing required in Design Editor.');
+                }
+            }, 500);
+        }
+
+        function updateStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = `<strong>Status:</strong> ${message}`;
+        }
+
+        function updateTestResults(message) {
+            const resultsDiv = document.getElementById('testResults');
+            const timestamp = new Date().toLocaleTimeString();
+            resultsDiv.innerHTML += `<p>[${timestamp}] ${message}</p>`;
+        }
+
+        // Auto-check for console errors
+        window.addEventListener('error', (e) => {
+            updateTestResults(`❌ JavaScript Error: ${e.message}`);
+        });
+
+        console.log('📦 TEXT ALIGNMENT TEST: Test page loaded successfully');
+        console.log('📦 TEXT ALIGNMENT TEST: Ready to test text alignment fixes');
+    </script>
+</body>
+</html>

@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Box Sizing Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        .canvas-container {
+            border: 1px solid #ccc;
+            margin: 10px 0;
+            position: relative;
+        }
+        canvas {
+            display: block;
+            background: white;
+        }
+        .controls {
+            margin: 10px 0;
+        }
+        .controls button {
+            margin: 5px;
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .controls button:hover {
+            background: #0056b3;
+        }
+        .info {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .test-result {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Text Box Sizing Test</h1>
+        <p>This page tests different approaches to sizing and positioning text boxes to understand what works and what doesn't.</p>
+
+        <div class="test-section">
+            <h2>Test 1: Pixel-Perfect Detection (Same as Guidelines)</h2>
+            <p>Using the exact same logic as the "Add Guidelines Around" feature to detect text bounds.</p>
+            <div class="canvas-container">
+                <canvas id="canvas1" width="800" height="400"></canvas>
+            </div>
+            <div class="controls">
+                <button onclick="test1_addText()">Add Text</button>
+                <button onclick="test1_detectBounds()">Detect Pixel-Perfect Bounds</button>
+                <button onclick="test1_createGuidelines()">Create Guidelines (Reference)</button>
+                <button onclick="test1_testTopAlignment()">Test Top Alignment</button>
+                <button onclick="test1_testBottomAlignment()">Test Bottom Alignment</button>
+                <button onclick="test1_testBothAlignment()">Test Both Top & Bottom</button>
+                <button onclick="test1_testAllSides()">Test All 4 Sides</button>
+                <button onclick="test1_shrinkTextBox()">Shrink Text Box</button>
+                <button onclick="test1_showVisualTextBox()">Show Visual Text Box</button>
+                <button onclick="test1_resizeVisualBox()">Resize Visual Box</button>
+                <button onclick="test1_clear()">Clear</button>
+            </div>
+            <div id="test1-info" class="info">Ready for testing...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 2: Manual Text Box Positioning</h2>
+            <p>Testing what happens when we manually set text object position and size.</p>
+            <div class="canvas-container">
+                <canvas id="canvas2" width="800" height="400"></canvas>
+            </div>
+            <div class="controls">
+                <button onclick="test2_addText()">Add Text</button>
+                <button onclick="test2_setPosition(100, 100)">Set Position (100, 100)</button>
+                <button onclick="test2_setPosition(200, 200)">Set Position (200, 200)</button>
+                <button onclick="test2_setCustomBounds(300, 150)">Set Custom Bounds (300x150)</button>
+                <button onclick="test2_clear()">Clear</button>
+            </div>
+            <div id="test2-info" class="info">Ready for testing...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 3: Debug Pixel Detection</h2>
+            <p>Debug the pixel detection to see exactly what's happening.</p>
+            <div class="canvas-container">
+                <canvas id="canvas3" width="800" height="400"></canvas>
+            </div>
+            <div class="controls">
+                <button onclick="test3_debugPixelDetection()">Debug Pixel Detection</button>
+                <button onclick="test3_showActualVsDetected()">Show Actual vs Detected</button>
+                <button onclick="test3_clear()">Clear</button>
+            </div>
+            <div id="test3-info" class="info">Ready for testing...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test 4: SVG Component Detection</h2>
+            <p>Detect individual components/groups within an SVG image and create guidelines around them.</p>
+            <div class="canvas-container">
+                <canvas id="canvas4" width="800" height="400"></canvas>
+            </div>
+            <div class="controls">
+                <div style="margin-bottom: 10px;">
+                    <label for="svgFileInput">Upload SVG file:</label>
+                    <input type="file" id="svgFileInput" accept=".svg" onchange="test4_loadCustomSVG()" style="margin-left: 10px;">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label for="svgPresets">Or choose preset:</label>
+                    <select id="svgPresets" onchange="test4_loadPresetSVG()" style="margin-left: 10px;">
+                        <option value="">Select a preset SVG...</option>
+                        <option value="stock/images/test.svg">Test SVG (Character)</option>
+                        <option value="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect x='20' y='20' width='60' height='60' fill='red'/%3E%3Ccircle cx='140' cy='50' r='30' fill='blue'/%3E%3Cpolygon points='50,120 20,180 80,180' fill='green'/%3E%3Crect x='120' y='120' width='60' height='60' fill='orange'/%3E%3C/svg%3E">Simple Shapes</option>
+                        <option value="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Cg id='header'%3E%3Crect x='10' y='10' width='280' height='40' fill='%233498db'/%3E%3Ctext x='150' y='35' text-anchor='middle' fill='white'%3EHeader%3C/text%3E%3C/g%3E%3Cg id='sidebar'%3E%3Crect x='10' y='60' width='80' height='130' fill='%23e74c3c'/%3E%3C/g%3E%3Cg id='content'%3E%3Crect x='100' y='60' width='190' height='130' fill='%232ecc71'/%3E%3C/g%3E%3C/svg%3E">Layout Components</option>
+                        <option value="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Cg id='face'%3E%3Ccircle cx='200' cy='150' r='100' fill='%23ffeb3b'/%3E%3Ccircle cx='170' cy='120' r='10' fill='black'/%3E%3Ccircle cx='230' cy='120' r='10' fill='black'/%3E%3Cpath d='M 160 180 Q 200 220 240 180' stroke='black' stroke-width='3' fill='none'/%3E%3C/g%3E%3C/svg%3E">Smiley Face</option>
+                    </select>
+                    <button onclick="test4_loadSVG()" style="margin-left: 10px;">Load Default Test SVG</button>
+                </div>
+                <div>
+                    <button onclick="test4_detectComponents()">Detect Components</button>
+                    <button onclick="test4_showAllBounds()">Show All Component Bounds</button>
+                    <button onclick="test4_createGuidelines()">Create Guidelines</button>
+                    <button onclick="test4_clear()">Clear</button>
+                </div>
+            </div>
+            <div id="test4-info" class="info">Ready for SVG component detection...</div>
+        </div>
+    </div>
+
+    <script>
+        // Test objects to simulate the design editor
+        let testObjects = {
+            test1: [],
+            test2: [],
+            test3: []
+        };
+
+        // Simulate text object structure
+        function createTextObject(text, x, y, fontSize = 100, fontFamily = 'Arial') {
+            return {
+                type: 'text',
+                text: text,
+                x: x,
+                y: y,
+                fontSize: fontSize,
+                fontFamily: fontFamily,
+                color: '#3b82f6',
+                bold: true
+            };
+        }
+
+        // Simulate setTextContextOn function
+        function setTextContextOn(ctx, obj) {
+            const fontWeight = obj.bold ? 'bold' : 'normal';
+            ctx.font = `${fontWeight} ${obj.fontSize}px ${obj.fontFamily}`;
+            ctx.fillStyle = obj.color;
+        }
+
+        // Test 1: Pixel-Perfect Detection
+        function test1_addText() {
+            const canvas = document.getElementById('canvas1');
+            const ctx = canvas.getContext('2d');
+            
+            testObjects.test1 = [createTextObject('DESIGN', 400, 200)];
+            test1_render();
+            updateInfo('test1', 'Text added at center (400, 200)');
+        }
+
+        function test1_render() {
+            const canvas = document.getElementById('canvas1');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            testObjects.test1.forEach(obj => {
+                ctx.save();
+                setTextContextOn(ctx, obj);
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(obj.text, obj.x, obj.y);
+                
+                // Draw bounding box
+                const bounds = calculateBounds(obj);
+                ctx.strokeStyle = '#ff0000';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+                
+                ctx.restore();
+            });
+        }
+
+        function calculateBounds(obj) {
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            setTextContextOn(tempCtx, obj);
+            
+            const metrics = tempCtx.measureText(obj.text);
+            const width = metrics.width;
+            const height = obj.fontSize; // Approximate height
+            
+            return {
+                x: obj.x - width / 2,
+                y: obj.y - height / 2,
+                width: width,
+                height: height
+            };
+        }
+
+        function test1_detectBounds() {
+            if (testObjects.test1.length === 0) {
+                updateInfo('test1', 'No text to detect bounds for');
+                return;
+            }
+            
+            const obj = testObjects.test1[0];
+            
+            // Use the exact same logic as the guideline feature
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 1200;
+            tempCanvas.height = 600;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            const startX = 600;
+            const startY = 300;
+            
+            setTextContextOn(tempCtx, obj);
+            tempCtx.textAlign = 'center';
+            tempCtx.textBaseline = 'middle';
+            tempCtx.fillStyle = '#000000';
+            tempCtx.fillText(obj.text, startX, startY);
+            
+            const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+            const data = imageData.data;
+            
+            let minX = tempCanvas.width, maxX = 0;
+            let minY = tempCanvas.height, maxY = 0;
+            let hasPixels = false;
+            
+            for (let y = 0; y < tempCanvas.height; y++) {
+                for (let x = 0; x < tempCanvas.width; x++) {
+                    const index = (y * tempCanvas.width + x) * 4;
+                    const alpha = data[index + 3];
+                    
+                    if (alpha > 0) {
+                        minX = Math.min(minX, x);
+                        maxX = Math.max(maxX, x);
+                        minY = Math.min(minY, y);
+                        maxY = Math.max(maxY, y);
+                        hasPixels = true;
+                    }
+                }
+            }
+            
+            if (hasPixels) {
+                const contentWidth = maxX - minX + 1;
+                const contentHeight = maxY - minY + 1;
+                const contentCenterX = (minX + maxX) / 2;
+                const contentCenterY = (minY + maxY) / 2;
+                const offsetFromCenterX = contentCenterX - startX;
+                const offsetFromCenterY = contentCenterY - startY;
+                
+                updateInfo('test1', `Pixel-perfect bounds detected:
+Width: ${contentWidth}px, Height: ${contentHeight}px
+Content center: (${contentCenterX.toFixed(1)}, ${contentCenterY.toFixed(1)})
+Offset from render center: (${offsetFromCenterX.toFixed(1)}, ${offsetFromCenterY.toFixed(1)})
+Pixel bounds: minX=${minX}, maxX=${maxX}, minY=${minY}, maxY=${maxY}`);
+                
+                // Store the detected bounds for other tests
+                obj.detectedBounds = {
+                    width: contentWidth,
+                    height: contentHeight,
+                    offsetX: offsetFromCenterX,
+                    offsetY: offsetFromCenterY
+                };
+            } else {
+                updateInfo('test1', 'No pixels detected');
+            }
+        }
+
+        function test1_testTopAlignment() {
+            if (testObjects.test1.length === 0 || !testObjects.test1[0].detectedBounds) {
+                updateInfo('test1', 'Run "Detect Pixel-Perfect Bounds" first');
+                return;
+            }
+
+            const canvas = document.getElementById('canvas1');
+            const ctx = canvas.getContext('2d');
+            const obj = testObjects.test1[0];
+            const bounds = obj.detectedBounds;
+
+            // Calculate guideline positions (same as createGuidelines)
+            const newCenterX = obj.x + bounds.offsetX;
+            const newCenterY = obj.y + bounds.offsetY;
+            const halfWidth = bounds.width / 2;
+            const halfHeight = bounds.height / 2;
+
+            const worldTop = newCenterY - halfHeight;
+            const worldBottom = newCenterY + halfHeight;
+
+            // Get the original text box bounds BEFORE moving
+            const originalBounds = calculateBounds(obj);
+            const originalTextY = obj.y;
+
+            // 🎯 ACTUALLY MOVE THE TEXT OBJECT: Align the TOP of the text box with the guideline top
+            // If guideline top is at worldTop, and we want the text box top to align with it
+            // Then the text center should be at: worldTop + (originalBounds.height / 2)
+            const alignedTextCenterY = worldTop + (originalBounds.height / 2);
+
+            // Move the text object to the new position
+            obj.y = alignedTextCenterY;
+
+            // Clear and redraw everything
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the MOVED text at its new position
+            ctx.save();
+            setTextContextOn(ctx, obj);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = obj.color;
+            ctx.fillText(obj.text, obj.x, obj.y);
+            ctx.restore();
+
+            // Draw the NEW text box bounds (green) - this should now align with the guideline
+            const newBounds = calculateBounds(obj);
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(newBounds.x, newBounds.y, newBounds.width, newBounds.height);
+
+            // Draw the original text box position (red, dashed) for comparison
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 5]);
+            ctx.strokeRect(originalBounds.x, originalBounds.y, originalBounds.width, originalBounds.height);
+            ctx.setLineDash([]);
+
+            // Draw the guideline top line for reference
+            ctx.strokeStyle = '#0000ff';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(0, worldTop);
+            ctx.lineTo(canvas.width, worldTop);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            updateInfo('test1', `✅ TOP ALIGNMENT APPLIED:
+Guideline top: ${worldTop.toFixed(1)}px
+Original text position: Y=${originalTextY.toFixed(1)}
+New text position: Y=${obj.y.toFixed(1)}
+Original text box top: ${originalBounds.y.toFixed(1)}px
+New text box top: ${newBounds.y.toFixed(1)}px
+Movement: ${(obj.y - originalTextY).toFixed(1)}px
+Red dashed = original position, Green solid = new aligned position, Blue dashed = guideline`);
+        }
+
+        function test1_testBottomAlignment() {
+            if (testObjects.test1.length === 0 || !testObjects.test1[0].detectedBounds) {
+                updateInfo('test1', 'Run "Detect Pixel-Perfect Bounds" first');
+                return;
+            }
+
+            const canvas = document.getElementById('canvas1');
+            const ctx = canvas.getContext('2d');
+            const obj = testObjects.test1[0];
+            const bounds = obj.detectedBounds;
+
+            // Calculate guideline positions
+            const newCenterX = obj.x + bounds.offsetX;
+            const newCenterY = obj.y + bounds.offsetY;
+            const halfWidth = bounds.width / 2;
+            const halfHeight = bounds.height / 2;
+
+            const worldBottom = newCenterY + halfHeight;
+
+            // Get the original text box bounds BEFORE moving
+            const originalBounds = calculateBounds(obj);
+            const originalTextY = obj.y;
+
+            // 🎯 ACTUALLY MOVE THE TEXT OBJECT: Align the BOTTOM of the text box with the guideline bottom
+            // If guideline bottom is at worldBottom, and we want the text box bottom to align with it
+            // Then the text center should be at: worldBottom - (originalBounds.height / 2)
+            const alignedTextCenterY = worldBottom - (originalBounds.height / 2);
+
+            // Move the text object to the new position
+            obj.y = alignedTextCenterY;
+
+            // Clear and redraw everything
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the MOVED text at its new position
+            ctx.save();
+            setTextContextOn(ctx, obj);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = obj.color;
+            ctx.fillText(obj.text, obj.x, obj.y);
+            ctx.restore();
+
+            // Draw the NEW text box bounds (green) - this should now align with the guideline
+            const newBounds = calculateBounds(obj);
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(newBounds.x, newBounds.y, newBounds.width, newBounds.height);
+
+            // Draw the original text box position (red, dashed) for comparison
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 5]);
+            ctx.strokeRect(originalBounds.x, originalBounds.y, originalBounds.width, originalBounds.height);
+            ctx.setLineDash([]);
+
+            // Draw the guideline bottom line for reference
+            ctx.strokeStyle = '#0000ff';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(0, worldBottom);
+            ctx.lineTo(canvas.width, worldBottom);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            updateInfo('test1', `✅ BOTTOM ALIGNMENT APPLIED:
+Guideline bottom: ${worldBottom.toFixed(1)}px
+Original text position: Y=${originalTextY.toFixed(1)}
+New text position: Y=${obj.y.toFixed(1)}
+Original text box bottom: ${(originalBounds.y + originalBounds.height).toFixed(1)}px
+New text box bottom: ${(newBounds.y + newBounds.height).toFixed(1)}px
+Movement: ${(obj.y - originalTextY).toFixed(1)}px
+Red dashed = original position, Green solid = new aligned position, Blue dashed = guideline`);
+        }
+
+        function test1_testBothAlignment() {
+            if (testObjects.test1.length === 0 || !testObjects.test1[0].detectedBounds) {
+                updateInfo('test1', 'Run "Detect Pixel-Perfect Bounds" first');
+                return;
+            }
+
+            const canvas = document.getElementById('canvas1');
+            const ctx = canvas.getContext('2d');
+            const obj = testObjects.test1[0];
+            const bounds = obj.detectedBounds;
+
+            // Calculate guideline positions
+            const newCenterX = obj.x + bounds.offsetX;
+            const newCenterY = obj.y + bounds.offsetY;
+            const halfWidth = bounds.width / 2;
+            const halfHeight = bounds.height / 2;
+
+            const worldTop = newCenterY - halfHeight;
+            const worldBottom = newCenterY + halfHeight;
+
+            // Store original properties BEFORE modification
+            const originalBounds = calculateBounds(obj);
+            const originalFontSize = obj.fontSize;
+            const originalTextY = obj.y;
+
+            // 🎯 ACTUALLY RESIZE THE TEXT: Calculate the scale needed to fit between guidelines
+            const targetHeight = worldBottom - worldTop; // Height between guidelines
+            const currentHeight = originalBounds.height;
+            const heightScale = targetHeight / currentHeight;
+
+            // Apply the scale to the font size
+            obj.fontSize = originalFontSize * heightScale;
+
+            // 🎯 REPOSITION THE TEXT: Center it between the guidelines
+            const perfectCenterY = (worldTop + worldBottom) / 2;
+            obj.y = perfectCenterY;
+
+            // Clear and redraw everything
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the RESIZED text at its new position
+            ctx.save();
+            setTextContextOn(ctx, obj);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = obj.color;
+            ctx.fillText(obj.text, obj.x, obj.y);
+            ctx.restore();
+
+            // Draw the NEW text box bounds (green) - should now fit perfectly between guidelines
+            const newBounds = calculateBounds(obj);
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(newBounds.x, newBounds.y, newBounds.width, newBounds.height);
+
+            // Draw the original text box position (red, dashed) for comparison
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 5]);
+            ctx.strokeRect(originalBounds.x, originalBounds.y, originalBounds.width, originalBounds.height);
+            ctx.setLineDash([]);
+
+            // Draw both guideline lines for reference
+            ctx.strokeStyle = '#0000ff';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+
+            // Top guideline
+            ctx.beginPath();
+            ctx.moveTo(0, worldTop);
+            ctx.lineTo(canvas.width, worldTop);
+            ctx.stroke();
+
+            // Bottom guideline
+            ctx.beginPath();
+            ctx.moveTo(0, worldBottom);
+            ctx.lineTo(canvas.width, worldBottom);
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+
+            updateInfo('test1', `✅ BOTH ALIGNMENT APPLIED (RESIZED):
+Guideline top: ${worldTop.toFixed(1)}px, bottom: ${worldBottom.toFixed(1)}px
+Target height: ${targetHeight.toFixed(1)}px
+Original font size: ${originalFontSize.toFixed(1)}px → New: ${obj.fontSize.toFixed(1)}px
+Scale factor: ${heightScale.toFixed(3)}
+Original text position: Y=${originalTextY.toFixed(1)} → New: Y=${obj.y.toFixed(1)}
+Original height: ${originalBounds.height.toFixed(1)}px → New: ${newBounds.height.toFixed(1)}px
+Red dashed = original, Green solid = resized to fit, Blue dashed = guidelines`);
+        }
+
+        function test1_testAllSides() {
+            if (testObjects.test1.length === 0 || !testObjects.test1[0].detectedBounds) {
+                updateInfo('test1', 'Run "Detect Pixel-Perfect Bounds" first');
+                return;
+            }
+
+            const canvas = document.getElementById('canvas1');
+            const ctx = canvas.getContext('2d');
+            const obj = testObjects.test1[0];
+            const bounds = obj.detectedBounds;
+
+            // Calculate guideline positions
+            const newCenterX = obj.x + bounds.offsetX;
+            const newCenterY = obj.y + bounds.offsetY;
+            const halfWidth = bounds.width / 2;
+            const halfHeight = bounds.height / 2;
+
+            const worldLeft = newCenterX - halfWidth;
+            const worldRight = newCenterX + halfWidth;
+            const worldTop = newCenterY - halfHeight;
+            const worldBottom = newCenterY + halfHeight;
+
+            // Clear and redraw text
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw text normally first
+            ctx.save();
+            setTextContextOn(ctx, obj);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = obj.color;
+            ctx.fillText(obj.text, obj.x, obj.y);
+            ctx.restore();
+
+            // Draw the original text box bounds (red)
+            const originalBounds = calculateBounds(obj);
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(originalBounds.x, originalBounds.y, originalBounds.width, originalBounds.height);
+
+            // Create a text box that fits EXACTLY within ALL guidelines
+            const perfectBounds = {
+                x: worldLeft,
+                y: worldTop,
+                width: worldRight - worldLeft,
+                height: worldBottom - worldTop
+            };
+
+            // Draw the perfect text box (green)
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(perfectBounds.x, perfectBounds.y, perfectBounds.width, perfectBounds.height);
+
+            // Draw all 4 guideline lines for reference
+            ctx.strokeStyle = '#0000ff';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+
+            // Top guideline
+            ctx.beginPath();
+            ctx.moveTo(0, worldTop);
+            ctx.lineTo(canvas.width, worldTop);
+            ctx.stroke();
+
+            // Bottom guideline
+            ctx.beginPath();
+            ctx.moveTo(0, worldBottom);
+            ctx.lineTo(canvas.width, worldBottom);
+            ctx.stroke();
+
+            // Left guideline
+            ctx.beginPath();
+            ctx.moveTo(worldLeft, 0);
+            ctx.lineTo(worldLeft, canvas.height);
+            ctx.stroke();
+
+            // Right guideline
+            ctx.beginPath();
+            ctx.moveTo(worldRight, 0);
+            ctx.lineTo(worldRight, canvas.height);
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+
+            // Calculate differences
+            const widthDiff = originalBounds.width - perfectBounds.width;
+            const heightDiff = originalBounds.height - perfectBounds.height;
+            const leftDiff = originalBounds.x - perfectBounds.x;
+            const topDiff = originalBounds.y - perfectBounds.y;
+
+            updateInfo('test1', `All 4 Sides Alignment Test:
+Guidelines: Left: ${worldLeft.toFixed(1)}, Right: ${worldRight.toFixed(1)}, Top: ${worldTop.toFixed(1)}, Bottom: ${worldBottom.toFixed(1)}
+Perfect size: ${perfectBounds.width.toFixed(1)}x${perfectBounds.height.toFixed(1)}
+Original size: ${originalBounds.width.toFixed(1)}x${originalBounds.height.toFixed(1)}
+Size differences: Width: ${widthDiff.toFixed(1)}px, Height: ${heightDiff.toFixed(1)}px
+Position differences: Left: ${leftDiff.toFixed(1)}px, Top: ${topDiff.toFixed(1)}px
+Red = original text box, Green = perfect fit within all guidelines, Blue dashed = all guidelines`);
+        }
+
+        function test1_createGuidelines() {
+            if (testObjects.test1.length === 0 || !testObjects.test1[0].detectedBounds) {
+                updateInfo('test1', 'Run "Detect Pixel-Perfect Bounds" first');
+                return;
+            }
+
+            const canvas = document.getElementById('canvas1');
+            const ctx = canvas.getContext('2d');
+            const obj = testObjects.test1[0];
+            const bounds = obj.detectedBounds;
+            
+            // Calculate world coordinates (same as guideline logic)
+            const newCenterX = obj.x + bounds.offsetX;
+            const newCenterY = obj.y + bounds.offsetY;
+            const halfWidth = bounds.width / 2;
+            const halfHeight = bounds.height / 2;
+            
+            const worldLeft = newCenterX - halfWidth;
+            const worldRight = newCenterX + halfWidth;
+            const worldTop = newCenterY - halfHeight;
+            const worldBottom = newCenterY + halfHeight;
+            
+            // Draw guidelines
+            ctx.strokeStyle = '#00bfff';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            
+            // Vertical guidelines
+            ctx.beginPath();
+            ctx.moveTo(worldLeft, 0);
+            ctx.lineTo(worldLeft, canvas.height);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(worldRight, 0);
+            ctx.lineTo(worldRight, canvas.height);
+            ctx.stroke();
+            
+            // Horizontal guidelines
+            ctx.beginPath();
+            ctx.moveTo(0, worldTop);
+            ctx.lineTo(canvas.width, worldTop);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(0, worldBottom);
+            ctx.lineTo(canvas.width, worldBottom);
+            ctx.stroke();
+            
+            ctx.setLineDash([]);
+            
+            updateInfo('test1', `Guidelines created at:
+Left: ${worldLeft.toFixed(1)}, Right: ${worldRight.toFixed(1)}
+Top: ${worldTop.toFixed(1)}, Bottom: ${worldBottom.toFixed(1)}
+New center: (${newCenterX.toFixed(1)}, ${newCenterY.toFixed(1)})`);
+        }
+
+        function test1_shrinkTextBox() {
+            if (testObjects.test1.length === 0 || !testObjects.test1[0].detectedBounds) {
+                updateInfo('test1', 'Run "Detect Pixel-Perfect Bounds" first');
+                return;
+            }
+            
+            const obj = testObjects.test1[0];
+            const bounds = obj.detectedBounds;
+            
+            // Store original position
+            const originalX = obj.x;
+            const originalY = obj.y;
+            
+            // Apply the same logic as guidelines but to the text object itself
+            obj.x = obj.x + bounds.offsetX;
+            obj.y = obj.y + bounds.offsetY;
+            
+            // Store custom bounds
+            obj.customBounds = {
+                width: bounds.width,
+                height: bounds.height,
+                isOptimized: true
+            };
+            
+            test1_render();
+            
+            updateInfo('test1', `Text box shrunk and repositioned:
+Original position: (${originalX}, ${originalY})
+New position: (${obj.x.toFixed(1)}, ${obj.y.toFixed(1)})
+Custom bounds: ${bounds.width}x${bounds.height}`);
+        }
+
+        function test1_showVisualTextBox() {
+            if (testObjects.test1.length === 0) {
+                updateInfo('test1', 'Add text first');
+                return;
+            }
+
+            const canvas = document.getElementById('canvas1');
+            const ctx = canvas.getContext('2d');
+            const obj = testObjects.test1[0];
+
+            // Add a visual text box property to the object
+            if (!obj.visualBox) {
+                const bounds = calculateBounds(obj);
+                obj.visualBox = {
+                    x: bounds.x,
+                    y: bounds.y,
+                    width: bounds.width,
+                    height: bounds.height,
+                    backgroundColor: 'rgba(255, 255, 0, 0.3)', // Yellow background
+                    borderColor: '#ff6600',
+                    borderWidth: 2
+                };
+            }
+
+            // Clear and redraw
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the visual text box BEHIND the text
+            ctx.fillStyle = obj.visualBox.backgroundColor;
+            ctx.fillRect(obj.visualBox.x, obj.visualBox.y, obj.visualBox.width, obj.visualBox.height);
+
+            ctx.strokeStyle = obj.visualBox.borderColor;
+            ctx.lineWidth = obj.visualBox.borderWidth;
+            ctx.strokeRect(obj.visualBox.x, obj.visualBox.y, obj.visualBox.width, obj.visualBox.height);
+
+            // Draw the text on top
+            ctx.save();
+            setTextContextOn(ctx, obj);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = obj.color;
+            ctx.fillText(obj.text, obj.x, obj.y);
+            ctx.restore();
+
+            updateInfo('test1', `✅ VISUAL TEXT BOX CREATED:
+Box position: (${obj.visualBox.x.toFixed(1)}, ${obj.visualBox.y.toFixed(1)})
+Box size: ${obj.visualBox.width.toFixed(1)} × ${obj.visualBox.height.toFixed(1)}
+Text position: (${obj.x.toFixed(1)}, ${obj.y.toFixed(1)})
+Yellow box = visual text box, Black text = actual text`);
+        }
+
+        function test1_resizeVisualBox() {
+            if (testObjects.test1.length === 0 || !testObjects.test1[0].visualBox) {
+                updateInfo('test1', 'Create visual text box first');
+                return;
+            }
+
+            const canvas = document.getElementById('canvas1');
+            const ctx = canvas.getContext('2d');
+            const obj = testObjects.test1[0];
+
+            // Store original box size
+            const originalBox = {...obj.visualBox};
+
+            // Resize the visual box to be smaller (independent of text)
+            obj.visualBox.width = obj.visualBox.width * 0.7;  // 70% of original width
+            obj.visualBox.height = obj.visualBox.height * 0.6; // 60% of original height
+
+            // Reposition the box to stay centered on the text
+            obj.visualBox.x = obj.x - obj.visualBox.width / 2;
+            obj.visualBox.y = obj.y - obj.visualBox.height / 2;
+
+            // Clear and redraw
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the RESIZED visual text box
+            ctx.fillStyle = obj.visualBox.backgroundColor;
+            ctx.fillRect(obj.visualBox.x, obj.visualBox.y, obj.visualBox.width, obj.visualBox.height);
+
+            ctx.strokeStyle = obj.visualBox.borderColor;
+            ctx.lineWidth = obj.visualBox.borderWidth;
+            ctx.strokeRect(obj.visualBox.x, obj.visualBox.y, obj.visualBox.width, obj.visualBox.height);
+
+            // Draw the original box outline (dashed) for comparison
+            ctx.strokeStyle = '#cccccc';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.strokeRect(originalBox.x, originalBox.y, originalBox.width, originalBox.height);
+            ctx.setLineDash([]);
+
+            // Draw the text (unchanged)
+            ctx.save();
+            setTextContextOn(ctx, obj);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = obj.color;
+            ctx.fillText(obj.text, obj.x, obj.y);
+            ctx.restore();
+
+            updateInfo('test1', `✅ VISUAL TEXT BOX RESIZED:
+Original size: ${originalBox.width.toFixed(1)} × ${originalBox.height.toFixed(1)}
+New size: ${obj.visualBox.width.toFixed(1)} × ${obj.visualBox.height.toFixed(1)}
+Size change: ${((obj.visualBox.width/originalBox.width)*100).toFixed(1)}% × ${((obj.visualBox.height/originalBox.height)*100).toFixed(1)}%
+Text position: UNCHANGED (${obj.x.toFixed(1)}, ${obj.y.toFixed(1)})
+Yellow box = resized visual box, Gray dashed = original box, Text = unchanged`);
+        }
+
+        function test1_clear() {
+            const canvas = document.getElementById('canvas1');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            testObjects.test1 = [];
+            updateInfo('test1', 'Canvas cleared');
+        }
+
+        // Test 2: Manual positioning
+        function test2_addText() {
+            testObjects.test2 = [createTextObject('DESIGN', 400, 200)];
+            test2_render();
+            updateInfo('test2', 'Text added at center (400, 200)');
+        }
+
+        function test2_render() {
+            const canvas = document.getElementById('canvas2');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            testObjects.test2.forEach(obj => {
+                ctx.save();
+                setTextContextOn(ctx, obj);
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(obj.text, obj.x, obj.y);
+                
+                // Draw bounding box
+                let bounds;
+                if (obj.customBounds) {
+                    bounds = {
+                        x: obj.x - obj.customBounds.width / 2,
+                        y: obj.y - obj.customBounds.height / 2,
+                        width: obj.customBounds.width,
+                        height: obj.customBounds.height
+                    };
+                } else {
+                    bounds = calculateBounds(obj);
+                }
+                
+                ctx.strokeStyle = obj.customBounds ? '#00ff00' : '#ff0000';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+                
+                ctx.restore();
+            });
+        }
+
+        function test2_setPosition(x, y) {
+            if (testObjects.test2.length === 0) {
+                updateInfo('test2', 'Add text first');
+                return;
+            }
+            
+            testObjects.test2[0].x = x;
+            testObjects.test2[0].y = y;
+            test2_render();
+            updateInfo('test2', `Text position set to (${x}, ${y})`);
+        }
+
+        function test2_setCustomBounds(width, height) {
+            if (testObjects.test2.length === 0) {
+                updateInfo('test2', 'Add text first');
+                return;
+            }
+            
+            testObjects.test2[0].customBounds = {
+                width: width,
+                height: height,
+                isOptimized: true
+            };
+            test2_render();
+            updateInfo('test2', `Custom bounds set to ${width}x${height} (green box)`);
+        }
+
+        function test2_clear() {
+            const canvas = document.getElementById('canvas2');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            testObjects.test2 = [];
+            updateInfo('test2', 'Canvas cleared');
+        }
+
+        // Test 3: Debug pixel detection
+        function test3_debugPixelDetection() {
+            const canvas = document.getElementById('canvas3');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Create text object
+            const textObj = createTextObject('DESIGN', 400, 200);
+
+            // First, draw the text normally
+            ctx.save();
+            setTextContextOn(ctx, textObj);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = textObj.color;
+            ctx.fillText(textObj.text, textObj.x, textObj.y);
+            ctx.restore();
+
+            // Draw the measureText bounds (red)
+            const normalBounds = calculateBounds(textObj);
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(normalBounds.x, normalBounds.y, normalBounds.width, normalBounds.height);
+
+            // Run pixel detection and show the detected bounds (green)
+            const pixelBounds = detectPixelPerfectBounds(textObj);
+
+            // Calculate the offset from the render center (like in Test 1)
+            const tempStartX = 600; // Where we rendered in temp canvas
+            const tempStartY = 300;
+            const actualCenterX = pixelBounds.centerX;
+            const actualCenterY = pixelBounds.centerY;
+            const offsetX = actualCenterX - tempStartX;
+            const offsetY = actualCenterY - tempStartY;
+
+            // Apply the offset to get the correct position
+            const correctedCenterX = textObj.x + offsetX;
+            const correctedCenterY = textObj.y + offsetY;
+
+            const pixelLeft = correctedCenterX - pixelBounds.width / 2;
+            const pixelTop = correctedCenterY - pixelBounds.height / 2;
+
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(pixelLeft, pixelTop, pixelBounds.width, pixelBounds.height);
+
+            // Also show the center points for debugging
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(textObj.x - 2, textObj.y - 2, 4, 4); // Red dot at original text center
+            ctx.fillStyle = '#00ff00';
+            ctx.fillRect(correctedCenterX - 2, correctedCenterY - 2, 4, 4); // Green dot at corrected center
+
+            updateInfo('test3', `Debug Results:
+Normal bounds: ${normalBounds.width.toFixed(0)}x${normalBounds.height.toFixed(0)}
+Pixel bounds: ${pixelBounds.width}x${pixelBounds.height}
+Offset from center: (${offsetX.toFixed(1)}, ${offsetY.toFixed(1)})
+Difference: Width ${(normalBounds.width - pixelBounds.width).toFixed(0)}, Height ${(normalBounds.height - pixelBounds.height).toFixed(0)}
+Red = measureText bounds, Green = pixel-perfect bounds (with offset correction)`);
+        }
+
+        function test3_showActualVsDetected() {
+            const canvas = document.getElementById('canvas3');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Create text object
+            const textObj = createTextObject('DESIGN', 400, 200);
+
+            // Show the actual rendered text vs what pixel detection finds
+
+            // Draw text normally
+            ctx.save();
+            setTextContextOn(ctx, textObj);
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = textObj.color;
+            ctx.fillText(textObj.text, textObj.x, textObj.y);
+            ctx.restore();
+
+            // Show what pixel detection sees by drawing the detection canvas
+            const pixelBounds = detectPixelPerfectBounds(textObj);
+
+            // Create a small version of the detection canvas to show what it sees
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 1200;
+            tempCanvas.height = 600;
+            const tempCtx = tempCanvas.getContext('2d');
+
+            const startX = 600;
+            const startY = 300;
+
+            setTextContextOn(tempCtx, textObj);
+            tempCtx.textAlign = 'center';
+            tempCtx.textBaseline = 'middle';
+            tempCtx.fillStyle = '#000000';
+            tempCtx.fillText(textObj.text, startX, startY);
+
+            // Draw a scaled-down version of what the detection sees
+            const scale = 0.3;
+            ctx.drawImage(tempCanvas, 50, 50, tempCanvas.width * scale, tempCanvas.height * scale);
+
+            // Draw bounds on the detection canvas
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(50 + (startX - pixelBounds.width/2) * scale,
+                          50 + (startY - pixelBounds.height/2) * scale,
+                          pixelBounds.width * scale,
+                          pixelBounds.height * scale);
+
+            updateInfo('test3', `Actual vs Detected:
+Main text at (${textObj.x}, ${textObj.y})
+Detection canvas shows text at (${startX}, ${startY})
+Detected bounds: ${pixelBounds.width}x${pixelBounds.height}
+Small canvas shows what pixel detection sees (red box = detected bounds)`);
+        }
+
+        function test3_clear() {
+            const canvas = document.getElementById('canvas3');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            updateInfo('test3', 'Canvas cleared');
+        }
+
+        // Pixel-perfect detection function with debug
+        function detectPixelPerfectBounds(obj) {
+            console.log('🔍 PIXEL DETECTION: Starting detection for:', obj.text);
+
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 1200;
+            tempCanvas.height = 600;
+            const tempCtx = tempCanvas.getContext('2d');
+
+            const startX = 600;
+            const startY = 300;
+
+            setTextContextOn(tempCtx, obj);
+            tempCtx.textAlign = 'center';
+            tempCtx.textBaseline = 'middle';
+            tempCtx.fillStyle = '#000000';
+
+            console.log('🔍 PIXEL DETECTION: Font set to:', tempCtx.font);
+            console.log('🔍 PIXEL DETECTION: Drawing text at:', startX, startY);
+
+            tempCtx.fillText(obj.text, startX, startY);
+
+            // Debug: Add the temp canvas to the page so we can see what it looks like
+            tempCanvas.style.position = 'fixed';
+            tempCanvas.style.top = '10px';
+            tempCanvas.style.right = '10px';
+            tempCanvas.style.border = '1px solid red';
+            tempCanvas.style.zIndex = '9999';
+            tempCanvas.style.transform = 'scale(0.3)';
+            tempCanvas.style.transformOrigin = 'top right';
+            document.body.appendChild(tempCanvas);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                if (tempCanvas.parentNode) {
+                    tempCanvas.parentNode.removeChild(tempCanvas);
+                }
+            }, 3000);
+
+            const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+            const data = imageData.data;
+
+            let minX = tempCanvas.width, maxX = 0;
+            let minY = tempCanvas.height, maxY = 0;
+            let hasPixels = false;
+            let pixelCount = 0;
+
+            for (let y = 0; y < tempCanvas.height; y++) {
+                for (let x = 0; x < tempCanvas.width; x++) {
+                    const index = (y * tempCanvas.width + x) * 4;
+                    const alpha = data[index + 3];
+
+                    if (alpha > 0) {
+                        minX = Math.min(minX, x);
+                        maxX = Math.max(maxX, x);
+                        minY = Math.min(minY, y);
+                        maxY = Math.max(maxY, y);
+                        hasPixels = true;
+                        pixelCount++;
+                    }
+                }
+            }
+
+            console.log('🔍 PIXEL DETECTION: Found', pixelCount, 'pixels');
+            console.log('🔍 PIXEL DETECTION: Bounds:', {minX, maxX, minY, maxY});
+            console.log('🔍 PIXEL DETECTION: Size:', {width: maxX - minX + 1, height: maxY - minY + 1});
+
+            if (!hasPixels) {
+                console.log('🔍 PIXEL DETECTION: No pixels found!');
+                return { width: 0, height: 0 };
+            }
+
+            return {
+                width: maxX - minX + 1,
+                height: maxY - minY + 1,
+                minX, maxX, minY, maxY, // Include raw bounds for debugging
+                centerX: (minX + maxX) / 2,
+                centerY: (minY + maxY) / 2
+            };
+        }
+
+        function updateInfo(testId, message) {
+            document.getElementById(`${testId}-info`).textContent = message;
+        }
+
+        // Test 4 functions - SVG Component Detection
+        let svgComponents = [];
+        let svgImage = null;
+        let svgScale = 1;
+        let svgOffsetX = 0;
+        let svgOffsetY = 0;
+
+        function test4_loadSVG() {
+            test4_loadSVGFromURL('stock/images/test.svg', 'Default Test SVG');
+        }
+
+        function test4_loadCustomSVG() {
+            const fileInput = document.getElementById('svgFileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                document.getElementById('test4-info').innerHTML = 'No file selected!';
+                return;
+            }
+
+            if (!file.type.includes('svg')) {
+                document.getElementById('test4-info').innerHTML = 'Please select an SVG file!';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const svgContent = e.target.result;
+                test4_loadSVGFromDataURL(svgContent, file.name);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function test4_loadPresetSVG() {
+            const select = document.getElementById('svgPresets');
+            const selectedValue = select.value;
+
+            if (!selectedValue) return;
+
+            const selectedText = select.options[select.selectedIndex].text;
+            test4_loadSVGFromURL(selectedValue, selectedText);
+        }
+
+        function test4_loadSVGFromURL(url, name) {
+            const canvas = document.getElementById('canvas4');
+            const ctx = canvas.getContext('2d');
+
+            // Clear canvas and reset components
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            svgComponents = [];
+
+            document.getElementById('test4-info').innerHTML = `Loading ${name}...`;
+
+            // Load the SVG
+            const img = new Image();
+            img.onload = function() {
+                test4_displaySVG(img, name);
+            };
+            img.onerror = function() {
+                document.getElementById('test4-info').innerHTML = `Error loading ${name}!<br>Make sure the file exists and is accessible.`;
+            };
+            img.src = url;
+        }
+
+        function test4_loadSVGFromDataURL(dataURL, name) {
+            const canvas = document.getElementById('canvas4');
+            const ctx = canvas.getContext('2d');
+
+            // Clear canvas and reset components
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            svgComponents = [];
+
+            document.getElementById('test4-info').innerHTML = `Loading ${name}...`;
+
+            // Load the SVG from data URL
+            const img = new Image();
+            img.onload = function() {
+                test4_displaySVG(img, name);
+            };
+            img.onerror = function() {
+                document.getElementById('test4-info').innerHTML = `Error loading ${name}!<br>The SVG file may be corrupted or invalid.`;
+            };
+            img.src = dataURL;
+        }
+
+        function test4_displaySVG(img, name) {
+            const canvas = document.getElementById('canvas4');
+            const ctx = canvas.getContext('2d');
+
+            svgImage = img;
+            // Calculate scale and position to fit SVG in canvas
+            svgScale = Math.min(canvas.width / img.width, canvas.height / img.height) * 0.8;
+            svgOffsetX = (canvas.width - img.width * svgScale) / 2;
+            svgOffsetY = (canvas.height - img.height * svgScale) / 2;
+
+            // Draw SVG on canvas
+            ctx.drawImage(img, svgOffsetX, svgOffsetY, img.width * svgScale, img.height * svgScale);
+
+            document.getElementById('test4-info').innerHTML = `
+                <strong>${name}</strong> loaded successfully!<br>
+                Original size: ${img.width}x${img.height}<br>
+                Displayed at: ${(svgScale * 100).toFixed(1)}% scale<br>
+                Position: (${svgOffsetX.toFixed(1)}, ${svgOffsetY.toFixed(1)})<br>
+                <em>Ready for component detection!</em>
+            `;
+        }
+
+        function test4_detectComponents() {
+            if (!svgImage) {
+                document.getElementById('test4-info').innerHTML = 'Load SVG first!';
+                return;
+            }
+
+            const canvas = document.getElementById('canvas4');
+            const ctx = canvas.getContext('2d');
+
+            // Clear and redraw SVG
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(svgImage, svgOffsetX, svgOffsetY, svgImage.width * svgScale, svgImage.height * svgScale);
+
+            // Try multiple detection methods
+            const colorComponents = detectSVGComponentsByColor(canvas, svgOffsetX, svgOffsetY, svgScale);
+            const regionComponents = detectSVGComponentsByRegion(canvas, svgOffsetX, svgOffsetY, svgScale);
+
+            // Combine and deduplicate results
+            svgComponents = mergeComponentDetections(colorComponents, regionComponents);
+
+            // Draw component bounds with different colors for different detection methods
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            svgComponents.forEach((component, index) => {
+                const color = colors[index % colors.length];
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(component.bounds.x, component.bounds.y, component.bounds.width, component.bounds.height);
+
+                // Label the component
+                ctx.fillStyle = color;
+                ctx.font = '12px Arial';
+                ctx.fillText(`${component.method}${index + 1}`, component.bounds.x + 2, component.bounds.y + 14);
+            });
+
+            document.getElementById('test4-info').innerHTML = `
+                Detected ${svgComponents.length} components using multiple methods:<br>
+                ${svgComponents.map((comp, i) =>
+                    `${comp.method}${i + 1}: ${comp.bounds.width.toFixed(0)}x${comp.bounds.height.toFixed(0)} at (${comp.bounds.x.toFixed(0)}, ${comp.bounds.y.toFixed(0)}) - ${comp.pixelCount} pixels`
+                ).join('<br>')}<br>
+                <small>C=Color-based, R=Region-based detection</small>
+            `;
+        }
+
+        function detectSVGComponentsByColor(canvas, offsetX, offsetY, scale) {
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const width = canvas.width;
+            const height = canvas.height;
+
+            // Find all unique colors (excluding white/transparent background)
+            const colorMap = new Map();
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const index = (y * width + x) * 4;
+                    const r = data[index];
+                    const g = data[index + 1];
+                    const b = data[index + 2];
+                    const a = data[index + 3];
+
+                    // Skip transparent or near-white pixels
+                    if (a < 128 || (r > 240 && g > 240 && b > 240)) continue;
+
+                    const colorKey = `${r},${g},${b}`;
+                    if (!colorMap.has(colorKey)) {
+                        colorMap.set(colorKey, []);
+                    }
+                    colorMap.get(colorKey).push({x, y});
+                }
+            }
+
+            // Group pixels by color and find bounding boxes
+            const components = [];
+            colorMap.forEach((pixels, colorKey) => {
+                if (pixels.length < 50) return; // Skip very small components
+
+                let minX = width, maxX = 0, minY = height, maxY = 0;
+                pixels.forEach(pixel => {
+                    minX = Math.min(minX, pixel.x);
+                    maxX = Math.max(maxX, pixel.x);
+                    minY = Math.min(minY, pixel.y);
+                    maxY = Math.max(maxY, pixel.y);
+                });
+
+                // Only include components that are within the SVG area
+                if (minX >= offsetX && maxX <= offsetX + svgImage.width * scale &&
+                    minY >= offsetY && maxY <= offsetY + svgImage.height * scale) {
+
+                    components.push({
+                        method: 'C',
+                        color: colorKey,
+                        pixelCount: pixels.length,
+                        bounds: {
+                            x: minX,
+                            y: minY,
+                            width: maxX - minX + 1,
+                            height: maxY - minY + 1
+                        }
+                    });
+                }
+            });
+
+            // Sort by size (largest first)
+            components.sort((a, b) => b.pixelCount - a.pixelCount);
+
+            return components;
+        }
+
+        function detectSVGComponentsByRegion(canvas, offsetX, offsetY, scale) {
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const width = canvas.width;
+            const height = canvas.height;
+
+            // Create a grid-based approach to find connected regions
+            const visited = new Array(width * height).fill(false);
+            const components = [];
+
+            function floodFill(startX, startY) {
+                const stack = [{x: startX, y: startY}];
+                const pixels = [];
+                let minX = width, maxX = 0, minY = height, maxY = 0;
+
+                while (stack.length > 0) {
+                    const {x, y} = stack.pop();
+                    const index = y * width + x;
+
+                    if (x < 0 || x >= width || y < 0 || y >= height || visited[index]) continue;
+
+                    const pixelIndex = index * 4;
+                    const r = data[pixelIndex];
+                    const g = data[pixelIndex + 1];
+                    const b = data[pixelIndex + 2];
+                    const a = data[pixelIndex + 3];
+
+                    // Skip transparent or near-white pixels
+                    if (a < 128 || (r > 240 && g > 240 && b > 240)) continue;
+
+                    visited[index] = true;
+                    pixels.push({x, y});
+
+                    minX = Math.min(minX, x);
+                    maxX = Math.max(maxX, x);
+                    minY = Math.min(minY, y);
+                    maxY = Math.max(maxY, y);
+
+                    // Add neighboring pixels
+                    stack.push({x: x + 1, y}, {x: x - 1, y}, {x, y: y + 1}, {x, y: y - 1});
+                }
+
+                return pixels.length > 0 ? {pixels, minX, maxX, minY, maxY} : null;
+            }
+
+            // Scan for connected regions
+            for (let y = Math.floor(offsetY); y < offsetY + svgImage.height * scale; y += 5) {
+                for (let x = Math.floor(offsetX); x < offsetX + svgImage.width * scale; x += 5) {
+                    const index = y * width + x;
+                    if (!visited[index]) {
+                        const region = floodFill(x, y);
+                        if (region && region.pixels.length > 100) { // Minimum size for regions
+                            components.push({
+                                method: 'R',
+                                pixelCount: region.pixels.length,
+                                bounds: {
+                                    x: region.minX,
+                                    y: region.minY,
+                                    width: region.maxX - region.minX + 1,
+                                    height: region.maxY - region.minY + 1
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+
+            return components;
+        }
+
+        function mergeComponentDetections(colorComponents, regionComponents) {
+            const allComponents = [...colorComponents, ...regionComponents];
+            const merged = [];
+
+            // Simple deduplication based on overlap
+            allComponents.forEach(comp => {
+                const overlaps = merged.some(existing => {
+                    const overlapX = Math.max(0, Math.min(comp.bounds.x + comp.bounds.width, existing.bounds.x + existing.bounds.width) - Math.max(comp.bounds.x, existing.bounds.x));
+                    const overlapY = Math.max(0, Math.min(comp.bounds.y + comp.bounds.height, existing.bounds.y + existing.bounds.height) - Math.max(comp.bounds.y, existing.bounds.y));
+                    const overlapArea = overlapX * overlapY;
+                    const compArea = comp.bounds.width * comp.bounds.height;
+                    const existingArea = existing.bounds.width * existing.bounds.height;
+
+                    // If overlap is more than 70% of either component, consider them the same
+                    return (overlapArea / compArea > 0.7) || (overlapArea / existingArea > 0.7);
+                });
+
+                if (!overlaps) {
+                    merged.push(comp);
+                }
+            });
+
+            // Sort by size
+            merged.sort((a, b) => b.pixelCount - a.pixelCount);
+
+            return merged;
+        }
+
+        function test4_showAllBounds() {
+            if (svgComponents.length === 0) {
+                document.getElementById('test4-info').innerHTML = 'Detect components first!';
+                return;
+            }
+
+            const canvas = document.getElementById('canvas4');
+            const ctx = canvas.getContext('2d');
+
+            // Clear and redraw SVG
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(svgImage, svgOffsetX, svgOffsetY, svgImage.width * svgScale, svgImage.height * svgScale);
+
+            // Draw all component bounds with different colors
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#800080'];
+
+            svgComponents.forEach((component, index) => {
+                const color = colors[index % colors.length];
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(component.bounds.x, component.bounds.y, component.bounds.width, component.bounds.height);
+
+                // Label with component info
+                ctx.fillStyle = color;
+                ctx.font = '10px Arial';
+                ctx.fillText(`${component.bounds.width.toFixed(0)}x${component.bounds.height.toFixed(0)}`,
+                           component.bounds.x + 2, component.bounds.y - 2);
+            });
+
+            document.getElementById('test4-info').innerHTML = `
+                Showing bounds for all ${svgComponents.length} components<br>
+                Each component shown in different color with size label
+            `;
+        }
+
+        function test4_createGuidelines() {
+            if (svgComponents.length === 0) {
+                document.getElementById('test4-info').innerHTML = 'Detect components first!';
+                return;
+            }
+
+            const canvas = document.getElementById('canvas4');
+            const ctx = canvas.getContext('2d');
+
+            // Clear and redraw SVG
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(svgImage, svgOffsetX, svgOffsetY, svgImage.width * svgScale, svgImage.height * svgScale);
+
+            // Draw guidelines for each component
+            ctx.strokeStyle = '#00bfff';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+
+            svgComponents.forEach((component, index) => {
+                const bounds = component.bounds;
+
+                // Vertical guidelines (left and right edges)
+                ctx.beginPath();
+                ctx.moveTo(bounds.x, 0);
+                ctx.lineTo(bounds.x, canvas.height);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(bounds.x + bounds.width, 0);
+                ctx.lineTo(bounds.x + bounds.width, canvas.height);
+                ctx.stroke();
+
+                // Horizontal guidelines (top and bottom edges)
+                ctx.beginPath();
+                ctx.moveTo(0, bounds.y);
+                ctx.lineTo(canvas.width, bounds.y);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(0, bounds.y + bounds.height);
+                ctx.lineTo(canvas.width, bounds.y + bounds.height);
+                ctx.stroke();
+            });
+
+            ctx.setLineDash([]);
+
+            document.getElementById('test4-info').innerHTML = `
+                Guidelines created for all ${svgComponents.length} components!<br>
+                Blue dashed lines show component boundaries<br>
+                These could be used for precise object alignment in the design editor
+            `;
+        }
+
+        function test4_clear() {
+            const canvas = document.getElementById('canvas4');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            svgComponents = [];
+            document.getElementById('test4-info').textContent = 'Ready for SVG component detection...';
+        }
+    </script>
+</body>
+</html>

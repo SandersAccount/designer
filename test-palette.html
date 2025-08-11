@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palette Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: #fff;
+            padding: 20px;
+        }
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        #test-output {
+            background: #222;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        button {
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0052cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Palette Selection Test</h1>
+        
+        <div class="form-group">
+            <label>Choose Color Palette:</label>
+            <color-palette-selector id="test-palette-selector"></color-palette-selector>
+        </div>
+        
+        <button onclick="testPaletteReplacement()">Test Palette Replacement</button>
+        
+        <div id="test-output">
+            <h3>Test Output:</h3>
+            <p id="output-text">Select a palette and click the test button...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { ColorPaletteSelector } from '/js/components/ColorPaletteSelector.js';
+        
+        let selectedPalette = null;
+        
+        // Initialize palette selector
+        const paletteSelector = document.getElementById('test-palette-selector');
+        if (paletteSelector) {
+            paletteSelector.addEventListener('paletteChange', function(e) {
+                selectedPalette = e.detail.palette;
+                console.log('Palette changed:', selectedPalette);
+                document.getElementById('output-text').textContent = 
+                    `Selected: ${selectedPalette.name} - ${selectedPalette.description}`;
+            });
+        }
+        
+        // Test function
+        window.testPaletteReplacement = function() {
+            if (!selectedPalette) {
+                document.getElementById('output-text').textContent = 'No palette selected!';
+                return;
+            }
+            
+            const testTemplate = "A stylized t-shirt design with bold text, featuring [image-palette] color scheme in a modern artistic style";
+            const processedTemplate = testTemplate.replace('[image-palette]', selectedPalette.description);
+            
+            document.getElementById('output-text').innerHTML = `
+                <strong>Original Template:</strong><br>
+                ${testTemplate}<br><br>
+                <strong>Processed Template:</strong><br>
+                ${processedTemplate}<br><br>
+                <strong>Selected Palette:</strong><br>
+                ${selectedPalette.name} - ${selectedPalette.description}
+            `;
+        };
+    </script>
+</body>
+</html>

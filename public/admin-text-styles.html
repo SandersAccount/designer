@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Text Styles</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: #1e293b;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .message.success {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .message.error {
+            background-color: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .text-styles-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .text-styles-table th,
+        .text-styles-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .text-styles-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .text-styles-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .text-style-preview-image {
+            width: 180px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .actions-cell {
+            white-space: nowrap;
+        }
+
+        .btn-action {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-add-to-library {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-add-to-library:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-remove-from-library {
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        .btn-remove-from-library:hover {
+            background-color: #d97706;
+        }
+
+        .btn-delete {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #dc2626;
+        }
+
+        .library-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .library-status.in-library {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .library-status.not-in-library {
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div id="topbar"></div>
+
+    <div class="container">
+        <div class="header-actions">
+            <h1>Manage Text Styles</h1>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <table class="text-styles-table">
+            <thead>
+                <tr>
+                    <th>Preview</th>
+                    <th>Name</th>
+                    <th>Library Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="textStylesTableBody">
+                <!-- Text styles will be loaded here -->
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 2rem;">Loading text styles...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script type="module">
+        import { createTopbar } from '/js/components/Topbar.js';
+
+        // Initialize topbar
+        createTopbar();
+
+        document.addEventListener('DOMContentLoaded', loadTextStyles);
+
+        async function loadTextStyles() {
+            const tableBody = document.getElementById('textStylesTableBody');
+            tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Loading text styles...</td></tr>';
+
+            try {
+                const response = await fetch('/api/text-styles', { credentials: 'include' });
+                if (!response.ok) {
+                    throw new Error(`Failed to load text styles: ${response.statusText}`);
+                }
+                const textStyles = await response.json();
+
+                tableBody.innerHTML = '';
+
+                if (textStyles.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No text styles saved yet.</td></tr>';
+                    return;
+                }
+
+                textStyles.forEach(textStyle => {
+                    const row = document.createElement('tr');
+                    const createdAt = new Date(textStyle.createdAt).toLocaleDateString();
+
+                    row.innerHTML = `
+                        <td>
+                            <img src="${textStyle.previewImageUrl}" alt="Text Style Preview" class="text-style-preview-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div style="display:none; width: 180px; height: 90px; background: #444; color: #aaa; text-align: center; line-height: 90px; font-size: 0.8em;">No Preview</div>
+                        </td>
+                        <td>${textStyle.name || 'Untitled Text Style'}</td>
+                        <td>
+                            <span class="library-status ${textStyle.isInLibrary ? 'in-library' : 'not-in-library'}">
+                                <i class="fas ${textStyle.isInLibrary ? 'fa-check-circle' : 'fa-circle'}"></i>
+                                ${textStyle.isInLibrary ? 'In Library' : 'Not in Library'}
+                            </span>
+                        </td>
+                        <td>${createdAt}</td>
+                        <td class="actions-cell">
+                            ${textStyle.isInLibrary ? 
+                                `<button class="btn-action btn-remove-from-library" onclick="removeFromLibrary('${textStyle._id}')" title="Remove from Library">
+                                    <i class="fas fa-minus-circle"></i> Remove from Library
+                                </button>` :
+                                `<button class="btn-action btn-add-to-library" onclick="addToLibrary('${textStyle._id}')" title="Add to Library">
+                                    <i class="fas fa-plus-circle"></i> Add to Text Styles
+                                </button>`
+                            }
+                            <button class="btn-action btn-delete" onclick="deleteTextStyle('${textStyle._id}')" title="Delete Text Style">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error('Error loading text styles:', error);
+                tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #ef4444;">Error loading text styles. Please try again.</td></tr>';
+            }
+        }
+
+        window.addToLibrary = async function(id) {
+            try {
+                const response = await fetch(`/api/text-styles/${id}/add-to-library`, {
+                    method: 'PUT',
+                    credentials: 'include'
+                });
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Failed to add to library' }));
+                    throw new Error(errorData.message || `Failed to add to library (${response.status})`);
+                }
+                showMessage('Text style added to library successfully', 'success');
+                loadTextStyles(); // Refresh the list
+            } catch (error) {
+                console.error('Error adding to library:', error);
+                showMessage(`Error adding to library: ${error.message}`, 'error');
+            }
+        }
+
+        window.removeFromLibrary = async function(id) {
+            try {
+                const response = await fetch(`/api/text-styles/${id}/remove-from-library`, {
+                    method: 'PUT',
+                    credentials: 'include'
+                });
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Failed to remove from library' }));
+                    throw new Error(errorData.message || `Failed to remove from library (${response.status})`);
+                }
+                showMessage('Text style removed from library successfully', 'success');
+                loadTextStyles(); // Refresh the list
+            } catch (error) {
+                console.error('Error removing from library:', error);
+                showMessage(`Error removing from library: ${error.message}`, 'error');
+            }
+        }
+
+        window.deleteTextStyle = async function(id) {
+            if (!confirm('Are you sure you want to delete this text style? This cannot be undone.')) {
+                return;
+            }
+            try {
+                const response = await fetch(`/api/text-styles/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Failed to delete text style' }));
+                    throw new Error(errorData.message || `Failed to delete text style (${response.status})`);
+                }
+                showMessage('Text style deleted successfully', 'success');
+                loadTextStyles(); // Refresh the list
+            } catch (error) {
+                console.error('Error deleting text style:', error);
+                showMessage(`Error deleting text style: ${error.message}`, 'error');
+            }
+        }
+
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+            messageEl.style.display = 'block';
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

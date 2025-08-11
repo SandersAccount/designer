@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Template Asset Processing</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #1f2937;
+            margin-bottom: 20px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .test-section h3 {
+            margin-top: 0;
+            color: #1f2937;
+        }
+        
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background: #2563eb;
+        }
+        
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            color: #059669;
+        }
+        
+        .error {
+            color: #dc2626;
+        }
+        
+        .info {
+            color: #0891b2;
+        }
+        
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .asset-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 15px;
+            background: white;
+        }
+        
+        .asset-preview {
+            width: 60px;
+            height: 60px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .asset-preview img {
+            max-width: 50px;
+            max-height: 50px;
+            object-fit: contain;
+        }
+        
+        .asset-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .asset-meta {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Template Asset Processing Test</h1>
+        <p>This page tests the asset processing system that automatically extracts and manages assets from saved templates.</p>
+
+        <div style="background: #eff6ff; border: 1px solid #3b82f6; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
+            <h3 style="margin-top: 0; color: #1e40af;">📋 How to Find Your Saved Heart Icon:</h3>
+            <ol style="margin-bottom: 0;">
+                <li><strong>First:</strong> Click "Test API Connection" below to verify the system is working</li>
+                <li><strong>Then:</strong> Click "Browse All Assets" to see all assets in the database</li>
+                <li><strong>Or:</strong> Click "Search Heart Assets" to find heart-specific assets</li>
+                <li><strong>Finally:</strong> Click "Open Asset Browser" for the full search interface</li>
+            </ol>
+            <p style="margin-bottom: 0;"><strong>Note:</strong> If you don't see your heart icon, it means the asset processing didn't work when you saved your template/project. Try the "Save Test Template" button to test the system.</p>
+        </div>
+        
+        <div class="test-section">
+            <h3>1. Simulate Template Save with Heart Icon</h3>
+            <p>This simulates saving a template with a heart icon (like your template) and processes the assets with B2 storage authorization.</p>
+            <button onclick="testTemplateSave()">Save Test Template</button>
+            <button onclick="testProjectSave()">Save Test Project</button>
+            <div id="template-results" class="results" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>2. Search for Heart Assets</h3>
+            <p>Search for heart-related assets in the database to see if your template's heart icon was processed.</p>
+            <button onclick="searchHeartAssets()">Search Heart Assets</button>
+            <div id="search-results" class="results" style="display: none;"></div>
+            <div id="heart-assets" class="asset-grid"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>3. Browse All Assets</h3>
+            <p>View all assets currently in the database.</p>
+            <button onclick="browseAllAssets()">Browse All Assets</button>
+            <button onclick="getAssetStats()">Get Statistics</button>
+            <div id="browse-results" class="results" style="display: none;"></div>
+            <div id="all-assets" class="asset-grid"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>4. Test API Connection</h3>
+            <p>Test if the assets API endpoints are working correctly.</p>
+            <button onclick="testApiConnection()">Test API Connection</button>
+            <div id="api-results" class="results" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. Open Asset Browser</h3>
+            <p>Open the full asset browser to search and filter assets.</p>
+            <button onclick="openAssetBrowser()">Open Asset Browser</button>
+        </div>
+    </div>
+
+    <script>
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            element.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            element.scrollTop = element.scrollHeight;
+        }
+        
+        function clearLog(elementId) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = '';
+            element.style.display = 'none';
+        }
+        
+        async function testTemplateSave() {
+            clearLog('template-results');
+            log('template-results', 'Starting template save test with ObjectId fix...', 'info');
+
+            // Simulate canvas objects with bear icon from folder
+            const testCanvasObjects = [
+                {
+                    type: 'text',
+                    text: 'BEAR DESIGN',
+                    x: 100,
+                    y: 200,
+                    fontSize: 48,
+                    fill: '#3b82f6'
+                },
+                {
+                    type: 'image',
+                    imageUrl: '/stock/images/bear/Asset 9mdpi.svg',
+                    x: 50,
+                    y: 50,
+                    width: 80,
+                    height: 80
+                }
+            ];
+
+            try {
+                log('template-results', 'Processing assets with B2 authorization...', 'info');
+
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || 'test-token';
+                const response = await fetch('/api/assets/process-project', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        canvasObjects: testCanvasObjects,
+                        projectId: 'test-template-' + Date.now(),
+                        templateId: 'template-' + Date.now()
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    log('template-results', 'Assets processed successfully with B2 storage!', 'success');
+                    log('template-results', `Processed ${result.canvasObjects.length} objects`, 'success');
+
+                    // Show processed objects
+                    result.canvasObjects.forEach((obj, i) => {
+                        if (obj.type === 'image') {
+                            log('template-results', `Object ${i}: ${obj.imageUrl} ${obj.assetId ? `→ Asset ID: ${obj.assetId}` : '(no asset ID)'}`, 'info');
+                        }
+                    });
+                } else {
+                    const error = await response.text();
+                    log('template-results', `Error: ${response.status} - ${error}`, 'error');
+                }
+            } catch (error) {
+                log('template-results', `Network error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testProjectSave() {
+            clearLog('template-results');
+            log('template-results', 'Starting project save test with ObjectId fix...', 'info');
+
+            // Simulate canvas objects with bear icon from folder
+            const testCanvasObjects = [
+                {
+                    type: 'text',
+                    text: 'MY BEAR PROJECT',
+                    x: 100,
+                    y: 200,
+                    fontSize: 48,
+                    fill: '#059669'
+                },
+                {
+                    type: 'image',
+                    imageUrl: '/stock/images/bear/Asset 9mdpi.svg',
+                    x: 50,
+                    y: 50,
+                    width: 80,
+                    height: 80
+                }
+            ];
+
+            try {
+                log('template-results', 'Processing project assets with B2 authorization...', 'info');
+
+                const token = localStorage.getItem('token') || localStorage.getItem('authToken') || 'test-token';
+                const response = await fetch('/api/assets/process-project', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        canvasObjects: testCanvasObjects,
+                        projectId: 'test-project-' + Date.now(),
+                        templateId: null // No template ID for projects
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    log('template-results', 'Project assets processed successfully with B2 storage!', 'success');
+                    log('template-results', `Processed ${result.canvasObjects.length} objects`, 'success');
+
+                    // Show processed objects
+                    result.canvasObjects.forEach((obj, i) => {
+                        if (obj.type === 'image') {
+                            log('template-results', `Object ${i}: ${obj.imageUrl} ${obj.assetId ? `→ Asset ID: ${obj.assetId}` : '(no asset ID)'}`, 'info');
+                        }
+                    });
+                } else {
+                    const error = await response.text();
+                    log('template-results', `Error: ${response.status} - ${error}`, 'error');
+                }
+            } catch (error) {
+                log('template-results', `Network error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function searchHeartAssets() {
+            clearLog('search-results');
+            document.getElementById('heart-assets').innerHTML = '';
+            
+            log('search-results', 'Searching for heart assets...', 'info');
+            
+            try {
+                const response = await fetch('/api/assets/search?q=heart&category=icons&limit=10');
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('search-results', `Found ${data.assets.length} heart assets`, 'success');
+                    
+                    if (data.assets.length > 0) {
+                        renderAssets('heart-assets', data.assets);
+                        
+                        data.assets.forEach(asset => {
+                            log('search-results', `${asset.name} (${asset.assetId}) - Used ${asset.usageCount} times`, 'info');
+                        });
+                    } else {
+                        log('search-results', 'No heart assets found. Try saving a template with a heart icon first.', 'info');
+                    }
+                } else {
+                    log('search-results', `Search failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log('search-results', `Network error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function browseAllAssets() {
+            clearLog('browse-results');
+            document.getElementById('all-assets').innerHTML = '';
+            
+            log('browse-results', 'Loading all assets...', 'info');
+            
+            try {
+                const response = await fetch('/api/assets/search?limit=20');
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('browse-results', `Found ${data.assets.length} total assets`, 'success');
+                    
+                    if (data.assets.length > 0) {
+                        renderAssets('all-assets', data.assets);
+                    } else {
+                        log('browse-results', 'No assets found in database.', 'info');
+                    }
+                } else {
+                    log('browse-results', `Browse failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log('browse-results', `Network error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function getAssetStats() {
+            clearLog('browse-results');
+            log('browse-results', 'Getting asset statistics...', 'info');
+            
+            try {
+                const response = await fetch('/api/assets/categories');
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('browse-results', 'Asset Statistics:', 'success');
+                    
+                    Object.entries(data.categories).forEach(([category, stats]) => {
+                        log('browse-results', `${category}: ${stats.total} assets (${stats.totalUsage} total uses)`, 'info');
+                    });
+                } else {
+                    log('browse-results', `Stats failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log('browse-results', `Network error: ${error.message}`, 'error');
+            }
+        }
+        
+        function renderAssets(containerId, assets) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = assets.map(asset => `
+                <div class="asset-card">
+                    <div class="asset-preview">
+                        <img src="/api/assets/by-id/${asset.assetId}" alt="${asset.name}" 
+                             onerror="this.style.display='none'; this.parentElement.innerHTML='📄';">
+                    </div>
+                    <div class="asset-name">${asset.name}</div>
+                    <div class="asset-meta">
+                        ID: ${asset.assetId}<br>
+                        Category: ${asset.category}<br>
+                        Used: ${asset.usageCount} times<br>
+                        Tags: ${asset.tags.slice(0, 2).join(', ')}${asset.tags.length > 2 ? '...' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function testApiConnection() {
+            clearLog('api-results');
+            log('api-results', 'Testing API connection...', 'info');
+
+            try {
+                // Test basic endpoint
+                log('api-results', 'Testing /api/assets/test endpoint...', 'info');
+                const testResponse = await fetch('/api/assets/test');
+
+                if (testResponse.ok) {
+                    const testData = await testResponse.json();
+                    log('api-results', `✅ Basic API test: ${testData.message}`, 'success');
+                    log('api-results', `📊 Database connected: ${testData.database?.connected}`, 'info');
+                    log('api-results', `📊 Assets in DB: ${testData.database?.assetCount || 0}`, 'info');
+                    log('api-results', `📊 Search method exists: ${testData.model?.hasSearchMethod}`, 'info');
+                    log('api-results', `📊 Search test: ${testData.model?.searchTest}`, 'info');
+                } else {
+                    const errorText = await testResponse.text();
+                    log('api-results', `❌ Basic API test failed: ${testResponse.status} - ${errorText}`, 'error');
+                    return;
+                }
+
+                // Test debug endpoint (route ordering)
+                log('api-results', 'Testing /api/assets/debug endpoint...', 'info');
+                const debugResponse = await fetch('/api/assets/debug');
+
+                if (debugResponse.ok) {
+                    const debugData = await debugResponse.json();
+                    log('api-results', `✅ Debug test: ${debugData.message}`, 'success');
+                } else {
+                    log('api-results', `❌ Debug test failed: ${debugResponse.status}`, 'error');
+                }
+
+                // Test search endpoint
+                log('api-results', 'Testing /api/assets/search endpoint...', 'info');
+                const searchResponse = await fetch('/api/assets/search?limit=1');
+
+                if (searchResponse.ok) {
+                    const searchData = await searchResponse.json();
+                    log('api-results', `✅ Search API test: Found ${searchData.assets?.length || 0} assets`, 'success');
+                    log('api-results', `📊 Total assets: ${searchData.pagination?.total || 0}`, 'info');
+                } else {
+                    const errorText = await searchResponse.text();
+                    log('api-results', `❌ Search API test failed: ${searchResponse.status} - ${errorText}`, 'error');
+                }
+
+                // Test process-project endpoint
+                log('api-results', 'Testing /api/assets/process-project endpoint...', 'info');
+                const processResponse = await fetch('/api/assets/process-project', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        canvasObjects: [{ type: 'text', text: 'test' }],
+                        projectId: 'test-connection'
+                    })
+                });
+
+                if (processResponse.ok) {
+                    const processData = await processResponse.json();
+                    log('api-results', `✅ Process API test: ${processData.message}`, 'success');
+                } else {
+                    const errorText = await processResponse.text();
+                    log('api-results', `❌ Process API test failed: ${processResponse.status} - ${errorText}`, 'error');
+                }
+
+            } catch (error) {
+                log('api-results', `❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        function openAssetBrowser() {
+            window.open('/asset-browser-demo.html', '_blank');
+        }
+        
+        // Auto-run search on page load to see existing assets
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                browseAllAssets();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
