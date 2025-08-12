@@ -231,8 +231,8 @@ router.get('/', optionalAuth, async (req, res) => { // Use 'optionalAuth' middle
             maxTimeMS: 30000 // 30 second timeout
         });
 
-        // Get total count using a separate optimized query
-        const totalCount = await DesignTemplate.countDocuments({ userId: userObjectId });
+        // Get total count using a separate optimized query with same criteria
+        const totalCount = await DesignTemplate.countDocuments(matchCriteria);
 
         const totalPages = Math.ceil(totalCount / limit);
 
