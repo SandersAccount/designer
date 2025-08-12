@@ -1,6 +1,7 @@
 {
-  "name": "test-replicate",
+  "name": "designer",
   "version": "1.0.0",
+  "description": "Advanced Design Editor with AI-powered features",
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
