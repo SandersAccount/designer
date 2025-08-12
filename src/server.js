@@ -70,6 +70,9 @@ import adminPageModelsRouter from './routes/adminPageModels.js';
 import adminReplicateModelsRouter from './routes/adminReplicateModels.js';
 import apiPageModelsRouter from './routes/apiPageModels.js';
 import persistentParametersRouter from './routes/persistentParameters.js';
+import stockShapesRouter from './routes/stock-shapes.js';
+import stockImagesRouter from './routes/stock-images.js';
+import imageProxyRouter from './routes/image-proxy.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -151,6 +154,9 @@ app.use('/api/admin-page-models', adminPageModelsRouter);
 app.use('/api/admin-replicate-models', adminReplicateModelsRouter);
 app.use('/api/api-page-models', apiPageModelsRouter);
 app.use('/api/persistent-parameters', persistentParametersRouter);
+app.use('/api/stock-shapes', stockShapesRouter);
+app.use('/api/stock-images', stockImagesRouter);
+app.use('/api/image-proxy', imageProxyRouter);
 
 // Serve HTML files
 app.get('/', (req, res) => {
