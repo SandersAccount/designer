@@ -222,8 +222,10 @@ class ShapesLoader {
             shapesGrid.className = 'shapes-grid';
             shapesGrid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 12px;';
 
-            data.shapes.forEach(shapePath => {
-                const shapeItem = this.createShapeItem(shapePath);
+            data.shapes.forEach(shapeData => {
+                // Handle both string paths and object format
+                const shapePath = typeof shapeData === 'string' ? shapeData : shapeData.url || shapeData.path;
+                const shapeItem = this.createShapeItem(shapePath, shapeData);
                 shapesGrid.appendChild(shapeItem);
             });
 
@@ -279,7 +281,9 @@ class ShapesLoader {
         return folderItem;
     }
 
-    createShapeItem(shapePath) {
+    createShapeItem(shapePath, shapeData = null) {
+        console.log('🔷 Creating shape item for:', shapePath, shapeData);
+
         const shapeItem = document.createElement('div');
         shapeItem.className = 'shape-item';
         shapeItem.style.cssText = `
@@ -308,7 +312,7 @@ class ShapesLoader {
 
         const img = document.createElement('img');
         img.src = shapePath;
-        img.alt = this.getShapeName(shapePath);
+        img.alt = this.getShapeName(shapePath, shapeData);
         img.style.cssText = `
             max-width: 100%;
             max-height: 100%;
@@ -325,7 +329,7 @@ class ShapesLoader {
 
         // Add shape name
         const shapeName = document.createElement('div');
-        shapeName.textContent = this.getShapeName(shapePath);
+        shapeName.textContent = this.getShapeName(shapePath, shapeData);
         shapeName.style.cssText = `
             font-size: 10px;
             color: #64748b;
@@ -355,8 +359,26 @@ class ShapesLoader {
         return shapeItem;
     }
 
-    getShapeName(shapePath) {
-        return shapePath.split('/').pop().split('.')[0];
+    getShapeName(shapePath, shapeData = null) {
+        // Handle both string paths and object format
+        if (shapeData && shapeData.name) {
+            return shapeData.name.split('.')[0];
+        }
+
+        // Fallback to path parsing if shapePath is a string
+        if (typeof shapePath === 'string') {
+            return shapePath.split('/').pop().split('.')[0];
+        }
+
+        // If shapePath is an object, try to extract name
+        if (shapePath && typeof shapePath === 'object') {
+            if (shapePath.name) return shapePath.name.split('.')[0];
+            if (shapePath.url) return shapePath.url.split('/').pop().split('.')[0];
+            if (shapePath.path) return shapePath.path.split('/').pop().split('.')[0];
+        }
+
+        // Final fallback
+        return 'Unknown Shape';
     }
 
     addShapeToCanvas(shapePath) {

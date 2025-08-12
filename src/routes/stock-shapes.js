@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 router.get('/', async (req, res) => {
     try {
         const { folder } = req.query;
-        const shapesDir = path.join(__dirname, '../../public/shapes');
+        const shapesDir = path.join(__dirname, '../../public/stock/shapes');
         
         // Check if shapes directory exists
         if (!fs.existsSync(shapesDir)) {
@@ -40,12 +40,14 @@ router.get('/', async (req, res) => {
                     name: item,
                     path: folder ? `${folder}/${item}` : item
                 });
-            } else if (item.toLowerCase().endsWith('.svg')) {
-                const relativePath = folder ? `shapes/${folder}/${item}` : `shapes/${item}`;
+            } else if (item.toLowerCase().endsWith('.svg') || item.toLowerCase().endsWith('.png')) {
+                const relativePath = folder ? `stock/shapes/${folder}/${item}` : `stock/shapes/${item}`;
+                const extension = item.toLowerCase().endsWith('.svg') ? '.svg' : '.png';
                 shapes.push({
-                    name: item.replace('.svg', ''),
+                    name: item.replace(extension, ''),
                     url: `/${relativePath}`,
-                    path: relativePath
+                    path: relativePath,
+                    thumbnail: `/${relativePath}` // Use the same file as thumbnail for shapes
                 });
             }
         }

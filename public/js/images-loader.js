@@ -239,8 +239,10 @@ class ImagesLoader {
         });
 
         // Then render images
-        data.images.forEach(imagePath => {
-            const imageItem = this.createImageItem(imagePath);
+        data.images.forEach(imageData => {
+            // Handle both string paths and object format
+            const imagePath = typeof imageData === 'string' ? imageData : imageData.url || imageData.path;
+            const imageItem = this.createImageItem(imagePath, imageData);
             this.imageGrid.appendChild(imageItem);
         });
 
@@ -316,7 +318,9 @@ class ImagesLoader {
         return folderItem;
     }
 
-    createImageItem(imagePath) {
+    createImageItem(imagePath, imageData = null) {
+        console.log('🖼️ Creating image item for:', imagePath, imageData);
+
         const imageItem = document.createElement('div');
         imageItem.className = 'image-item';
         imageItem.style.cursor = 'pointer';
@@ -325,7 +329,7 @@ class ImagesLoader {
         // Create image element
         const img = document.createElement('img');
         img.src = imagePath;
-        img.alt = this.getImageName(imagePath);
+        img.alt = this.getImageName(imagePath, imageData);
         img.style.width = '100%';
         img.style.height = '80px';
         img.style.objectFit = 'cover';
@@ -363,8 +367,26 @@ class ImagesLoader {
         return imageItem;
     }
 
-    getImageName(imagePath) {
-        return imagePath.split('/').pop().split('.')[0];
+    getImageName(imagePath, imageData = null) {
+        // Handle both string paths and object format
+        if (imageData && imageData.name) {
+            return imageData.name.split('.')[0];
+        }
+
+        // Fallback to path parsing if imagePath is a string
+        if (typeof imagePath === 'string') {
+            return imagePath.split('/').pop().split('.')[0];
+        }
+
+        // If imagePath is an object, try to extract name
+        if (imagePath && typeof imagePath === 'object') {
+            if (imagePath.name) return imagePath.name.split('.')[0];
+            if (imagePath.url) return imagePath.url.split('/').pop().split('.')[0];
+            if (imagePath.path) return imagePath.path.split('/').pop().split('.')[0];
+        }
+
+        // Final fallback
+        return 'Unknown Image';
     }
 
     addImageToCanvas(imagePath) {
