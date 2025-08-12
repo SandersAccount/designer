@@ -855,14 +855,29 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('/api/templates');
             if (!response.ok) {
-                throw new Error('Failed to load templates');
+                throw new Error(`Failed to load templates: ${response.status} ${response.statusText}`);
             }
-            const templates = await response.json();
+            const data = await response.json();
 
-            if (templates.length === 0) {
+            // Validate that we received an array
+            let templates;
+            if (Array.isArray(data)) {
+                templates = data;
+            } else if (data && Array.isArray(data.templates)) {
+                templates = data.templates;
+            } else if (data && data.error) {
+                throw new Error(`API Error: ${data.error}`);
+            } else {
+                console.error('Invalid API response format:', data);
+                throw new Error('Invalid response format from templates API');
+            }
+
+            if (!templates || templates.length === 0) {
                 aiTemplateGrid.innerHTML = '<div class="empty-message">No templates available</div>';
                 return;
             }
+
+            console.log('Loaded AI templates from API:', templates);
 
             aiTemplateGrid.innerHTML = templates.map(template => {
                 const hasThumbnail = template.thumbnailUrl && template.thumbnailUrl.trim() !== '';
@@ -883,7 +898,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error loading AI templates:', error);
             if (aiTemplateGrid) {
-                aiTemplateGrid.innerHTML = '<div class="error-message">Error loading templates</div>';
+                aiTemplateGrid.innerHTML = `<div class="error-message">Error loading templates: ${error.message}</div>`;
             }
         }
     }

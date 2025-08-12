@@ -2201,9 +2201,9 @@
                 // Get templates from API instead of localStorage
                 const response = await fetch('/api/templates');
                 if (!response.ok) {
-                    throw new Error('Failed to load templates from API');
+                    throw new Error(`Failed to load templates from API: ${response.status} ${response.statusText}`);
                 }
-                const templates = await response.json();
+                const data = await response.json();
 
                 const templateGrid = document.getElementById('templateGrid');
                 if (!templateGrid) {
@@ -2211,7 +2211,20 @@
                     return;
                 }
 
-                if (templates.length === 0) {
+                // Validate that we received an array
+                let templates;
+                if (Array.isArray(data)) {
+                    templates = data;
+                } else if (data && Array.isArray(data.templates)) {
+                    templates = data.templates;
+                } else if (data && data.error) {
+                    throw new Error(`API Error: ${data.error}`);
+                } else {
+                    console.error('Invalid API response format:', data);
+                    throw new Error('Invalid response format from templates API');
+                }
+
+                if (!templates || templates.length === 0) {
                     templateGrid.innerHTML = '<div class="empty-message">No templates available. Create templates in the Templates section.</div>';
                     return;
                 }
@@ -2236,7 +2249,7 @@
                 console.error('Error loading templates:', error);
                 const templateGrid = document.getElementById('templateGrid');
                 if (templateGrid) {
-                    templateGrid.innerHTML = '<div class="error-message">Error loading templates: ${error.message}</div>';
+                    templateGrid.innerHTML = `<div class="error-message">Error loading templates: ${error.message}</div>`;
                 }
             }
         }
