@@ -73,6 +73,10 @@ import persistentParametersRouter from './routes/persistentParameters.js';
 import stockShapesRouter from './routes/stock-shapes.js';
 import stockImagesRouter from './routes/stock-images.js';
 import imageProxyRouter from './routes/image-proxy.js';
+import templatesRouter from './routes/templates.js';
+import settingsRouter from './routes/settings.js';
+import userRouter from './routes/user.js';
+import proxyImageRouter from './routes/proxy-image.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -157,6 +161,10 @@ app.use('/api/persistent-parameters', persistentParametersRouter);
 app.use('/api/stock-shapes', stockShapesRouter);
 app.use('/api/stock-images', stockImagesRouter);
 app.use('/api/image-proxy', imageProxyRouter);
+app.use('/api/templates', templatesRouter);
+app.use('/api/settings', settingsRouter);
+app.use('/api/user', userRouter);
+app.use('/api/proxy-image', proxyImageRouter);
 
 // Serve HTML files
 app.get('/', (req, res) => {
