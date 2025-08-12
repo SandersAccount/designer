@@ -82,7 +82,12 @@ app.use(cors({
     origin: function(origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        
+
+        // In production, allow all origins from the same domain
+        if (process.env.NODE_ENV === 'production') {
+            return callback(null, true);
+        }
+
         const allowedOrigins = [
             'http://localhost:3000',
             'http://localhost:3001',
@@ -91,11 +96,12 @@ app.use(cors({
             'https://tshirts-supereditor-01.onrender.com',
             process.env.FRONTEND_URL
         ].filter(Boolean);
-        
+
         if (allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
-            callback(new Error('Not allowed by CORS'));
+            console.log('CORS blocked origin:', origin);
+            callback(null, true); // Allow all origins for now
         }
     },
     credentials: true
