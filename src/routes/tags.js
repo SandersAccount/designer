@@ -1,7 +1,7 @@
-const express = require('express');
-const auth = require('../../middleware/auth');
-const Tag = require('../../models/Tag');
-const Image = require('../../models/Image');
+import express from 'express';
+import { auth } from '../../middleware/auth.js';
+import Tag from '../../models/Tag.js';
+import Image from '../../models/Image.js';
 
 const router = express.Router();
 
@@ -133,7 +133,7 @@ router.get('/suggestions', auth, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
 
 
 

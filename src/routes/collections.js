@@ -1,10 +1,10 @@
-const express = require('express');
-const multer = require('multer');
-const sharp = require('sharp');
-const auth = require('../../middleware/auth');
+import express from 'express';
+import multer from 'multer';
+import sharp from 'sharp';
+import { auth } from '../../middleware/auth.js';
 // Import models from central index file
 // Need Generation model here now
-const { Collection, Image, Tag, Generation } = require('../../models/index.js');
+import { Collection, Image, Tag, Generation } from '../../models/index.js';
 
 const router = express.Router();
 
@@ -406,7 +406,7 @@ router.delete('/:collectionId/images/:imageId', auth, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
 
 
 
