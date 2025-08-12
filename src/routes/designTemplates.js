@@ -7,7 +7,7 @@ const router = express.Router();
 import DesignTemplate from '../../models/DesignTemplate.js';
 import { auth } from '../../middleware/auth.js'; // Use the correct exported function 'auth'
 import { storage } from '../../utils/storage.js';
-import AssetManager from '../services/assetManager.js';
+import AssetManager from '../../services/assetManager.js';
 
 // @desc    Save a new design template
 // @route   POST /api/design-templates
@@ -654,5 +654,8 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 export default router; // Use ES module export
+
+
+
 
 

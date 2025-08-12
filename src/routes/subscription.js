@@ -1,7 +1,7 @@
 import express from 'express';
 import User from '../../models/User.js';
 import { auth } from '../../middleware/auth.js';
-import subscriptionService from '../services/subscription.js';
+import subscriptionService from '../../services/subscription.js';
 import plans from '../../config/plans.js';
 import { creditProducts } from '../../config/credits.js';
 import Stripe from 'stripe';
@@ -108,5 +108,8 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 });
 
 export default router;
+
+
+
 
 

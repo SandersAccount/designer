@@ -1,5 +1,5 @@
 import express from 'express';
-import imageService from '../services/imageService.js';
+import imageService from '../../services/imageService.js';
 
 const router = express.Router();
 
@@ -23,5 +23,8 @@ router.post('/generate', async (req, res) => {
 });
 
 export default router;
+
+
+
 
 

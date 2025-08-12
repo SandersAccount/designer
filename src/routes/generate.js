@@ -11,7 +11,7 @@ import PromptTemplate from '../../models/PromptTemplate.js';
 import { readFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { processTemplate } from '../public/js/promptTemplates.js';
+import { processTemplate } from '../../public/js/promptTemplates.js';
 
 const router = express.Router();
 
@@ -643,5 +643,8 @@ router.post('/image', auth, async (req, res) => {
 });
 
 export default router;
+
+
+
 
 

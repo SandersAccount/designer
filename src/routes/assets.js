@@ -1,5 +1,5 @@
 import express from 'express';
-import AssetManager from '../services/assetManager.js';
+import AssetManager from '../../services/assetManager.js';
 import Asset from '../../models/Asset.js';
 import { auth } from '../../middleware/auth.js';
 
@@ -671,5 +671,8 @@ router.get('/:id', async (req, res) => {
 });
 
 export default router;
+
+
+
 
 

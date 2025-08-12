@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 // Configure storage
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        const uploadDir = path.join(__dirname, '../public/uploads/templates');
+        const uploadDir = path.join(__dirname, '../../public/uploads/templates');
         
         // Create directory if it doesn't exist
         if (!fs.existsSync(uploadDir)) {
@@ -67,5 +67,8 @@ router.post('/', upload.single('image'), async (req, res) => {
 });
 
 export default router;
+
+
+
 
 
