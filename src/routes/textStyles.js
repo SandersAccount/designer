@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import TextStyle from '../../models/TextStyle.js';
-import { auth } from '../../middleware/auth.js';
+import { auth, optionalAuth } from '../../middleware/auth.js';
 
 // @desc    Save a new text style
 // @route   POST /api/text-styles
@@ -66,14 +66,22 @@ router.get('/', auth, async (req, res) => {
 // @desc    Get text styles that are in the library
 // @route   GET /api/text-styles/library
 // @access  Private
-router.get('/library', auth, async (req, res) => {
+router.get('/library', optionalAuth, async (req, res) => {
     try {
-        const libraryStyles = await TextStyle.find({ 
-            userId: req.user.id, 
-            isInLibrary: true 
-        })
-        .sort({ createdAt: -1 })
-        .lean();
+        let libraryStyles = [];
+
+        if (req.user && req.user.id) {
+            // If user is authenticated, get their library styles
+            libraryStyles = await TextStyle.find({
+                userId: req.user.id,
+                isInLibrary: true
+            })
+            .sort({ createdAt: -1 })
+            .lean();
+        } else {
+            // If no user, return empty array or public styles if any
+            libraryStyles = [];
+        }
 
         res.status(200).json(libraryStyles);
     } catch (err) {

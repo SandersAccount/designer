@@ -1,6 +1,52 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 
+// Optional auth middleware - continues without authentication if no token
+export const optionalAuth = async (req, res, next) => {
+    try {
+        console.log('Optional auth middleware - checking token...');
+        const token = req.cookies.token;
+
+        if (!token) {
+            console.log('No token found - continuing without authentication');
+            req.user = null;
+            req.userId = null;
+            return next();
+        }
+
+        console.log('Verifying token...');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Token verified, user ID:', decoded.userId);
+
+        const user = await User.findById(decoded.userId);
+        if (!user) {
+            console.log('User not found - continuing without authentication');
+            req.user = null;
+            req.userId = null;
+            return next();
+        }
+
+        // Check if user is blocked
+        if (user.blocked && user.blocked.status) {
+            return res.status(403).json({
+                error: 'Account blocked',
+                reason: user.blocked.reason || 'No reason provided',
+                blockedAt: user.blocked.blockedAt
+            });
+        }
+
+        req.user = user;
+        req.userId = user._id;
+        console.log('User authenticated:', user.email);
+        next();
+    } catch (error) {
+        console.log('Auth error - continuing without authentication:', error.message);
+        req.user = null;
+        req.userId = null;
+        next();
+    }
+};
+
 export const auth = async (req, res, next) => {
     try {
         console.log('Auth middleware - checking token...');

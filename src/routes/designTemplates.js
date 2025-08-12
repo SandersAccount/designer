@@ -5,7 +5,7 @@ const router = express.Router();
 // If DesignTemplate also uses ES modules, change the import accordingly.
 // We might need to check models/DesignTemplate.js if this causes issues.
 import DesignTemplate from '../../models/DesignTemplate.js';
-import { auth } from '../../middleware/auth.js'; // Use the correct exported function 'auth'
+import { auth, optionalAuth } from '../../middleware/auth.js'; // Use the correct exported function 'auth'
 import { storage } from '../../utils/storage.js';
 import AssetManager from '../../services/assetManager.js';
 
@@ -185,7 +185,7 @@ router.post('/', auth, async (req, res) => { // Use 'auth' middleware
 // @desc    Get all design templates (potentially for the logged-in user)
 // @route   GET /api/design-templates
 // @access  Private
-router.get('/', auth, async (req, res) => { // Use 'auth' middleware
+router.get('/', optionalAuth, async (req, res) => { // Use 'optionalAuth' middleware
     try {
         // Get pagination parameters with smaller default page size
         const page = parseInt(req.query.page) || 1;
@@ -194,13 +194,21 @@ router.get('/', auth, async (req, res) => { // Use 'auth' middleware
 
         console.log(`[DesignTemplates] Fetching templates for user ${req.userId} (page ${page}, limit ${limit}, skip ${skip})`);
 
-        // Convert userId to ObjectId for proper querying
-        const userObjectId = new mongoose.Types.ObjectId(req.userId);
+        // Build match criteria based on authentication status
+        let matchCriteria = {};
+        if (req.userId) {
+            // If user is authenticated, show their templates
+            const userObjectId = new mongoose.Types.ObjectId(req.userId);
+            matchCriteria = { userId: userObjectId };
+        } else {
+            // If no user, show published templates or return empty array
+            matchCriteria = { published: true };
+        }
 
         // Use aggregation pipeline with allowDiskUse to handle large datasets
         const templates = await DesignTemplate.aggregate([
-            // Match user's templates first (most selective filter)
-            { $match: { userId: userObjectId } },
+            // Match templates based on authentication status
+            { $match: matchCriteria },
 
             // Sort by _id (which contains timestamp) instead of createdAt to use default index
             { $sort: { _id: -1 } },
@@ -297,7 +305,7 @@ router.get('/', auth, async (req, res) => { // Use 'auth' middleware
 // @desc    Get a single design template by ID
 // @route   GET /api/design-templates/:id
 // @access  Private
-router.get('/:id', auth, async (req, res) => { // Use 'auth' middleware
+router.get('/:id', optionalAuth, async (req, res) => { // Use 'optionalAuth' middleware
     try {
         const template = await DesignTemplate.findById(req.params.id).lean();
 
@@ -305,9 +313,17 @@ router.get('/:id', auth, async (req, res) => { // Use 'auth' middleware
             return res.status(404).json({ message: 'Template not found' });
         }
 
-        // Optional: Check if the template belongs to the requesting user
-        if (template.userId && template.userId.toString() !== req.userId.toString()) {
-             return res.status(403).json({ message: 'User not authorized to access this template' });
+        // Check access permissions based on authentication status
+        if (req.userId) {
+            // If user is authenticated, check if template belongs to them
+            if (template.userId && template.userId.toString() !== req.userId.toString()) {
+                return res.status(403).json({ message: 'User not authorized to access this template' });
+            }
+        } else {
+            // If no user, only allow access to published templates
+            if (!template.published) {
+                return res.status(403).json({ message: 'Template not publicly available' });
+            }
         }
 
         res.status(200).json(template);
