@@ -13486,7 +13486,7 @@ const fontMap = {
         italic: '/fonts/CourierNewItalic.ttf'
     },
     'Cramaten': {
-        regular: '/fonts/Cramaten.ttf'
+        regular: '/fonts/cramaten.ttf'
     },
     'Creepster': {
         regular: '/fonts/Creepster-Regular.ttf'

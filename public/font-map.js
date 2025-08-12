@@ -317,7 +317,7 @@ const fontMap = {
         italic: '/fonts/CourierNewItalic.ttf'
     },
     'Cramaten': {
-        regular: '/fonts/cramaten.ttf'
+        regular: '/fonts/cramaten.ttf' // Fixed case sensitivity
     },
     'Creepster': {
         regular: '/fonts/Creepster-Regular.ttf'
