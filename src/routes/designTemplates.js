@@ -262,9 +262,16 @@ router.get('/', optionalAuth, async (req, res) => { // Use 'optionalAuth' middle
                 const limit = Math.min(parseInt(req.query.limit) || 10, 20); // Even smaller limit
                 const skip = (page - 1) * limit;
 
-                const userObjectId = new mongoose.Types.ObjectId(req.userId);
+                // Build match criteria for fallback based on authentication status
+                let findCriteria = {};
+                if (req.userId) {
+                    const userObjectId = new mongoose.Types.ObjectId(req.userId);
+                    findCriteria = { userId: userObjectId };
+                } else {
+                    findCriteria = { published: true };
+                }
 
-                const templates = await DesignTemplate.find({ userId: userObjectId })
+                const templates = await DesignTemplate.find(findCriteria)
                     .skip(skip)
                     .limit(limit)
                     .select('name previewImageUrl createdAt published _id')

@@ -10,11 +10,14 @@ const __dirname = path.dirname(__filename);
 // Image proxy route for serving images with proper headers
 router.get('/', async (req, res) => {
     try {
-        const { fileName } = req.query;
-        
+        let { fileName } = req.query;
+
         if (!fileName) {
             return res.status(400).json({ error: 'fileName parameter is required' });
         }
+
+        // Decode URL-encoded characters (like %20 for spaces)
+        fileName = decodeURIComponent(fileName);
 
         // Handle different types of image paths
         let imagePath;
@@ -36,8 +39,24 @@ router.get('/', async (req, res) => {
         // Check if file exists
         if (!fs.existsSync(imagePath)) {
             console.log('[ImageProxy] File not found:', imagePath);
-            return res.status(404).json({ error: 'Image not found' });
+            console.log('[ImageProxy] Original fileName:', req.query.fileName);
+            console.log('[ImageProxy] Decoded fileName:', fileName);
+
+            // For generated images, try to serve a placeholder
+            if (fileName.startsWith('generations/')) {
+                const placeholderPath = path.join(__dirname, '../../public/images/placeholder.png');
+                if (fs.existsSync(placeholderPath)) {
+                    console.log('[ImageProxy] Serving placeholder for missing generated image');
+                    imagePath = placeholderPath;
+                } else {
+                    return res.status(404).json({ error: 'Generated image not found', path: imagePath });
+                }
+            } else {
+                return res.status(404).json({ error: 'Image not found', path: imagePath });
+            }
         }
+
+        console.log('[ImageProxy] Serving file:', imagePath);
 
         // Get file stats
         const stat = fs.statSync(imagePath);
