@@ -199,6 +199,39 @@ app.get('/subscription', (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'subscription.html'));
 });
 
+// Additional HTML routes
+app.get('/collections', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'collections.html'));
+});
+
+app.get('/collection', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'collection.html'));
+});
+
+app.get('/prompt-templates', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'prompt-templates.html'));
+});
+
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'profile.html'));
+});
+
+app.get('/plans', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'plans.html'));
+});
+
+app.get('/generate-from-inspiration', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'generate-from-inspiration.html'));
+});
+
+app.get('/full-generator', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'full-generator.html'));
+});
+
+app.get('/filters', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'filters.html'));
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
