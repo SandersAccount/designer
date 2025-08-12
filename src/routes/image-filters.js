@@ -1,8 +1,8 @@
 import express from 'express';
 import sharp from 'sharp';
 import fetch from 'node-fetch';
-import { storage } from '../utils/storage.js';
-import { auth } from '../middleware/auth.js';
+import { storage } from '../../utils/storage.js';
+import { auth } from '../../middleware/auth.js';
 
 const router = express.Router();
 
@@ -225,3 +225,5 @@ async function applyFiltersWithSharp(imageBuffer, filters) {
 }
 
 export default router;
+
+

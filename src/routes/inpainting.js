@@ -10,9 +10,9 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const inpaintingModels = JSON.parse(
-    await fs.readFile(path.join(__dirname, '../config/inpaintingModels.json'), 'utf8')
+    await fs.readFile(path.join(__dirname, '../../config/inpaintingModels.json'), 'utf8')
 );
-import { storage } from '../utils/storage.js';
+import { storage } from '../../utils/storage.js';
 import sharp from 'sharp';
 
 const router = express.Router();
@@ -522,3 +522,5 @@ router.post('/', async (req, res) => {
 });
 
 export default router;
+
+

@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Path to the page models configuration file
-const pageModelsConfigPath = path.join(__dirname, '../config/pageModels.json');
+const pageModelsConfigPath = path.join(__dirname, '../../config/pageModels.json');
 
 // GET endpoint to return models for a specific page based on query parameter
 // Example usage: /api/page-models?page=test-template.html
@@ -43,3 +43,5 @@ router.get('/', async (req, res) => {
 });
 
 export default router;
+
+

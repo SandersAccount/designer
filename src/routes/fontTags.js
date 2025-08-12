@@ -1,6 +1,6 @@
 import express from 'express';
-import FontTag from '../models/FontTag.js';
-import { auth } from '../middleware/auth.js';
+import FontTag from '../../models/FontTag.js';
+import { auth } from '../../middleware/auth.js';
 
 const router = express.Router();
 
@@ -280,3 +280,5 @@ router.post('/migrate', auth, async (req, res) => {
 });
 
 export default router;
+
+

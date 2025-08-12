@@ -1,7 +1,7 @@
 import express from 'express';
 import AssetManager from '../services/assetManager.js';
-import Asset from '../models/Asset.js';
-import { auth } from '../middleware/auth.js';
+import Asset from '../../models/Asset.js';
+import { auth } from '../../middleware/auth.js';
 
 const router = express.Router();
 
@@ -478,7 +478,7 @@ router.get('/by-id/:assetId', async (req, res) => {
         if (asset.b2Url) {
             console.log(`[Assets] Fetching from B2 with authorization: ${asset.b2Url}`);
             try {
-                const { storage } = await import('../utils/storage.js');
+                const { storage } = await import('../../utils/storage.js');
 
                 // Ensure B2 is authorized
                 await storage.ensureAuthorized();
@@ -671,3 +671,5 @@ router.get('/:id', async (req, res) => {
 });
 
 export default router;
+
+

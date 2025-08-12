@@ -1,6 +1,6 @@
 import express from 'express';
-import { auth } from '../middleware/auth.js';
-import { ProjectFolder, Project } from '../models/index.js';
+import { auth } from '../../middleware/auth.js';
+import { ProjectFolder, Project } from '../../models/index.js';
 
 const router = express.Router();
 
@@ -265,3 +265,5 @@ router.get('/:id/projects', auth, async (req, res) => {
 });
 
 export default router;
+
+

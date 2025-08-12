@@ -1,7 +1,7 @@
 import express from 'express';
-import User from '../models/User.js';
-import Variable from '../models/Variable.js';
-import IPNNotification from '../models/IPNNotification.js';
+import User from '../../models/User.js';
+import Variable from '../../models/Variable.js';
+import IPNNotification from '../../models/IPNNotification.js';
 
 const router = express.Router();
 
@@ -414,3 +414,5 @@ router.post('/', async (req, res) => {
 });
 
 export default router;
+
+

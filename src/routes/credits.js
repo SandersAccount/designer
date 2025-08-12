@@ -1,7 +1,7 @@
 import express from 'express';
-import User from '../models/User.js';
-import { auth, adminAuth } from '../middleware/auth.js';
-import mongoose from '../config/database.js';
+import User from '../../models/User.js';
+import { auth, adminAuth } from '../../middleware/auth.js';
+import mongoose from '../../config/database.js';
 
 const router = express.Router();
 
@@ -210,3 +210,5 @@ router.post('/approve/:requestId', [auth, adminAuth], async (req, res) => {
 });
 
 export default router;
+
+

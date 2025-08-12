@@ -1,14 +1,14 @@
 import express from 'express';
-import Inspiration from '../models/Inspiration.js';
-import Generation from '../models/Generation.js';
-import User from '../models/User.js';
-import { auth } from '../middleware/auth.js';
+import Inspiration from '../../models/Inspiration.js';
+import Generation from '../../models/Generation.js';
+import User from '../../models/User.js';
+import { auth } from '../../middleware/auth.js';
 import Replicate from 'replicate';
 import { v4 as uuidv4 } from 'uuid';
 import { readFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { storage } from '../utils/storage.js';
+import { storage } from '../../utils/storage.js';
 import fetch from 'node-fetch'; // Import node-fetch
 // Removed import for performBackgroundRemoval
 
@@ -985,3 +985,5 @@ router.get('/test', (req, res) => {
 });
 
 export default router;
+
+

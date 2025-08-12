@@ -1,6 +1,6 @@
 import express from 'express';
-import { auth, adminAuth } from '../middleware/auth.js';
-import Theme from '../models/Theme.js';
+import { auth, adminAuth } from '../../middleware/auth.js';
+import Theme from '../../models/Theme.js';
 
 const router = express.Router();
 
@@ -114,3 +114,5 @@ router.post('/reorder', auth, adminAuth, async (req, res) => {
 });
 
 export default router;
+
+

@@ -1,8 +1,8 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
-import { auth } from '../middleware/auth.js';
+import User from '../../models/User.js';
+import { auth } from '../../middleware/auth.js';
 
 const router = express.Router();
 
@@ -288,3 +288,5 @@ router.get('/check-admin', auth, (req, res) => {
 });
 
 export default router;
+
+

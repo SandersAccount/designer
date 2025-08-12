@@ -1,6 +1,6 @@
 import express from 'express';
-import Variable from '../models/Variable.js';
-import { auth, adminAuth } from '../middleware/auth.js';
+import Variable from '../../models/Variable.js';
+import { auth, adminAuth } from '../../middleware/auth.js';
 
 const router = express.Router();
 
@@ -140,3 +140,5 @@ export async function initializeVariables() {
 }
 
 export default router;
+
+

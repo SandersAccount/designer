@@ -1,13 +1,13 @@
 import express from 'express';
-import { auth } from '../middleware/auth.js';
+import { auth } from '../../middleware/auth.js';
 import Replicate from 'replicate';
 import fetch from 'node-fetch';
-import { storage } from '../utils/storage.js';
-import Style from '../models/Style.js';
-import Theme from '../models/Theme.js';
-import Generation from '../models/Generation.js';
-import User from '../models/User.js';
-import PromptTemplate from '../models/PromptTemplate.js';
+import { storage } from '../../utils/storage.js';
+import Style from '../../models/Style.js';
+import Theme from '../../models/Theme.js';
+import Generation from '../../models/Generation.js';
+import User from '../../models/User.js';
+import PromptTemplate from '../../models/PromptTemplate.js';
 import { readFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -643,3 +643,5 @@ router.post('/image', auth, async (req, res) => {
 });
 
 export default router;
+
+

@@ -1,12 +1,12 @@
 import express from 'express';
-import { auth } from '../middleware/auth.js';
-import { storage } from '../utils/storage.js';
+import { auth } from '../../middleware/auth.js';
+import { storage } from '../../utils/storage.js';
 import multer from 'multer';
 import crypto from 'crypto';
 import Replicate from 'replicate';
 import fetch from 'node-fetch';
-import Generation from '../models/Generation.js'; // Import the Generation model
-import Asset from '../models/Asset.js'; // Import the Asset model
+import Generation from '../../models/Generation.js'; // Import the Generation model
+import Asset from '../../models/Asset.js'; // Import the Asset model
 
 const router = express.Router();
 const upload = multer();
@@ -187,7 +187,7 @@ router.post('/upscale', auth, async (req, res) => {
         if (generationId) {
             console.log(`[Upscale] Updating original Generation record ${generationId} for user ${req.userId}`);
             try {
-                const Generation = (await import('../models/Generation.js')).default;
+                const Generation = (await import('../../models/Generation.js')).default;
                 console.log(`[Upscale] Looking for Generation with ID: ${generationId} and userId: ${req.userId}`);
 
                 const originalGeneration = await Generation.findOne({
@@ -456,7 +456,7 @@ export async function performBackgroundRemoval(imageUrl, generationId, userId) {
 
         // --- Add the new Generation to the same Collections as the original ---
         console.log(`[BG Remove - Function] Finding collections that contain original Generation ${originalGeneration._id}...`);
-        const Collection = (await import('../models/Collection.js')).default;
+        const Collection = (await import('../../models/Collection.js')).default;
 
         const collectionsWithOriginal = await Collection.find({
             userId: userId,
@@ -556,3 +556,5 @@ router.get('/:fileName/url', auth, async (req, res) => {
 });
 
 export default router;
+
+

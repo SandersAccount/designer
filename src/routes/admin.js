@@ -1,8 +1,8 @@
 import express from 'express';
-import User from '../models/User.js';
-import { auth, adminAuth } from '../middleware/auth.js';
-import Variable from '../models/Variable.js';
-import IPNNotification from '../models/IPNNotification.js';
+import User from '../../models/User.js';
+import { auth, adminAuth } from '../../middleware/auth.js';
+import Variable from '../../models/Variable.js';
+import IPNNotification from '../../models/IPNNotification.js';
 import usersRoutes from './admin/users.js';
 import creditsRoutes from './admin/credits.js';
 import statsRoutes from './admin/stats.js';
@@ -208,3 +208,5 @@ router.post('/register', async (req, res) => {
 });
 
 export default router;
+
+

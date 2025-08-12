@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Path to the page models configuration file
-const pageModelsConfigPath = path.join(__dirname, '../config/pageModels.json');
+const pageModelsConfigPath = path.join(__dirname, '../../config/pageModels.json');
 
 // GET endpoint to display the page models configuration and a form to add/edit entries
 router.get('/page-models', async (req, res) => {
@@ -82,3 +82,5 @@ router.post('/page-models', express.urlencoded({ extended: true }), async (req, 
 });
 
 export default router;
+
+

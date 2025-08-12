@@ -1,7 +1,7 @@
 const express = require('express');
-const auth = require('../middleware/auth');
-const Tag = require('../models/Tag');
-const Image = require('../models/Image');
+const auth = require('../../middleware/auth');
+const Tag = require('../../models/Tag');
+const Image = require('../../models/Image');
 
 const router = express.Router();
 
@@ -134,3 +134,5 @@ router.get('/suggestions', auth, async (req, res) => {
 });
 
 module.exports = router;
+
+

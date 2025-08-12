@@ -1,11 +1,11 @@
 import express from 'express';
-import User from '../models/User.js';
-import { auth } from '../middleware/auth.js';
+import User from '../../models/User.js';
+import { auth } from '../../middleware/auth.js';
 import subscriptionService from '../services/subscription.js';
-import plans from '../config/plans.js';
-import { creditProducts } from '../config/credits.js';
+import plans from '../../config/plans.js';
+import { creditProducts } from '../../config/credits.js';
 import Stripe from 'stripe';
-import Variable from '../models/Variable.js';
+import Variable from '../../models/Variable.js';
 
 const router = express.Router();
 
@@ -108,3 +108,5 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 });
 
 export default router;
+
+

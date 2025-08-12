@@ -1,6 +1,6 @@
 import express from 'express';
-import { auth, adminAuth } from '../middleware/auth.js';
-import PromptTemplate from '../models/PromptTemplate.js';
+import { auth, adminAuth } from '../../middleware/auth.js';
+import PromptTemplate from '../../models/PromptTemplate.js';
 
 const router = express.Router();
 
@@ -181,3 +181,5 @@ router.delete('/:id', async (req, res) => {
 });
 
 export default router;
+
+

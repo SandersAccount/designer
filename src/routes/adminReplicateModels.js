@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Path to the replicate models configuration file
-const modelsConfigPath = path.join(__dirname, '../config/replicateModels.json');
+const modelsConfigPath = path.join(__dirname, '../../config/replicateModels.json');
 
 // GET endpoint to display the list of models and a form to add new models
 router.get('/replicate-models', async (req, res) => {
@@ -99,3 +99,5 @@ router.post('/replicate-models', express.urlencoded({ extended: true }), async (
 });
 
 export default router;
+
+

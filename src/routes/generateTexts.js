@@ -1,6 +1,6 @@
 import express from 'express';
 import Replicate from 'replicate';
-import { auth } from '../middleware/auth.js';
+import { auth } from '../../middleware/auth.js';
 
 const router = express.Router();
 
@@ -114,3 +114,5 @@ function parseTextResponse(response, expectedCount = 3) {
 }
 
 export default router;
+
+

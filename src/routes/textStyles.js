@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
-import TextStyle from '../models/TextStyle.js';
-import { auth } from '../middleware/auth.js';
+import TextStyle from '../../models/TextStyle.js';
+import { auth } from '../../middleware/auth.js';
 
 // @desc    Save a new text style
 // @route   POST /api/text-styles
@@ -154,3 +154,5 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 export default router;
+
+

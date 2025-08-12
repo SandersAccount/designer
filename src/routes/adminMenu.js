@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Paths to config and menu actions folder
-const menuConfigPath = path.join(__dirname, '../config/menuSetup.json');
+const menuConfigPath = path.join(__dirname, '../../config/menuSetup.json');
 const menuActionsDir = path.join(__dirname, '../menu-actions');
 
 // Utility function to list available actions (file names without extension)
@@ -89,3 +89,5 @@ router.post('/menu-setup', express.urlencoded({ extended: true }), async (req, r
 });
 
 export default router;
+
+

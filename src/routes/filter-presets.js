@@ -1,5 +1,5 @@
 import express from 'express';
-import FilterPreset from '../models/FilterPreset.js';
+import FilterPreset from '../../models/FilterPreset.js';
 
 const router = express.Router();
 
@@ -193,3 +193,5 @@ router.get('/:key', async (req, res) => {
 });
 
 export default router;
+
+

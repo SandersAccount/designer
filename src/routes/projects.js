@@ -1,8 +1,8 @@
 import express from 'express';
 import multer from 'multer';
 import sharp from 'sharp';
-import { auth } from '../middleware/auth.js';
-import { Project, ProjectFolder } from '../models/index.js';
+import { auth } from '../../middleware/auth.js';
+import { Project, ProjectFolder } from '../../models/index.js';
 import AssetManager from '../services/assetManager.js';
 
 const router = express.Router();
@@ -479,3 +479,5 @@ router.post('/:id/duplicate', auth, async (req, res) => {
 });
 
 export default router;
+
+

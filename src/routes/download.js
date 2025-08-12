@@ -1,7 +1,7 @@
 import express from 'express';
 import fetch from 'node-fetch';
-import { storage } from '../utils/storage.js';
-import { auth } from '../middleware/auth.js';
+import { storage } from '../../utils/storage.js';
+import { auth } from '../../middleware/auth.js';
 
 const router = express.Router();
 
@@ -66,3 +66,5 @@ router.get('/', auth, async (req, res) => {
 });
 
 export default router;
+
+

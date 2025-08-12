@@ -4,9 +4,9 @@ const router = express.Router();
 // Assuming DesignTemplate model uses module.exports, adjust if needed
 // If DesignTemplate also uses ES modules, change the import accordingly.
 // We might need to check models/DesignTemplate.js if this causes issues.
-import DesignTemplate from '../models/DesignTemplate.js';
-import { auth } from '../middleware/auth.js'; // Use the correct exported function 'auth'
-import { storage } from '../utils/storage.js';
+import DesignTemplate from '../../models/DesignTemplate.js';
+import { auth } from '../../middleware/auth.js'; // Use the correct exported function 'auth'
+import { storage } from '../../utils/storage.js';
 import AssetManager from '../services/assetManager.js';
 
 // @desc    Save a new design template
@@ -654,3 +654,5 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 export default router; // Use ES module export
+
+

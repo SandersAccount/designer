@@ -1,12 +1,12 @@
 import express from 'express';
 import multer from 'multer';
-import { auth } from '../middleware/auth.js';
-import Style from '../models/Style.js';
+import { auth } from '../../middleware/auth.js';
+import Style from '../../models/Style.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import fetch from 'node-fetch';
-import { storage as b2Storage } from '../utils/storage.js';
+import { storage as b2Storage } from '../../utils/storage.js';
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -345,3 +345,5 @@ router.get('/image/:filename', auth, async (req, res) => {
 });
 
 export default router;
+
+

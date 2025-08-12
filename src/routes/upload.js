@@ -67,3 +67,5 @@ router.post('/', upload.single('image'), async (req, res) => {
 });
 
 export default router;
+
+

@@ -1,7 +1,7 @@
 import express from 'express';
-import Inspiration from '../models/Inspiration.js'; // Keep for admin routes
-import DesignTemplate from '../models/DesignTemplate.js'; // Import DesignTemplate
-import { isAdmin, auth } from '../middleware/auth.js';
+import Inspiration from '../../models/Inspiration.js'; // Keep for admin routes
+import DesignTemplate from '../../models/DesignTemplate.js'; // Import DesignTemplate
+import { isAdmin, auth } from '../../middleware/auth.js';
 
 const router = express.Router();
 
@@ -216,3 +216,5 @@ router.delete('/:id', isAdmin, async (req, res) => {
 });
 
 export default router;
+
+

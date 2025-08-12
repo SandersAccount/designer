@@ -1,6 +1,6 @@
 import express from 'express';
-import { auth } from '../middleware/auth.js';
-import Generation from '../models/Generation.js';
+import { auth } from '../../middleware/auth.js';
+import Generation from '../../models/Generation.js';
 
 const router = express.Router();
 
@@ -139,3 +139,5 @@ router.get('/:id', auth, async (req, res) => {
 });
 
 export default router;
+
+
