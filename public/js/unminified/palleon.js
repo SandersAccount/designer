@@ -135,7 +135,13 @@
     /* LazyLoad */
     var lazyLoadInstance = new LazyLoad({
       callback_error: (img) => {
-        img.setAttribute("src", settings.baseURL + "assets/placeholder.png");
+        // Prevent infinite loop by checking if we're already trying to load placeholder
+        if (!img.src.includes('placeholder.png')) {
+          img.setAttribute("src", settings.baseURL + "assets/placeholder.png");
+        } else {
+          // If placeholder also fails, hide the image
+          img.style.display = 'none';
+        }
         $(img).parent().css("min-height", "auto");
         $(img).parent().find(".palleon-img-loader").remove();
       },

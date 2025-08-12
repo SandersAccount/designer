@@ -343,8 +343,35 @@ class ImagesLoader {
 
         img.addEventListener('error', () => {
             console.error('🖼️ Failed to load image:', imagePath);
-            img.src = '/images/placeholder.png'; // Fallback to placeholder
-            img.alt = 'Failed to load';
+
+            // Prevent infinite loop by checking if we're already trying to load placeholder
+            if (!img.src.includes('placeholder.png')) {
+                img.src = '/images/placeholder.png'; // Fallback to placeholder
+                img.alt = 'Failed to load';
+            } else {
+                // If placeholder also fails, hide the image and show an icon
+                console.error('🖼️ Placeholder image also failed to load');
+                img.style.display = 'none';
+
+                // Create a fallback icon
+                const fallbackIcon = document.createElement('div');
+                fallbackIcon.style.cssText = `
+                    width: 100%;
+                    height: 80px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: #f8fafc;
+                    color: #94a3b8;
+                    font-size: 24px;
+                    border-radius: 4px;
+                `;
+                fallbackIcon.innerHTML = '<i class="fas fa-image"></i>';
+
+                // Replace the image with the icon
+                img.parentNode.insertBefore(fallbackIcon, img);
+                img.remove();
+            }
         });
 
         // Add hover effects

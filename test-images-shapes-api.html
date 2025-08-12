@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Images & Shapes API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin: 5px 0;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+            max-height: 300px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+        }
+        .item img {
+            width: 100%;
+            height: 60px;
+            object-fit: contain;
+            border-radius: 3px;
+        }
+        .item-name {
+            font-size: 10px;
+            margin-top: 5px;
+            word-break: break-word;
+        }
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Images & Shapes API Test</h1>
+    <p>This page tests the stock images and shapes APIs and validates the response formats.</p>
+
+    <div class="two-column">
+        <div class="test-section">
+            <h3>📷 Stock Images API</h3>
+            <div id="images-status" class="status info">Testing...</div>
+            <button onclick="testImagesAPI()">🔄 Test Images API</button>
+            
+            <h4>Raw Response:</h4>
+            <pre id="images-raw-response">Click "Test Images API" to see response</pre>
+            
+            <h4>Images Grid:</h4>
+            <div id="images-grid" class="grid"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔷 Stock Shapes API</h3>
+            <div id="shapes-status" class="status info">Testing...</div>
+            <button onclick="testShapesAPI()">🔄 Test Shapes API</button>
+            
+            <h4>Raw Response:</h4>
+            <pre id="shapes-raw-response">Click "Test Shapes API" to see response</pre>
+            
+            <h4>Shapes Grid:</h4>
+            <div id="shapes-grid" class="grid"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testImagesAPI() {
+            const statusEl = document.getElementById('images-status');
+            const rawResponseEl = document.getElementById('images-raw-response');
+            const gridEl = document.getElementById('images-grid');
+            
+            statusEl.textContent = 'Testing...';
+            statusEl.className = 'status info';
+            
+            try {
+                const response = await fetch('/api/stock-images');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                rawResponseEl.textContent = JSON.stringify(data, null, 2);
+                
+                // Test the data format
+                if (data.images && Array.isArray(data.images)) {
+                    statusEl.textContent = `✅ Success! Found ${data.images.length} images and ${data.folders.length} folders`;
+                    statusEl.className = 'status success';
+                    
+                    // Render images
+                    gridEl.innerHTML = '';
+                    data.images.forEach(imageData => {
+                        const imagePath = typeof imageData === 'string' ? imageData : imageData.url || imageData.path;
+                        const imageName = imageData.name || imagePath.split('/').pop().split('.')[0];
+                        
+                        const item = document.createElement('div');
+                        item.className = 'item';
+                        item.innerHTML = `
+                            <img src="${imagePath}" alt="${imageName}" onerror="this.style.display='none'">
+                            <div class="item-name">${imageName}</div>
+                        `;
+                        gridEl.appendChild(item);
+                    });
+                } else {
+                    throw new Error('Invalid response format - missing images array');
+                }
+                
+            } catch (error) {
+                statusEl.textContent = `❌ Error: ${error.message}`;
+                statusEl.className = 'status error';
+                rawResponseEl.textContent = `Error: ${error.message}`;
+                gridEl.innerHTML = `<div class="error">Failed to load images</div>`;
+            }
+        }
+        
+        async function testShapesAPI() {
+            const statusEl = document.getElementById('shapes-status');
+            const rawResponseEl = document.getElementById('shapes-raw-response');
+            const gridEl = document.getElementById('shapes-grid');
+            
+            statusEl.textContent = 'Testing...';
+            statusEl.className = 'status info';
+            
+            try {
+                const response = await fetch('/api/stock-shapes');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                rawResponseEl.textContent = JSON.stringify(data, null, 2);
+                
+                // Test the data format
+                if (data.shapes && Array.isArray(data.shapes)) {
+                    statusEl.textContent = `✅ Success! Found ${data.shapes.length} shapes and ${data.folders.length} folders`;
+                    statusEl.className = 'status success';
+                    
+                    // Render shapes
+                    gridEl.innerHTML = '';
+                    data.shapes.forEach(shapeData => {
+                        const shapePath = typeof shapeData === 'string' ? shapeData : shapeData.url || shapeData.path;
+                        const shapeName = shapeData.name || shapePath.split('/').pop().split('.')[0];
+                        
+                        const item = document.createElement('div');
+                        item.className = 'item';
+                        item.innerHTML = `
+                            <img src="${shapePath}" alt="${shapeName}" onerror="this.style.display='none'">
+                            <div class="item-name">${shapeName}</div>
+                        `;
+                        gridEl.appendChild(item);
+                    });
+                    
+                    // Also show folders
+                    data.folders.forEach(folder => {
+                        const item = document.createElement('div');
+                        item.className = 'item';
+                        item.innerHTML = `
+                            <div style="height: 60px; display: flex; align-items: center; justify-content: center; background: #f0f0f0;">
+                                📁
+                            </div>
+                            <div class="item-name">${folder.name}</div>
+                        `;
+                        gridEl.appendChild(item);
+                    });
+                } else {
+                    throw new Error('Invalid response format - missing shapes array');
+                }
+                
+            } catch (error) {
+                statusEl.textContent = `❌ Error: ${error.message}`;
+                statusEl.className = 'status error';
+                rawResponseEl.textContent = `Error: ${error.message}`;
+                gridEl.innerHTML = `<div class="error">Failed to load shapes</div>`;
+            }
+        }
+        
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            testImagesAPI();
+            testShapesAPI();
+        });
+    </script>
+</body>
+</html>
