@@ -19,7 +19,7 @@ import fetch from 'node-fetch'; // Ensure fetch is imported for the proxy route
 dotenv.config();
 
 // Import database connection
-import './config/database.js';
+import '../config/database.js';
 
 // Import models
 import User from '../models/User.js';
