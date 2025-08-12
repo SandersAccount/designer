@@ -29,16 +29,26 @@ const storage = multer.diskStorage({
 });
 
 // Configure upload middleware
-const upload = multer({ 
+const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 5 * 2048 * 2048 // 5MB limit
+        fileSize: 10 * 1024 * 1024, // 10MB limit (increased from 5MB)
+        fieldNameSize: 300, // Increased field name size limit
+        fieldSize: 2 * 1024 * 1024, // 2MB field size limit
+        fields: 20, // Maximum number of non-file fields
+        files: 10 // Maximum number of file fields
     },
     fileFilter: function(req, file, cb) {
         // Accept images only
-        if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
             return cb(new Error('Only image files are allowed!'), false);
         }
+
+        // Check filename length (allow longer filenames)
+        if (file.originalname.length > 255) {
+            return cb(new Error('Filename too long (max 255 characters)'), false);
+        }
+
         cb(null, true);
     }
 });

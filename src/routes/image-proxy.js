@@ -38,21 +38,37 @@ router.get('/', async (req, res) => {
 
         // Check if file exists
         if (!fs.existsSync(imagePath)) {
-            console.log('[ImageProxy] File not found:', imagePath);
-            console.log('[ImageProxy] Original fileName:', req.query.fileName);
-            console.log('[ImageProxy] Decoded fileName:', fileName);
+            console.log('[ImageProxy] ⚠️  File not found:', imagePath);
+            console.log('[ImageProxy] 📝 Original fileName:', req.query.fileName);
+            console.log('[ImageProxy] 🔄 Decoded fileName:', fileName);
 
             // For generated images, try to serve a placeholder
             if (fileName.startsWith('generations/')) {
                 const placeholderPath = path.join(__dirname, '../../public/images/placeholder.png');
                 if (fs.existsSync(placeholderPath)) {
-                    console.log('[ImageProxy] Serving placeholder for missing generated image');
+                    console.log('[ImageProxy] 🖼️  Serving placeholder for missing generated image');
                     imagePath = placeholderPath;
+
+                    // Set appropriate headers for placeholder
+                    res.setHeader('X-Placeholder', 'true');
+                    res.setHeader('X-Original-File', fileName);
                 } else {
-                    return res.status(404).json({ error: 'Generated image not found', path: imagePath });
+                    console.log('[ImageProxy] ❌ Placeholder not found either!');
+                    return res.status(404).json({ error: 'Generated image not found and no placeholder available', path: imagePath });
                 }
             } else {
-                return res.status(404).json({ error: 'Image not found', path: imagePath });
+                // For other missing images, also try placeholder as fallback
+                const placeholderPath = path.join(__dirname, '../../public/images/placeholder.png');
+                if (fs.existsSync(placeholderPath)) {
+                    console.log('[ImageProxy] 🖼️  Serving placeholder for missing image');
+                    imagePath = placeholderPath;
+
+                    // Set appropriate headers for placeholder
+                    res.setHeader('X-Placeholder', 'true');
+                    res.setHeader('X-Original-File', fileName);
+                } else {
+                    return res.status(404).json({ error: 'Image not found', path: imagePath });
+                }
             }
         }
 

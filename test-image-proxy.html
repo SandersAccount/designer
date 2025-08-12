@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Proxy Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-image {
+            max-width: 200px;
+            max-height: 200px;
+            border: 1px solid #ccc;
+            margin: 10px;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin: 5px 0;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Image Proxy Test</h1>
+    <p>This page tests the image proxy functionality with various scenarios.</p>
+
+    <div class="test-section">
+        <h3>Test 1: Missing Generated Image (should show placeholder)</h3>
+        <div id="test1-status" class="status info">Testing...</div>
+        <img id="test1-img" class="test-image" 
+             src="/api/image-proxy?fileName=generations%2F675f365a9f4fa90f4b5fcea9%2F1750279453151-yhclvo.png"
+             alt="Missing generated image">
+    </div>
+
+    <div class="test-section">
+        <h3>Test 2: Missing Uploaded Image (should show placeholder)</h3>
+        <div id="test2-status" class="status info">Testing...</div>
+        <img id="test2-img" class="test-image" 
+             src="/api/image-proxy?fileName=uploads%2Fstyles%2Fnonexistent-file.png"
+             alt="Missing uploaded image">
+    </div>
+
+    <div class="test-section">
+        <h3>Test 3: Existing Image (should load normally)</h3>
+        <div id="test3-status" class="status info">Testing...</div>
+        <img id="test3-img" class="test-image" 
+             src="/api/image-proxy?fileName=images%2Fplaceholder.png"
+             alt="Existing placeholder image">
+    </div>
+
+    <div class="test-section">
+        <h3>Test 4: Image with Spaces in Filename</h3>
+        <div id="test4-status" class="status info">Testing...</div>
+        <img id="test4-img" class="test-image" 
+             src="/api/image-proxy?fileName=uploads%2Fstyles%2F1736331866594-logo-1736331866594-adsad%20(1).png"
+             alt="Image with spaces">
+    </div>
+
+    <script>
+        function setupImageTest(testNum, imgId, statusId) {
+            const img = document.getElementById(imgId);
+            const status = document.getElementById(statusId);
+            
+            img.onload = function() {
+                status.textContent = '✅ Image loaded successfully';
+                status.className = 'status success';
+                
+                // Check if it's a placeholder
+                const isPlaceholder = this.src.includes('placeholder') || 
+                                    this.naturalWidth === 80 && this.naturalHeight === 80;
+                if (isPlaceholder) {
+                    status.textContent += ' (placeholder)';
+                }
+            };
+            
+            img.onerror = function() {
+                status.textContent = '❌ Failed to load image';
+                status.className = 'status error';
+            };
+            
+            // Add a timeout to detect hanging requests
+            setTimeout(() => {
+                if (status.textContent === 'Testing...') {
+                    status.textContent = '⏱️ Request timeout (>5s)';
+                    status.className = 'status error';
+                }
+            }, 5000);
+        }
+
+        // Setup all tests
+        setupImageTest(1, 'test1-img', 'test1-status');
+        setupImageTest(2, 'test2-img', 'test2-status');
+        setupImageTest(3, 'test3-img', 'test3-status');
+        setupImageTest(4, 'test4-img', 'test4-status');
+
+        // Add some debug info
+        console.log('🧪 Image Proxy Test Page Loaded');
+        console.log('Check the Network tab to see the actual requests and responses');
+    </script>
+</body>
+</html>

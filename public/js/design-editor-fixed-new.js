@@ -26003,11 +26003,28 @@ window.fontMap = fontMap;
                                console.error(`[LoadTemplate] ❌ Image URL length: ${finalImageUrl.length} characters`);
                                console.error(`[LoadTemplate] ❌ Is base64 data URL: ${finalImageUrl.startsWith('data:')}`);
 
-                               // For very large base64 images, create a placeholder image object
-                               if (finalImageUrl.startsWith('data:') && finalImageUrl.length > 100000) {
-                                   console.warn(`[LoadTemplate] ⚠️ Creating placeholder for large base64 image (${finalImageUrl.length} chars)`);
+                               // Try to create a placeholder image object for any failed image
+                               let shouldCreatePlaceholder = false;
+                               let placeholderImageUrl = '/images/placeholder.png';
 
-                                   // Create a minimal placeholder image object
+                               // For very large base64 images
+                               if (finalImageUrl.startsWith('data:') && finalImageUrl.length > 100000) {
+                                   console.warn(`[LoadTemplate] ⚠️ Large base64 image failed (${finalImageUrl.length} chars) - using placeholder`);
+                                   shouldCreatePlaceholder = true;
+                               }
+                               // For missing generated images (from image proxy)
+                               else if (finalImageUrl.includes('/api/image-proxy') && finalImageUrl.includes('generations/')) {
+                                   console.warn(`[LoadTemplate] ⚠️ Generated image not found - using placeholder`);
+                                   shouldCreatePlaceholder = true;
+                               }
+                               // For other missing images
+                               else if (finalImageUrl.length < 1000) { // Not a base64 image
+                                   console.warn(`[LoadTemplate] ⚠️ Image file not found - using placeholder`);
+                                   shouldCreatePlaceholder = true;
+                               }
+
+                               if (shouldCreatePlaceholder) {
+                                   // Create a placeholder image object
                                    const placeholderObj = {
                                        id: objData.id ?? nextId++,
                                        type: 'image',
@@ -26016,7 +26033,8 @@ window.fontMap = fontMap;
                                        rotation: objData.rotation || 0,
                                        scale: objData.scale || 1,
                                        opacity: objData.opacity || 100,
-                                       imageUrl: finalImageUrl,
+                                       imageUrl: placeholderImageUrl,
+                                       originalImageUrl: finalImageUrl, // Keep original for reference
                                        originalWidth: objData.originalWidth || 100,
                                        originalHeight: objData.originalHeight || 100,
                                        isSelected: false,
