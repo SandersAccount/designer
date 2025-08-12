@@ -601,8 +601,8 @@
                 
                 const token = getCookie('token');
                 
-                // Save to database
-                const response = await fetch('/api/templates', {
+                // Save to database using the correct prompt templates endpoint
+                const response = await fetch('/api/prompt-templates', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -678,21 +678,35 @@
                     templatesContainer.innerHTML = '<div class="loading">Loading templates...</div>';
                 }
                 
-                // Load from database
-                const response = await fetch('/api/templates');
+                // Load from database using the correct prompt templates endpoint
+                const response = await fetch('/api/prompt-templates');
                 
                 if (!response.ok) {
                     throw new Error(`Failed to load templates from database: ${response.status} ${response.statusText}`);
                 }
                 
-                const templates = await response.json();
-                console.log('Templates loaded from database:', templates);
-                
+                const data = await response.json();
+
+                // Validate that we received an array (same logic as other template pages)
+                let templates;
+                if (Array.isArray(data)) {
+                    templates = data;
+                } else if (data && Array.isArray(data.templates)) {
+                    templates = data.templates;
+                } else if (data && data.error) {
+                    throw new Error(`API Error: ${data.error}`);
+                } else {
+                    console.error('Invalid API response format:', data);
+                    throw new Error('Invalid response format from prompt templates API');
+                }
+
+                console.log('Prompt templates loaded from database:', templates);
+
                 // Clear templates container
                 if (templatesContainer) {
                     templatesContainer.innerHTML = '';
                 }
-                
+
                 // Display templates
                 if (templates && templates.length > 0) {
                     const templatesGrid = document.createElement('div');
@@ -873,8 +887,8 @@
                 // Set editing mode
                 editingTemplateId = templateId;
 
-                // Load from database
-                const response = await fetch(`/api/templates/${templateId}`);
+                // Load from database using the correct prompt templates endpoint
+                const response = await fetch(`/api/prompt-templates/${templateId}`);
 
                 if (!response.ok) {
                     throw new Error(`Failed to load template from database: ${response.status} ${response.statusText}`);
@@ -1010,8 +1024,8 @@
                 const token = getCookie('token');
 
 
-                // Update in database
-                const response = await fetch(`/api/templates/${templateId}`, {
+                // Update in database using the correct prompt templates endpoint
+                const response = await fetch(`/api/prompt-templates/${templateId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1062,8 +1076,8 @@
                 
                 const token = getCookie('token');
                 
-                // Delete from database
-                const response = await fetch(`/api/templates/${templateId}`, {
+                // Delete from database using the correct prompt templates endpoint
+                const response = await fetch(`/api/prompt-templates/${templateId}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',

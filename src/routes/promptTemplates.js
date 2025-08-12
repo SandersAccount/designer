@@ -1,5 +1,5 @@
 import express from 'express';
-import { auth, adminAuth } from '../../middleware/auth.js';
+import { auth, adminAuth, optionalAuth } from '../../middleware/auth.js';
 import PromptTemplate from '../../models/PromptTemplate.js';
 
 const router = express.Router();
@@ -8,7 +8,7 @@ const router = express.Router();
  * Get all prompt templates
  * Public templates + user's private templates if authenticated
  */
-router.get('/', async (req, res) => {
+router.get('/', optionalAuth, async (req, res) => {
     try {
         const userId = req.userId || null;
         
@@ -53,9 +53,9 @@ router.get('/:id', async (req, res) => {
 
 /**
  * Create a new template
- * Temporarily removed auth restriction for development purposes
+ * Uses optional auth to allow both authenticated and unauthenticated users
  */
-router.post('/', async (req, res) => {
+router.post('/', optionalAuth, async (req, res) => {
     try {
         const { name, category, template, thumbnailUrl, randomOptions, isPublic, originalPalette, recommendedModel } = req.body;
 
